@@ -1,17 +1,21 @@
-﻿// Script pour la page de mot de passe oublié
-document.addEventListener('DOMContentLoaded', function() {
-    const form = document.getElementById('forgotForm');
-    
-    if (form) {
-        form.addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            const email = document.getElementById('email').value;
-            
-            console.log('Email pour récupération:', email);
-            
-            // Ici vous enverrez la demande au backend
-            alert('Un email de récupération a été envoyé !');
-        });
+﻿function changePassword() {
+    const email = document.getElementById("email").value;
+    const password = document.getElementById("password").value;
+    const confirmPassword = document.getElementById("confirmPassword").value;
+    const message = document.getElementById("message");
+
+    if (email === ""  password === ""  confirmPassword === "") {
+        message.style.color = "red";
+        message.innerText = "Please fill in all fields";
+        return;
     }
-});
+
+    if (password !== confirmPassword) {
+        message.style.color = "red";
+        message.innerText = "Passwords do not match";
+        return;
+    }
+
+    message.style.color = "green";
+    message.innerText = "Password changed successfully ✔️";
+}

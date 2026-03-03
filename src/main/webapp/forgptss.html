@@ -1,0 +1,35 @@
+﻿<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Modèle Mémoire - Mot de passe oublié</title>
+    <link rel="stylesheet" href="/css/forget.css">
+</head>
+<body>
+    <header>
+        <h1>Modèle Mémoire</h1>
+        <nav>
+            <ul>
+                <li><a href="/">Accueil</a></li>
+                <li><a href="/create">Créer</a></li>
+                <li><a href="/forgot">Mot de passe oublié</a></li>
+            </ul>
+        </nav>
+    </header>
+    
+    <main>
+        <h2>Récupération de mot de passe</h2>
+        <form id="forgotForm">
+            <div>
+                <label for="email">Email :</label>
+                <input type="email" id="email" name="email" required>
+            </div>
+            <button type="submit">Envoyer le lien de réinitialisation</button>
+        </form>
+        <p><a href="/">Retour à l'accueil</a></p>
+    </main>
+    
+    <script src="/js/forget.js"></script>
+</body>
+</html>

@@ -1,0 +1,46 @@
+﻿<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Modèle Mémoire - Créer</title>
+    <link rel="stylesheet" href="/css/create.css">
+</head>
+<body>
+    <header>
+        <h1>Modèle Mémoire</h1>
+        <nav>
+            <ul>
+                <li><a href="/">Accueil</a></li>
+                <li><a href="/create">Créer</a></li>
+                <li><a href="/forgot">Mot de passe oublié</a></li>
+            </ul>
+        </nav>
+    </header>
+    
+    <main>
+        <h2>Créer un nouveau modèle</h2>
+        <form id="createForm">
+            <div>
+                <label for="title">Titre :</label>
+                <input type="text" id="title" name="title" required>
+            </div>
+            <div>
+                <label for="description">Description :</label>
+                <textarea id="description" name="description" rows="4" required></textarea>
+            </div>
+            <div>
+                <label for="category">Catégorie :</label>
+                <select id="category" name="category">
+                    <option value="personnel">Personnel</option>
+                    <option value="professionnel">Professionnel</option>
+                    <option value="etude">Étude</option>
+                </select>
+            </div>
+            <button type="submit">Créer</button>
+        </form>
+    </main>
+    
+    <script src="/js/create.js"></script>
+</body>
+</html>

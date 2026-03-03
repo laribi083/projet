@@ -1,53 +1,52 @@
 ﻿<!DOCTYPE html>
-<html lang="fr">
+<html lang="en">
+
 <head>
     <meta charset="UTF-8">
-    <title>Change Password</title>
-    <link rel="stylesheet" href="css/forget.css">
+    <title>Forget Password</title>
+    <link rel="stylesheet" href="forget.css">
 </head>
+
 <body>
 
-<div class="container">
-    <div class="card">
-        <h2>ðŸ”’ Change Password</h2>
-        <p class="subtitle">Update password for enhanced account security.</p>
+    <div class="container">
+        <div class="signup-box">
 
-        <div class="field">
-            <label>enter your mail </label>
-            <div class="input-box">
-                <input type="email">
-               
+            <div class="gradient-top"></div>
+            <div class="gradient-small"></div>
+
+            <div class="content">
+                <h1>Forgot Password</h1>
+                <p class="subtitle">Recover your account</p>
+
+                <form id="forgetForm">
+                    <div class="input-group">
+                        <label>Email Address</label>
+                        <input type="email" id="email" placeholder="Enter your email">
+                        <div class="error-message" id="emailError">
+                            Please enter a valid email
+                        </div>
+                    </div>
+
+                    <button type="submit" class="signup-btn">
+                        Send Reset Link
+                    </button>
+                </form>
+
+                <div id="successMsg" class="success-message" style="display:none;">
+                    Reset link sent successfully
+                </div>
+
+                <div class="login-link">
+                    Back to
+                    <a href="login.html">Login</a>
+                </div>
             </div>
-        </div>
 
-        <div class="field">
-            <label>New Password *</label>
-            <div class="input-box">
-                <input type="password" id="newPassword">
-                <span class="toggle">ðŸ‘</span>
-            </div>
-        </div>
-
-        <div class="field">
-            <label>Confirm New Password *</label>
-            <div class="input-box">
-                <input type="password" id="confirmPassword">
-                <span class="toggle">ðŸ‘</span>
-            </div>
-        </div>
-
-        <div class="strength">
-            <div id="bar"></div>
-        </div>
-
-    
-
-        <div class="actions">
-            <button><a href="login.html" class="apply">Apply Changes</button>
         </div>
     </div>
-</div>
 
-<script src="js/foget.js"></script>
+    <script src="forget.js"></script>
 </body>
+
 </html>

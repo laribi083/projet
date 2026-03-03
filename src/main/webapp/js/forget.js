@@ -1,42 +1,21 @@
-const newPassword = document.getElementById("newPassword");
-const bar = document.getElementById("bar");
+const form = document.getElementById("forgotForm");
+const email = document.getElementById("email");
+const error = document.getElementById("emailError");
+const success = document.getElementById("successMsg");
 
-const upper = document.getElementById("upper");
-const number = document.getElementById("number");
-const length = document.getElementById("length");
+form.addEventListener("submit", e => {
+    e.preventDefault();
 
-newPassword.addEventListener("input", () => {
-    let value = newPassword.value;
-    let strength = 0;
+    error.style.display = "none";
+    success.style.display = "none";
+    email.classList.remove("error");
 
-    if (/[A-Z]/.test(value)) {
-        upper.textContent = "✅ At least 1 uppercase";
-        strength++;
-    } else {
-        upper.textContent = "❌ At least 1 uppercase";
+    if (email.value.trim() === "" || !email.value.includes("@")) {
+        error.style.display = "block";
+        email.classList.add("error");
+        return;
     }
 
-    if (/[0-9]/.test(value)) {
-        number.textContent = "✅ At least 1 number";
-        strength++;
-    } else {
-        number.textContent = "❌ At least 1 number";
-    }
-
-    if (value.length >= 8) {
-        length.textContent = "✅ At least 8 characters";
-        strength++;
-    } else {
-        length.textContent = "❌ At least 8 characters";
-    }
-
-    bar.style.width = (strength * 33) + "%";
-    bar.style.background = strength === 3 ? "green" : strength === 2 ? "orange" : "red";
-});
-
-document.querySelectorAll(".toggle").forEach(toggle => {
-    toggle.addEventListener("click", () => {
-        const input = toggle.previousElementSibling;
-        input.type = input.type === "password" ? "text" : "password";
-    });
+    success.style.display = "block";
+    form.reset();
 });

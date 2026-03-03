@@ -18,19 +18,18 @@ body {
     width: 100%;
     max-width: 450px;
     padding: 20px;
-    position: relative;
 }
 
 .signup-box {
     background: white;
     border-radius: 30px;
-    padding: 60px 30px;
+    padding: 70px 30px;
     position: relative;
     overflow: hidden;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
 }
 
-/* Gradients */
+/* gradients */
 .gradient-top {
     position: absolute;
     top: -120px;
@@ -56,53 +55,29 @@ body {
 .content {
     position: relative;
     z-index: 2;
-    max-width: 400px;
-    margin: auto;
+    text-align: center;
 }
 
 h1 {
-    text-align: center;
-    margin-bottom: 5px;
     color: #5e2a5e;
-    font-size: 32px;
+    font-size: 34px;
     font-weight: 700;
+    letter-spacing: 2px;
 }
 
 .subtitle {
-    text-align: center;
     color: #aaa;
     font-size: 14px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
     margin-bottom: 30px;
-    letter-spacing: 2px;
-    text-transform: uppercase;
 }
 
-.input-group {
-    margin-bottom: 20px;
-}
-
-label {
-    display: block;
-    margin-bottom: 8px;
-    font-size: 14px;
-    font-weight: 600;
-    color: #555;
-    text-transform: uppercase;
-}
-
-input {
-    width: 100%;
-    padding: 12px 15px;
-    border: none;
-    border-bottom: 2px solid #ddd;
-    border-radius: 25px;
-    background: #f8f8f8;
-    outline: none;
-}
-
-input:focus {
-    border-color: #d16ba5;
-    background: #fff;
+.welcome-text {
+    color: #666;
+    font-size: 15px;
+    line-height: 1.7;
+    margin-bottom: 40px;
 }
 
 .signup-btn {
@@ -111,16 +86,22 @@ input:focus {
     border-radius: 30px;
     border: none;
     background: linear-gradient(90deg, #d16ba5, #ff9a5a);
-    color: #fff;
+    color: white;
     font-size: 16px;
+    font-weight: 600;
     cursor: pointer;
-    margin-top: 25px;
+    transition: 0.3s;
+}
+
+.signup-btn:hover {
+    transform: translateY(-2px);
+    opacity: 0.9;
 }
 
 .login-link {
-    text-align: center;
     margin-top: 25px;
     font-size: 14px;
+    color: #666;
 }
 
 .login-link a {
@@ -129,31 +110,17 @@ input:focus {
     text-decoration: none;
 }
 
-.error-message {
-    display: none;
-    color: #e74c3c;
-    font-size: 13px;
-    margin-top: 5px;
-}
-
-input.error {
-    border-color: #e74c3c;
-    background: #fff0f0;
-}
-
-.success-message {
-    background: #4CAF50;
-    color: #fff;
-    padding: 10px;
-    border-radius: 25px;
-    text-align: center;
-    margin-top: 20px;
+.login-link a:hover {
+    color: #ff9a5a;
 }
 
 /* Responsive */
 @media (max-width: 480px) {
     .signup-box {
-        padding: 40px 20px;
+        padding: 50px 20px;
+    }
+
+    h1 {
+        font-size: 30px;
     }
 }
-

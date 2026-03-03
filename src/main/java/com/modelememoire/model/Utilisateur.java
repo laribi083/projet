@@ -1,4 +1,4 @@
-﻿package com.modelememoire.model;
+package com.modelememoire.model;
 
 public class Utilisateur {
     private int id;

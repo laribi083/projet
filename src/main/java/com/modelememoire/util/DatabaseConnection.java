@@ -1,4 +1,4 @@
-﻿package com.modelememoire.util;
+package com.modelememoire.util;
 
 import java.sql.Connection;
 import java.sql.DriverManager;

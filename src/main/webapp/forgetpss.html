@@ -1,0 +1,52 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Forget Password</title>
+    <link rel="stylesheet" href="forget.css">
+</head>
+
+<body>
+
+    <div class="container">
+        <div class="signup-box">
+
+            <div class="gradient-top"></div>
+            <div class="gradient-small"></div>
+
+            <div class="content">
+                <h1>Forgot Password</h1>
+                <p class="subtitle">Recover your account</p>
+
+                <form id="forgetForm">
+                    <div class="input-group">
+                        <label>Email Address</label>
+                        <input type="email" id="email" placeholder="Enter your email">
+                        <div class="error-message" id="emailError">
+                            Please enter a valid email
+                        </div>
+                    </div>
+
+                    <button type="submit" class="signup-btn">
+                        Send Reset Link
+                    </button>
+                </form>
+
+                <div id="successMsg" class="success-message" style="display:none;">
+                    Reset link sent successfully
+                </div>
+
+                <div class="login-link">
+                    Back to
+                    <a href="login.html">Login</a>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script src="forget.js"></script>
+</body>
+
+</html>

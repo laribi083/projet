@@ -2,42 +2,79 @@
     margin: 0;
     padding: 0;
     box-sizing: border-box;
+    font-family: 'Segoe UI', sans-serif;
 }
 
 body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    min-height: 100vh;
+    height: 100vh;
     display: flex;
     justify-content: center;
     align-items: center;
+    background: #f2f2f2;
+    margin: 0;
+    overflow: hidden;
 }
 
 .container {
     width: 100%;
     max-width: 450px;
     padding: 20px;
+    position: relative;
 }
 
 .signup-box {
     background: white;
-    border-radius: 10px;
-    padding: 40px;
-    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+    border-radius: 0px;
+    padding: 60px 30px;
+    box-shadow: none;
+    position: relative;
+    overflow: hidden;
+    width: 100%;
+}
+
+/* Cercles de gradient */
+.gradient-top {
+    position: absolute;
+    top: -120px;
+    left: -60px;
+    width: 300px;
+    height: 300px;
+    background: linear-gradient(135deg, #458ae4, #afadac);
+    border-radius: 50%;
+    z-index: 1;
+}
+
+.gradient-small {
+    position: absolute;
+    top: 40px;
+    left: 20px;
+    width: 60px;
+    height: 60px;
+    background: linear-gradient(135deg, #6a6b6d, #6ba3e2);
+    border-radius: 50%;
+    z-index: 1;
+}
+
+.content {
+    position: relative;
+    z-index: 2;
+    max-width: 400px;
+    margin: 0 auto;
+    top: 0;
 }
 
 h1 {
     text-align: center;
-    color: #333;
+    margin-bottom: 5px;
+    color: #5e2a5e;
     font-size: 32px;
     font-weight: 700;
-    margin-bottom: 5px;
     letter-spacing: 1px;
 }
 
 .subtitle {
     text-align: center;
-    color: #666;
+    color: #aaa;
     font-size: 14px;
     margin-bottom: 30px;
     text-transform: uppercase;
@@ -45,7 +82,8 @@ h1 {
 }
 
 .input-group {
-    margin-bottom: 25px;
+    margin-bottom: 20px;
+    position: relative;
 }
 
 label {
@@ -61,16 +99,18 @@ label {
 input {
     width: 100%;
     padding: 12px 15px;
-    border: 2px solid #e1e1e1;
-    border-radius: 8px;
-    font-size: 16px;
-    transition: all 0.3s ease;
+    border: none;
+    border-bottom: 2px solid #ddd;
     outline: none;
+    font-size: 14px;
+    transition: 0.3s;
+    border-radius: 25px;
+    background: #f8f8f8;
 }
 
 input:focus {
-    border-color: #667eea;
-    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    border-color: #d16ba5;
+    background: white;
 }
 
 input::placeholder {
@@ -81,21 +121,22 @@ input::placeholder {
 .signup-btn {
     width: 100%;
     padding: 14px;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
     border: none;
-    border-radius: 8px;
+    border-radius: 30px;
+    background: linear-gradient(90deg, #d16ba5, #ff9a5a);
+    color: white;
     font-size: 16px;
+    margin-top: 25px;
+    cursor: pointer;
+    transition: 0.3s;
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 1px;
-    cursor: pointer;
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
 .signup-btn:hover {
+    opacity: 0.9;
     transform: translateY(-2px);
-    box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
 }
 
 .signup-btn:active {
@@ -105,45 +146,41 @@ input::placeholder {
 .login-link {
     text-align: center;
     margin-top: 25px;
-    color: #666;
     font-size: 14px;
+    color: #666;
 }
 
 .login-link a {
-    color: #667eea;
+    color: #d16ba5;
     text-decoration: none;
     font-weight: 600;
     transition: color 0.3s ease;
 }
 
 .login-link a:hover {
-    color: #764ba2;
+    color: #ff9a5a;
     text-decoration: underline;
 }
 
-/* Styles pour les messages d'erreur */
+/* Messages d'erreur et succès */
 .error-message {
     color: #e74c3c;
     font-size: 13px;
     margin-top: 5px;
     display: none;
+    padding-left: 15px;
 }
 
 input.error {
     border-color: #e74c3c;
+    background: #fff0f0;
 }
 
-input.error:focus {
-    border-color: #e74c3c;
-    box-shadow: 0 0 0 3px rgba(231, 76, 60, 0.1);
-}
-
-/* Message de succès */
 .success-message {
     background-color: #4CAF50;
     color: white;
     padding: 10px;
-    border-radius: 5px;
+    border-radius: 25px;
     margin-top: 20px;
     text-align: center;
     animation: fadeIn 0.5s ease-in-out;
@@ -163,7 +200,21 @@ input.error:focus {
 /* Responsive */
 @media (max-width: 480px) {
     .signup-box {
-        padding: 30px 20px;
+        padding: 40px 20px;
+    }
+    
+    .gradient-top {
+        width: 200px;
+        height: 200px;
+        top: -80px;
+        left: -40px;
+    }
+    
+    .gradient-small {
+        width: 40px;
+        height: 40px;
+        top: 30px;
+        left: 10px;
     }
     
     h1 {
@@ -181,4 +232,13 @@ input.error:focus {
     .signup-btn {
         padding: 12px;
     }
+    
+}
+.signup-box {
+    background: white;
+    border-radius: 30px;  /* Augmentez cette valeur pour plus d'arrondi */
+    padding: 60px 30px;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1); /* Ajoute une ombre légère */
 }

@@ -1,13 +1,6 @@
-document.getElementById("loginForm").addEventListener("submit", function(e) {
-    e.preventDefault();
-
-    let email = document.getElementById("email").value;
-    let password = document.getElementById("password").value;
-
-    if (email === "" || password === "") {
-        alert("Please fill all fields");
-    } else {
-        alert("Login successful!\nEmail: " + email);
-        
-    }
+﻿// Script principal pour la page d'accueil
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('Page d\'accueil chargée');
+    
+    // Ajouter des interactions ici
 });

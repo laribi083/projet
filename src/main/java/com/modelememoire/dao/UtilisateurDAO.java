@@ -1,4 +1,4 @@
-﻿package com.modelememoire.dao;
+package com.modelememoire.dao;
 
 import com.modelememoire.model.Utilisateur;
 import com.modelememoire.util.DatabaseConnection;

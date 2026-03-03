@@ -1,4 +1,4 @@
-﻿package com.modelememoire.servlet;
+package com.modelememoire.servlet;
 
 import com.modelememoire.dao.UtilisateurDAO;
 import com.modelememoire.model.Utilisateur;

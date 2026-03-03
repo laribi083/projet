@@ -1,53 +1,46 @@
 ﻿<!DOCTYPE html>
 <html lang="fr">
 <head>
-
-
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Inscription Â· Design Process</title>
-    <link rel="stylesheet" href="css/create.css">
+    <title>Modèle Mémoire - Créer</title>
+    <link rel="stylesheet" href="/css/create.css">
 </head>
 <body>
-    <div class="card">
-        <div class="design-process">
-            <a href="index.html">Back to login</a>
-        </div>
-
-        <h2>Sign Up</h2>
-
-        <form id="signupForm">
-            <div class="form-group">
-                <label for="email">Email</label>
-                <input type="email" id="email" name="email" placeholder="@gmail.com" autocomplete="off">
-                <div class="error-message" id="emailError"></div>
+    <header>
+        <h1>Modèle Mémoire</h1>
+        <nav>
+            <ul>
+                <li><a href="/">Accueil</a></li>
+                <li><a href="/create">Créer</a></li>
+                <li><a href="/forgot">Mot de passe oublié</a></li>
+            </ul>
+        </nav>
+    </header>
+    
+    <main>
+        <h2>Créer un nouveau modèle</h2>
+        <form id="createForm">
+            <div>
+                <label for="title">Titre :</label>
+                <input type="text" id="title" name="title" required>
             </div>
-
-            <div class="form-group">
-                <label for="password">Password</label>
-                <input type="password" id="password" name="password" placeholder=".............·">
-                <div class="error-message" id="passwordError"></div>
+            <div>
+                <label for="description">Description :</label>
+                <textarea id="description" name="description" rows="4" required></textarea>
             </div>
-
-            <div class="form-group">
-                <label for="confirmPassword">Confirm Password</label>
-                <input type="password" id="confirmPassword" name="confirmPassword" placeholder=".................·">
-                <div class="error-message" id="confirmError"></div>
+            <div>
+                <label for="category">Catégorie :</label>
+                <select id="category" name="category">
+                    <option value="personnel">Personnel</option>
+                    <option value="professionnel">Professionnel</option>
+                    <option value="etude">Étude</option>
+                </select>
             </div>
-
-            <div class="form-group">
-                <label for="phone">Phone</label>
-                <input type="tel" id="phone" name="phone" placeholder="+213 6 12 34 56 78">
-                <div class="error-message" id="phoneError"></div>
-            </div>
-
-            <button type="submit" class="signup-btn">Sign Up</button>
+            <button type="submit">Créer</button>
         </form>
-
-        <div class="extra-links">
-            <a href="login.html">you have accounte ? login</a>
-        </div>
-    </div>
-<script src="js/create.js"></script>
+    </main>
+    
+    <script src="/js/create.js"></script>
 </body>
 </html>

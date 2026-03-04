@@ -3,6 +3,8 @@ package com.votredomaine.modelememoire.controller;
 import com.votredomaine.modelememoire.model.Utilisateur;
 import com.votredomaine.modelememoire.repository.UserRepository;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.http.ResponseEntity;  // Ajouté pour meilleur contrôle des réponses
+import java.util.Optional;  // Ajouté
 
 @RestController
 @RequestMapping("/api/inscription")
@@ -15,11 +17,16 @@ public class InscriptionController {
     }
 
     @PostMapping
-    public String inscription(@RequestBody Utilisateur utilisateur) {
-        if (userRepository.existsByEmail(utilisateur.getEmail())) {
-            return "Email already exists";
+    public ResponseEntity<String> inscription(@RequestBody Utilisateur utilisateur) {
+        // Vérifier si l'email existe déjà
+        Optional<Utilisateur> existingUser = userRepository.findByEmail(utilisateur.getEmail());
+        
+        if (existingUser.isPresent()) {
+            return ResponseEntity.badRequest().body("Email already exists");
         }
+        
+        // Sauvegarder le nouvel utilisateur
         userRepository.save(utilisateur);
-        return "Account created successfully";
+        return ResponseEntity.ok("Account created successfully");
     }
 }

@@ -1,21 +1,39 @@
-const form = document.getElementById("forgotForm");
-const email = document.getElementById("email");
-const error = document.getElementById("emailError");
-const success = document.getElementById("successMsg");
-
-form.addEventListener("submit", e => {
+document.getElementById("forgetForm").addEventListener("submit", function (e) {
     e.preventDefault();
 
-    error.style.display = "none";
-    success.style.display = "none";
-    email.classList.remove("error");
+    const email = document.getElementById("email");
+    const passwordInputs = document.querySelectorAll('input[type="password"]');
+    const password = passwordInputs[0];
+    const confirmPassword = passwordInputs[1];
 
-    if (email.value.trim() === "" || !email.value.includes("@")) {
-        error.style.display = "block";
-        email.classList.add("error");
-        return;
+    const emailError = document.getElementById("emailError");
+    const successMsg = document.getElementById("successMsg");
+    emailError.style.display = "none";
+    successMsg.style.display = "none";
+
+    let valid = true;
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email.value)) {
+        emailError.style.display = "block";
+        valid = false;
+    }
+    if (password.value.length < 6) {
+        alert("Password must be at least 6 characters");
+        valid = false;
     }
 
-    success.style.display = "block";
-    form.reset();
+    if (password.value !== confirmPassword.value) {
+        alert("Passwords do not match");
+        valid = false;
+    }
+
+
+    if (valid) {
+        successMsg.style.display = "block";
+
+    
+        email.value = "";
+        password.value = "";
+        confirmPassword.value = "";
+    }
 });

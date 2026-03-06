@@ -1,5 +1,4 @@
-<<<<<<< HEAD
-﻿function changePassword() {
+function changePassword() {
     const email = document.getElementById("email").value;
     const password = document.getElementById("password").value;
     const confirmPassword = document.getElementById("confirmPassword").value;
@@ -20,7 +19,6 @@
     message.style.color = "green";
     message.innerText = "Password changed successfully ✔️";
 }
-=======
 document.getElementById("forgetForm").addEventListener("submit", function (e) {
     e.preventDefault();
 
@@ -54,10 +52,9 @@ document.getElementById("forgetForm").addEventListener("submit", function (e) {
     if (valid) {
         successMsg.style.display = "block";
 
-    
+
         email.value = "";
         password.value = "";
         confirmPassword.value = "";
     }
 });
->>>>>>> 806e130867f956bc2f89bd5ece5a77fdba857ad0

@@ -3,7 +3,6 @@
     padding: 0;
     box-sizing: border-box;
     font-family: 'Segoe UI', sans-serif;
-<<<<<<< HEAD
 }
 
 body {
@@ -79,7 +78,6 @@ input {
     font-size: 14px;
     transition: 0.3s;
     border-radius: 25px;
-=======
 }
 
 body {
@@ -175,12 +173,10 @@ input {
     border-radius: 25px;
     background: #f8f8f8;
     outline: none;
->>>>>>> 806e130867f956bc2f89bd5ece5a77fdba857ad0
 }
 
 input:focus {
     border-color: #d16ba5;
-<<<<<<< HEAD
 }
 
 button {
@@ -205,9 +201,9 @@ button:hover {
     margin-top: 15px;
     font-size: 14px;
 }
-=======
-    background: #fff;
-}
+
+/*background: #fff;
+}*/
 
 .signup-btn {
     width: 100%;
@@ -260,5 +256,3 @@ input.error {
         padding: 40px 20px;
     }
 }
-
->>>>>>> 806e130867f956bc2f89bd5ece5a77fdba857ad0

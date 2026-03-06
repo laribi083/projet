@@ -1,11 +1,10 @@
-﻿
-<!DOCTYPE html>
-<html lang="fr">
+﻿<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="fr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Inscription - Modèle Mémoire</title>
-    <link rel="stylesheet" href="css/create.css">
+    <link rel="stylesheet" th:href="@{/css/create.css}">
 </head>
 <body>
     <div class="container">
@@ -18,7 +17,7 @@
                 <h1>SIGN UP</h1>
                 <p class="subtitle">TO CONTINUE</p>
                 
-                <form id="signupForm">
+                <form id="signupForm" th:action="@{/create}" method="post">
                     <div class="input-group">
                         <label for="username">Username</label>
                         <input type="text" id="username" name="username" placeholder="Entrez votre nom d'utilisateur" required>
@@ -37,11 +36,11 @@
                     <button type="submit" class="signup-btn">SIGN UP</button>
                 </form>
                 
-                <p class="login-link">Already have a count? <a href="login.html">Log in</a></p>
+                <p class="login-link">Already have an account? <a th:href="@{/login}">Log in</a></p>
             </div>
         </div>
     </div>
     
-    <script src="js/create.js"></script>
+    <script th:src="@{/js/create.js}"></script>
 </body>
 </html>

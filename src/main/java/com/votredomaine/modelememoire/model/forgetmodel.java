@@ -1,16 +1,17 @@
 package com.votredomaine.modelememoire.model;
 
-import javax.persistence.*;
-import java.time.LocalDateTime;  // Optionnel pour la gestion d'expiration du token
+import jakarta.persistence.*;
+import java.time.LocalDateTime;
 
-@Entity  // Ajout de l'annotation Entity manquante
+@Entity
 @Table(name = "users")
-public class forgetmodel {  // Considérer renommer en ForgetModel (convention Java)
+public class forgetmodel {  // Renommé selon les conventions Java (classe commence par majuscule)
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(nullable = false)
     private String name;
 
     @Column(unique = true, nullable = false)
@@ -21,7 +22,6 @@ public class forgetmodel {  // Considérer renommer en ForgetModel (convention J
 
     private String resetToken;
     
-    // Optionnel : ajouter une date d'expiration pour le token
     private LocalDateTime resetTokenExpiry;
 
     // Constructeur par défaut
@@ -76,12 +76,36 @@ public class forgetmodel {  // Considérer renommer en ForgetModel (convention J
         this.resetToken = resetToken;
     }
     
-    // Getter/Setter pour l'expiration (optionnel)
     public LocalDateTime getResetTokenExpiry() {
         return resetTokenExpiry;
     }
 
     public void setResetTokenExpiry(LocalDateTime resetTokenExpiry) {
         this.resetTokenExpiry = resetTokenExpiry;
+    }
+
+    // Méthode utilitaire pour vérifier si le token est expiré
+    public boolean isResetTokenExpired() {
+        if (resetTokenExpiry == null) {
+            return true;
+        }
+        return LocalDateTime.now().isAfter(resetTokenExpiry);
+    }
+
+    // Méthode pour générer un token avec expiration (à utiliser dans le service)
+    public void generateResetToken() {
+        this.resetToken = java.util.UUID.randomUUID().toString();
+        this.resetTokenExpiry = LocalDateTime.now().plusHours(24); // Token valide 24h
+    }
+
+    @Override
+    public String toString() {
+        return "ForgetModel{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", email='" + email + '\'' +
+                ", resetToken='" + resetToken + '\'' +
+                ", resetTokenExpiry=" + resetTokenExpiry +
+                '}';
     }
 }

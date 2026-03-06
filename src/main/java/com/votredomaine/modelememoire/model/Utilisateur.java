@@ -1,6 +1,6 @@
 package com.votredomaine.modelememoire.model;
-
-import javax.persistence.*;  // Changement ici : javax au lieu de jakarta
+import jakarta.persistence.*;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "utilisateurs")
@@ -10,12 +10,18 @@ public class Utilisateur {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(nullable = false)
     private String name;
 
-    @Column(unique = true)
+    @Column(unique = true, nullable = false)
     private String email;
 
+    @Column(nullable = false)
     private String password;
+
+    private String resetToken;
+    
+    private LocalDateTime resetTokenExpiry;
 
     // Constructeurs
     public Utilisateur() {}
@@ -57,5 +63,21 @@ public class Utilisateur {
 
     public void setPassword(String password) {
         this.password = password; 
+    }
+    
+    public String getResetToken() {
+        return resetToken;
+    }
+
+    public void setResetToken(String resetToken) {
+        this.resetToken = resetToken;
+    }
+    
+    public LocalDateTime getResetTokenExpiry() {
+        return resetTokenExpiry;
+    }
+
+    public void setResetTokenExpiry(LocalDateTime resetTokenExpiry) {
+        this.resetTokenExpiry = resetTokenExpiry;
     }
 }

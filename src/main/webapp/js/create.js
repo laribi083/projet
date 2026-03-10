@@ -36,7 +36,7 @@ document.addEventListener('DOMContentLoaded', function() {
         let isValid = true;
         
         // Réinitialiser les erreurs
-        ['username', 'email', 'password'].forEach(id => hideError(id));
+        ['username', 'email', 'password', 'confirmPassword'].forEach(id => hideError(id));
         
         // Valider username
         const username = document.getElementById('username').value.trim();
@@ -61,11 +61,12 @@ document.addEventListener('DOMContentLoaded', function() {
         if (password.length < 6) {
             showError('password', 'Le mot de passe doit contenir au moins 6 caractères');
             isValid = false;
-        } else if (!/[A-Z]/.test(password)) {
-            showError('password', 'Le mot de passe doit contenir au moins une majuscule');
-            isValid = false;
-        } else if (!/[0-9]/.test(password)) {
-            showError('password', 'Le mot de passe doit contenir au moins un chiffre');
+        }
+        
+        // Valider confirmation du mot de passe
+        const confirmPassword = document.getElementById('confirmPassword').value;
+        if (password !== confirmPassword) {
+            showError('confirmPassword', 'Les mots de passe ne correspondent pas');
             isValid = false;
         }
         
@@ -79,7 +80,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (validateForm()) {
             // Récupérer les données du formulaire
             const formData = {
-                username: document.getElementById('username').value.trim(),
+                name: document.getElementById('username').value.trim(),  // Note: 'name' pas 'username'
                 email: document.getElementById('email').value.trim(),
                 password: document.getElementById('password').value
             };
@@ -91,20 +92,35 @@ document.addEventListener('DOMContentLoaded', function() {
             submitBtn.disabled = true;
             
             try {
-                // Simuler un appel API
-                await simulateApiCall(formData);
+                // 🔥 APPEL API RÉEL VERS VOTRE BACKEND SPRING
+                const response = await fetch('http://localhost:8082/api/inscription', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(formData)
+                });
                 
-                // Succès
-                showSuccessMessage();
+                const responseText = await response.text();
                 
-                // Rediriger après 2 secondes
-                setTimeout(() => {
-                    window.location.href = 'login.html';
-                }, 2000);
+                if (response.ok) {
+                    // Succès
+                    console.log('✅ Inscription réussie:', responseText);
+                    showSuccessMessage('Inscription réussie ! Redirection vers la page de connexion...');
+                    
+                    // Rediriger après 2 secondes
+                    setTimeout(() => {
+                        window.location.href = '/login';
+                    }, 2000);
+                } else {
+                    // Erreur (email déjà utilisé, etc.)
+                    throw new Error(responseText || 'Erreur lors de l\'inscription');
+                }
                 
             } catch (error) {
                 // Erreur
-                alert('Erreur lors de l\'inscription: ' + error.message);
+                console.error('❌ Erreur:', error);
+                alert('Erreur: ' + error.message);
             } finally {
                 // Restaurer le bouton
                 submitBtn.textContent = originalText;
@@ -113,27 +129,15 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
     
-    // Simulation d'appel API
-    function simulateApiCall(data) {
-        return new Promise((resolve, reject) => {
-            setTimeout(() => {
-                console.log('Données envoyées:', data);
-                
-                // Simulation: email déjà utilisé
-                if (data.email === 'test@test.com') {
-                    reject(new Error('Cet email est déjà utilisé'));
-                } else {
-                    resolve({ success: true });
-                }
-            }, 1500);
-        });
-    }
-    
     // Afficher un message de succès
-    function showSuccessMessage() {
+    function showSuccessMessage(message) {
+        // Supprimer l'ancien message s'il existe
+        const oldSuccess = document.querySelector('.success-message');
+        if (oldSuccess) oldSuccess.remove();
+        
         const successDiv = document.createElement('div');
         successDiv.className = 'success-message';
-        successDiv.textContent = 'Inscription réussie ! Redirection vers la page de connexion...';
+        successDiv.textContent = message;
         
         const signupBox = document.querySelector('.signup-box');
         signupBox.appendChild(successDiv);
@@ -143,6 +147,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const usernameInput = document.getElementById('username');
     const emailInput = document.getElementById('email');
     const passwordInput = document.getElementById('password');
+    const confirmPasswordInput = document.getElementById('confirmPassword');
     
     if (usernameInput) {
         usernameInput.addEventListener('input', function() {
@@ -165,6 +170,21 @@ document.addEventListener('DOMContentLoaded', function() {
         passwordInput.addEventListener('input', function() {
             if (this.value.length >= 6) {
                 hideError('password');
+            }
+            // Vérifier aussi la confirmation si elle est déjà remplie
+            if (confirmPasswordInput && confirmPasswordInput.value) {
+                if (this.value === confirmPasswordInput.value) {
+                    hideError('confirmPassword');
+                }
+            }
+        });
+    }
+    
+    if (confirmPasswordInput) {
+        confirmPasswordInput.addEventListener('input', function() {
+            const password = document.getElementById('password').value;
+            if (this.value === password && password.length >= 6) {
+                hideError('confirmPassword');
             }
         });
     }

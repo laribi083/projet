@@ -8,21 +8,21 @@ public class HomeController {
     
     @GetMapping("/")
     public String index() {
-        return "welcom"; // Correspond à welcom.html
+        return "welcom"; 
     }
     
     @GetMapping("/create")
     public String create() {
-        return "create"; // Correspond à create.html
+        return "create"; 
     }
     
     @GetMapping("/forgot")
     public String forgot() {
-        return "forgetpss"; // Correspond à forgetpss.html (corrigé)
+        return "forgetpss"; 
     }
     
     @GetMapping("/login")
     public String login() {
-        return "login"; // Correspond à login.html
+        return "login";
     }
 }

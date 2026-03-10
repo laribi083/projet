@@ -5,8 +5,7 @@ import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "users")
-public class forgetmodel {  // Renommé selon les conventions Java (classe commence par majuscule)
-
+public class forgetmodel { 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -24,18 +23,16 @@ public class forgetmodel {  // Renommé selon les conventions Java (classe comme
     
     private LocalDateTime resetTokenExpiry;
 
-    // Constructeur par défaut
     public forgetmodel() {
     }
 
-    // Constructeur avec paramètres
+   
     public forgetmodel(String name, String email, String password) {
         this.name = name;
         this.email = email;
         this.password = password;
     }
 
-    // Getters et Setters
     public Long getId() {
         return id;
     }
@@ -84,7 +81,7 @@ public class forgetmodel {  // Renommé selon les conventions Java (classe comme
         this.resetTokenExpiry = resetTokenExpiry;
     }
 
-    // Méthode utilitaire pour vérifier si le token est expiré
+   
     public boolean isResetTokenExpired() {
         if (resetTokenExpiry == null) {
             return true;
@@ -92,7 +89,6 @@ public class forgetmodel {  // Renommé selon les conventions Java (classe comme
         return LocalDateTime.now().isAfter(resetTokenExpiry);
     }
 
-    // Méthode pour générer un token avec expiration (à utiliser dans le service)
     public void generateResetToken() {
         this.resetToken = java.util.UUID.randomUUID().toString();
         this.resetTokenExpiry = LocalDateTime.now().plusHours(24); // Token valide 24h

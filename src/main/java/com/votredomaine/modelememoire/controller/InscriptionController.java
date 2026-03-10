@@ -21,14 +21,14 @@ public class InscriptionController {
 
     @PostMapping
     public ResponseEntity<String> inscription(@RequestBody Utilisateur utilisateur) {
-        // Vérifier si l'email existe déjà
+       
         Optional<Utilisateur> existingUser = userRepository.findByEmail(utilisateur.getEmail());
         
         if (existingUser.isPresent()) {
             return ResponseEntity.badRequest().body("Email already exists");
         }
         
-        // Sauvegarder le nouvel utilisateur
+       
         userRepository.save(utilisateur);
         return ResponseEntity.ok("Account created successfully");
     }

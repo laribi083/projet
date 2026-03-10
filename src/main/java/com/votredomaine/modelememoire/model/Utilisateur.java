@@ -23,7 +23,7 @@ public class Utilisateur {
     
     private LocalDateTime resetTokenExpiry;
 
-    // Constructeurs
+   
     public Utilisateur() {}
 
     public Utilisateur(String name, String email, String password) {
@@ -32,7 +32,7 @@ public class Utilisateur {
         this.password = password;
     }
 
-    // Getters et Setters
+    
     public Long getId() { 
         return id; 
     }

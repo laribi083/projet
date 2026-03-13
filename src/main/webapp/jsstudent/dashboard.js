@@ -1,5 +1,5 @@
 // Configuration de l'API
-const API_BASE_URL = 'http://localhost:8080/api';
+const API_BASE_URL = 'http://localhost:8082/api';
 const ETUDIANT_ID = 1; // ID de Sarah (créé dans DataLoader)
 
 // Chargement des données au chargement de la page

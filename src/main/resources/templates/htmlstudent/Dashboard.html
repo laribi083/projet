@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>iheLearning - Dashboard Étudiant</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div class="dashboard">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h1 class="logo">iheLearning</h1>
+            </div>
+            
+            <div class="user-profile">
+                <div class="user-avatar">
+                    <img src="https://ui-avatars.com/api/?name=Laribi+Hadil&background=6366f1&color=fff&size=128" alt="Laribi Hadil">
+                </div>
+                <h3></h3>
+                <p class="user-role">Étudiante</p>
+            </div>
+            
+            <nav class="sidebar-nav">
+                <a href="#" class="nav-item active">
+                    <i class="fas fa-home"></i>
+                    <span>Accueil</span>
+                </a>
+                <a href="#" class="nav-item">
+                    <i class="fas fa-book"></i>
+                    <span>Mes Cours</span>
+                </a>
+                <a href="#" class="nav-item">
+                    <i class="fas fa-question-circle"></i>
+                    <span>Quiz</span>
+                </a>
+                <a href="#" class="nav-item">
+                    <i class="fas fa-chart-bar"></i>
+                    <span>Évaluations</span>
+                </a>
+                <a href="#" class="nav-item">
+                    <i class="fas fa-robot"></i>
+                    <span>Assistant IA</span>
+                </a>
+                <a href="#" class="nav-item">
+                    <i class="fas fa-calendar"></i>
+                    <span>Planning</span>
+                </a>
+                <a href="#" class="nav-item">
+                    <i class="fas fa-cog"></i>
+                    <span>Paramètres</span>
+                </a>
+            </nav>
+            
+            <div class="sidebar-footer">
+                <a href="index.html" class="logout-btn">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span>Déconnexion</span>
+                </a>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="dashboard-header">
+                <div class="header-left">
+                    <h2>Bonjour Hadil !</h2>
+                    <p class="date">Leundi, 9 Mars 2026 • Bonne journée d'étude !</p>
+                </div>
+                
+                <div class="header-right">
+                    <div class="notification-badge">
+                        <i class="fas fa-bell"></i>
+                        <span class="badge">3</span>
+                    </div>
+                    <div class="search-box">
+                        <i class="fas fa-search"></i>
+                        <input type="text" placeholder="Rechercher...">
+                    </div>
+                </div>
+            </header>
+
+            <!-- Stats Cards -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon" style="background: #e8f0fe; color: #4285f4;">
+                        <i class="fas fa-book-open"></i>
+                    </div>
+                    <div class="stat-details">
+                        <h3 id="coursActifs">6</h3>
+                        <p>Cours Actifs</p>
+                    </div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-icon" style="background: #e6f7e6; color: #0f9d58;">
+                        <i class="fas fa-check-circle"></i>
+                    </div>
+                    <div class="stat-details">
+                        <h3 id="quizCompletes">24</h3>
+                        <p>Quiz Complétés</p>
+                    </div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-icon" style="background: #fff3e0; color: #f4b400;">
+                        <i class="fas fa-star"></i>
+                    </div>
+                    <div class="stat-details">
+                        <h3 id="moyenne">15.8/20</h3>
+                        <p>Moyenne</p>
+                    </div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-icon" style="background: #fce8e8; color: #db4437;">
+                        <i class="fas fa-clock"></i>
+                    </div>
+                    <div class="stat-details">
+                        <h3 id="heuresEtude">142h</h3>
+                        <p>Heures d'Étude</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Welcome Section -->
+            <div class="welcome-section">
+                <h3>Bienvenue sur iheLearning, Sarah !</h3>
+                <p>Que souhaitez-vous faire aujourd'hui ?</p>
+            </div>
+
+            <!-- Quick Actions Grid -->
+            <div class="quick-actions-grid">
+                <div class="quick-action-card" onclick="window.location.href='#'">
+                    <div class="action-icon" style="background: #4285f4;">
+                        <i class="fas fa-download"></i>
+                    </div>
+                    <h4>Recevoir Cours</h4>
+                    <p>Accédez à vos cours et ressources pédagogiques</p>
+                </div>
+                
+                <div class="quick-action-card" onclick="window.location.href='#'">
+                    <div class="action-icon" style="background: #0f9d58;">
+                        <i class="fas fa-pencil-alt"></i>
+                    </div>
+                    <h4>Faire Quiz</h4>
+                    <p>Testez vos connaissances avec des quiz interactifs</p>
+                </div>
+                
+                <div class="quick-action-card" onclick="window.location.href='#'">
+                    <div class="action-icon" style="background: #f4b400;">
+                        <i class="fas fa-star"></i>
+                    </div>
+                    <h4>Noter Cours</h4>
+                    <p>Donnez votre avis sur les cours suivis</p>
+                </div>
+                
+                <div class="quick-action-card" onclick="window.location.href='#'">
+                    <div class="action-icon" style="background: #db4437;">
+                        <i class="fas fa-robot"></i>
+                    </div>
+                    <h4>Chatbot IA</h4>
+                    <p>Posez vos questions à notre assistant intelligent</p>
+                </div>
+                
+                <div class="quick-action-card" onclick="window.location.href='#'">
+                    <div class="action-icon" style="background: #aa00ff;">
+                        <i class="fas fa-user-cog"></i>
+                    </div>
+                    <h4>Mon Compte</h4>
+                    <p>Gérez votre profil et vos paramètres</p>
+                </div>
+            </div>
+
+            <!-- Actions Rapides Section -->
+            <div class="actions-rapides">
+                <h3>Actions Rapides</h3>
+                <div class="actions-grid">
+                    <div class="action-item" onclick="window.location.href='#'">
+                        <div class="action-content">
+                            <i class="fas fa-book"></i>
+                            <div>
+                                <h4>Mes Cours</h4>
+                                <p><span id="coursCompletes">0</span> cours complétés</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="action-item" onclick="window.location.href='#'">
+                        <div class="action-content">
+                            <i class="fas fa-question-circle"></i>
+                            <div>
+                                <h4>Quiz & Tests</h4>
+                                <p><span id="quizDisponibles">0</span> quiz disponibles</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="action-item" onclick="window.location.href='#'">
+                        <div class="action-content">
+                            <i class="fas fa-clipboard-check"></i>
+                            <div>
+                                <h4>Évaluations</h4>
+                                <p><span id="evaluationsDisponibles">0</span> évaluations disponibles</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="action-item" onclick="window.location.href='#'">
+                        <div class="action-content">
+                            <i class="fas fa-robot"></i>
+                            <div>
+                                <h4>Assistant IA</h4>
+                                <p><span id="questionsDisponibles">0</span> questions disponibles</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Courses -->
+            <div class="recent-courses">
+                <div class="section-header">
+                    <h3>Cours Récents</h3>
+                    <a href="#" class="view-all">Voir tout <i class="fas fa-arrow-right"></i></a>
+                </div>
+                <div class="courses-grid" id="coursesContainer">
+                    <!-- Courses will be loaded here via JavaScript -->
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

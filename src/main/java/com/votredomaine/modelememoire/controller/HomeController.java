@@ -21,8 +21,4 @@ public class HomeController {
         return "forgetpss"; 
     }
     
-    @GetMapping("/login")
-    public String login() {
-        return "login";
-    }
 }

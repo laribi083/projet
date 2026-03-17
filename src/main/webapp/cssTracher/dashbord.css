@@ -162,3 +162,69 @@ body > div:last-child button:last-child {
     background: #3b82f6;
     color: #fff;
 }
+/* Delete Modal Background */
+.delete-modal {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.45);
+    display: none; /* خليها none و JS يفتحها */
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+
+/* Modal Box */
+.delete-box {
+    background: #fff;
+    width: 420px;
+    padding: 24px;
+    border-radius: 12px;
+}
+
+/* Title */
+.delete-box h3 {
+    font-size: 18px;
+    margin-bottom: 12px;
+}
+
+/* Texts */
+.warning-text {
+    font-size: 15px;
+    margin-bottom: 8px;
+}
+
+.danger-text {
+    font-size: 14px;
+    color: #6b7280;
+    margin-bottom: 20px;
+}
+
+/* Actions */
+.delete-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+}
+
+/* Buttons */
+.btn-cancel {
+    background: #e5e7eb;
+    color: #111;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+.btn-delete {
+    background: #dc2626;
+    color: #fff;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+.btn-delete:hover {
+    background: #b91c1c;
+}

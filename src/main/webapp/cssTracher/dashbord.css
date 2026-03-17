@@ -1,0 +1,164 @@
+/* Reset */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: "Segoe UI", Arial, sans-serif;
+}
+
+body {
+    background-color: #f5f7fb;
+    color: #333;
+}
+
+
+header {
+    background: #fff;
+    padding: 20px 40px;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+header strong {
+    font-size: 20px;
+}
+
+header p {
+    font-size: 14px;
+    color: #6b7280;
+    margin-top: 4px;
+}
+
+
+main {
+    padding: 40px;
+}
+
+
+main > div:first-child {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 25px;
+}
+
+main h2 {
+    font-size: 22px;
+}
+
+main button {
+    background-color: #3b82f6;
+    color: #fff;
+    border: none;
+    padding: 10px 16px;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+main button:hover {
+    background-color: #2563eb;
+}
+
+
+main > div:nth-child(2) {
+    background: #fff;
+    padding: 25px;
+    border-radius: 12px;
+}
+
+
+main > div:nth-child(2) > div {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border: 1px solid #e5e7eb;
+    padding: 16px;
+    border-radius: 10px;
+}
+
+
+main > div:nth-child(2) > div > div:first-child {
+    display: flex;
+    gap: 12px;
+}
+
+main span {
+    font-size: 26px;
+}
+
+main h4 {
+    font-size: 16px;
+    margin-bottom: 4px;
+}
+
+main p {
+    font-size: 14px;
+    color: #6b7280;
+}
+
+
+main > div:nth-child(2) > div > div:last-child {
+    display: flex;
+    gap: 12px;
+}
+
+main > div:nth-child(2) button {
+    background: none;
+    border: none;
+    font-size: 18px;
+    cursor: pointer;
+}
+
+main > div:nth-child(2) button:hover {
+    transform: scale(1.1);
+}
+
+
+body > div:last-child {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.4);
+    display: none;
+    align-items: center;
+    justify-content: center;
+}
+
+body > div:last-child > div {
+    background: #fff;
+    width: 350px;
+    padding: 25px;
+    border-radius: 12px;
+}
+
+body > div:last-child h3 {
+    margin-bottom: 15px;
+}
+
+body > div:last-child input,
+body > div:last-child textarea {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 12px;
+    border-radius: 6px;
+    border: 1px solid #d1d5db;
+}
+
+body > div:last-child textarea {
+    resize: none;
+    height: 80px;
+}
+
+body > div:last-child > div > div {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+}
+
+body > div:last-child button:first-child {
+    background: #e5e7eb;
+    color: #333;
+}
+
+body > div:last-child button:last-child {
+    background: #3b82f6;
+    color: #fff;
+}

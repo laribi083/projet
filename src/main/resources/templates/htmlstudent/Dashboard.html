@@ -68,7 +68,7 @@
         <main class="main-content">
             <header class="dashboard-header">
                 <div class="header-left">
-                    <h2 th:text="'Bonjour ' + ${#strings.substringBefore(session.userName, ' ')} + ' !'">Bonjour Hadil !</h2>
+                    <h2 th:text="'Hello ' + ${#strings.substringBefore(session.userName, ' ')} + ' !'">Hello Hadil !</h2>
                     <p class="date">Monday, March 9, 2026 • Have a great study day!</p>
                 </div>
                 
@@ -225,8 +225,8 @@
             <!-- Recent Courses -->
             <div class="recent-courses">
                 <div class="section-header">
-                    <h3>Cours Récents</h3>
-                    <a href="#" class="view-all">Voir tout <i class="fas fa-arrow-right"></i></a>
+                    <h3>Recent Courses</h3>
+                    <a href="#" class="view-all">View All <i class="fas fa-arrow-right"></i></a>
                 </div>
                 <div class="courses-grid" id="coursesContainer">
                     <!-- Courses will be loaded here via JavaScript -->

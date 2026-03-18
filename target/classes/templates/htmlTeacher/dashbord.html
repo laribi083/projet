@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Teacher Dashboard</title>
+</head>
+
+<body>
+
+<header>
+    🎓 <strong>Teacher Dashboard</strong>
+    <p>Manage courses and create quizzes for students</p>
+</header>
+
+<main>
+
+    <h2>Courses</h2>
+
+  
+    <div class="course-card">
+        <div>
+            <strong>📘 hhh</strong>
+            <p>kk</p>
+        </div>
+
+        <div>
+            <button><a href=quiz.html>📘</a></button>
+            <button>✏️</button>
+            <button class="delete-course-btn">🗑</button>
+        </div>
+    </div>
+
+</main>
+
+
+<div class="delete-modal" id="deleteModal">
+    <div class="delete-box">
+        <h3>Delete Course</h3>
+
+        <p>
+            Are you sure you want to delete <strong>"hhh"</strong>?
+        </p>
+
+        <p>
+            All associated quizzes will also be deleted.
+            This action cannot be undone.
+        </p>
+
+        <div class="delete-actions">
+            <button class="btn-cancel" id="cancelBtn">Cancel</button>
+            <button class="btn-delete">Delete</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    const deleteBtn = document.querySelector(".delete-course-btn");
+    const modal = document.getElementById("deleteModal");
+    const cancelBtn = document.getElementById("cancelBtn");
+
+    deleteBtn.addEventListener("click", () => {
+        modal.style.display = "flex";
+    });
+
+    cancelBtn.addEventListener("click", () => {
+        modal.style.display = "none";
+    });
+</script>
+
+</body>
+</html>

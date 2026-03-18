@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Welcome</title>
+    <link rel="stylesheet" th:href="@{/css/welcom.css}">
+</head>
+<body>
+    <div class="container">
+        <div class="signup-box">
+            <div class="gradient-top"></div>
+            <div class="gradient-small"></div>
+
+            <div class="content welcome">
+                <h1>WELCOME</h1>
+                <p class="subtitle">On board</p>
+
+                <p class="welcome-text">
+                    Create your account
+                </p>
+
+                <button class="signup-btn" onclick="window.location.href='/create'">
+                    Sign Up
+                </button>
+
+                <div class="login-link">
+                    Already have an account?
+                    <a th:href="@{/login}">Log in</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script th:src="@{/js/welcom.js}"></script>
+</body>
+</html>

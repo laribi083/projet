@@ -3,335 +3,176 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>1st year - Brainlearning</title>
-    <link rel="stylesheet" th:href="@{/cssstudent/cssinterface.css}">
+    <title>1st year - BrainLearning</title>
+    <link rel="stylesheet" th:href="@{/cssstudent/interface1er.css}">
 </head>
 <body>
-    <div class="main-container">
-        <!-- En-tête avec informations de progression -->
-        <div class="header-section">
-            <a th:href="@{/niveux}" class="back-button">
-                ← Retour à l'accueil
-            </a>
-            <div class="progress-bar-container">
-                <div class="progress-info">
-                    <span>📊 Progression globale</span>
-                    <span class="progress-percentage" th:text="${progress} + '%'">0%</span>
-                </div>
-                <div class="progress-bar">
-                    <div class="progress-fill" th:style="'width: ' + ${progress} + '%'"></div>
-                </div>
-            </div>
-            <form th:action="@{/interface1er/reset}" method="post">
-                <button type="submit" class="reset-button">🔄 Réinitialiser</button>
-            </form>
+    <div class="container">
+        <div class="header">
+            <a th:href="@{/niveux}" class="back-button">← Retour à l'accueil</a>
+            <h1>🎓 1st year - Brainlearning</h1>
+            <p>Complete program over 2 semesters | 10 modules to be validated</p>
         </div>
 
-        <!-- Titre de la page -->
-        <div class="page-title">
-            <h1>🎓 1ère année - Développement Web</h1>
-            <p>Fondamentaux du développement web | 10 modules à valider</p>
-        </div>
-
-        <!-- Grille des modules (10 blocs) -->
-        <div class="modules-grid">
-            
-            <!-- Bloc Module 1 - HTML5 -->
-            <div class="module-card" th:classappend="${modules[0].completed} ? 'completed' : ''">
-                <div class="module-header">
-                    <div class="module-icon">📄</div>
-                    <div class="module-number">Module 01</div>
-                    <div class="module-status">
-                        <span class="status-badge" 
-                              th:class="${modules[0].completed} ? 'status-badge completed' : 'status-badge not-started'"
-                              th:text="${modules[0].completed} ? '✅ Complété' : 'Non commencé'">
-                        </span>
-                    </div>
-                </div>
-                <div class="module-content">
-                    <h3 th:text="${modules[0].title}">HTML5 - Structure du Web</h3>
-                    <p th:text="${modules[0].description}">Apprenez à créer la structure de base des pages web avec HTML5.</p>
-                    <div class="module-details">
-                        <span class="detail-item" th:text="'⏱️ ' + ${modules[0].duree}">⏱️ 8 heures</span>
-                        <span class="detail-item" th:text="'📹 ' + ${modules[0].videos} + ' vidéos'">📹 12 vidéos</span>
-                        <span class="detail-item" th:text="'✏️ ' + ${modules[0].exercices} + ' exercices'">✏️ 3 exercices</span>
-                    </div>
-                </div>
-                <div class="module-footer">
-                    <!-- Bouton qui redirige vers la page de cours du module -->
-                    <a th:href="@{/cours/module/1}" class="btn-course">
-                        📖 Accéder au cours →
-                    </a>
-                </div>
+        <!-- ========== SEMESTRE 1 ========== -->
+        <div class="semestre-section">
+            <div class="semestre-title">
+                <h2>📘 Semestre 1 <span class="semestre-badge">Fundamentals</span></h2>
             </div>
+            <div class="modules-grid">
+                
+                <!-- Module 1 - Algebra -->
+                <div class="module-card module-algebra">
+                    <div class="module-header">
+                        <div class="module-number">Module 01</div>
+                        <div class="module-title">Algebra</div>
+                    </div>
+                    <div class="module-content">
+                        <div class="module-icon">📐</div>
+                        <div class="module-description">Étude des structures algébriques, équations, polynômes et matrices</div>
+                        <div class="module-duration">⏱️ 8 heures | 12 vidéos</div>
+                        <a th:href="@{/cours/module/1}" class="btn-module">Accéder au cours →</a>
+                    </div>
+                </div>
 
-            <!-- Bloc Module 2 - CSS3 -->
-            <div class="module-card" th:classappend="${modules[1].completed} ? 'completed' : ''">
-                <div class="module-header">
-                    <div class="module-icon">🎨</div>
-                    <div class="module-number">Module 02</div>
-                    <div class="module-status">
-                        <span class="status-badge" 
-                              th:class="${modules[1].completed} ? 'status-badge completed' : 'status-badge not-started'"
-                              th:text="${modules[1].completed} ? '✅ Complété' : 'Non commencé'">
-                        </span>
+                <!-- Module 2 - Analyses -->
+                <div class="module-card module-analyses">
+                    <div class="module-header">
+                        <div class="module-number">Module 02</div>
+                        <div class="module-title">Analyses</div>
+                    </div>
+                    <div class="module-content">
+                        <div class="module-icon">📊</div>
+                        <div class="module-description">Analyse mathématique, limites, dérivées, intégrales et suites</div>
+                        <div class="module-duration">⏱️ 12 heures | 18 vidéos</div>
+                        <a th:href="@{/cours/module/2}" class="btn-module">Accéder au cours →</a>
                     </div>
                 </div>
-                <div class="module-content">
-                    <h3 th:text="${modules[1].title}">CSS3 - Style et Design</h3>
-                    <p th:text="${modules[1].description}">Maîtrisez les feuilles de style pour donner vie à vos pages.</p>
-                    <div class="module-details">
-                        <span class="detail-item" th:text="'⏱️ ' + ${modules[1].duree}">⏱️ 12 heures</span>
-                        <span class="detail-item" th:text="'📹 ' + ${modules[1].videos} + ' vidéos'">📹 18 vidéos</span>
-                        <span class="detail-item" th:text="'✏️ ' + ${modules[1].exercices} + ' exercices'">✏️ 5 exercices</span>
-                    </div>
-                </div>
-                <div class="module-footer">
-                    <a th:href="@{/cours/module/2}" class="btn-course">
-                        📖 Accéder au cours →
-                    </a>
-                </div>
-            </div>
 
-            <!-- Bloc Module 3 - JavaScript Fondamentaux -->
-            <div class="module-card" th:classappend="${modules[2].completed} ? 'completed' : ''">
-                <div class="module-header">
-                    <div class="module-icon">⚡</div>
-                    <div class="module-number">Module 03</div>
-                    <div class="module-status">
-                        <span class="status-badge" 
-                              th:class="${modules[2].completed} ? 'status-badge completed' : 'status-badge not-started'"
-                              th:text="${modules[2].completed} ? '✅ Complété' : 'Non commencé'">
-                        </span>
+                <!-- Module 3 - Analyses2 -->
+                <div class="module-card module-analyses2">
+                    <div class="module-header">
+                        <div class="module-number">Module 03</div>
+                        <div class="module-title">Analyses 2</div>
+                    </div>
+                    <div class="module-content">
+                        <div class="module-icon">📈</div>
+                        <div class="module-description">Analyse avancée, équations différentielles, séries et fonctions complexes</div>
+                        <div class="module-duration">⏱️ 15 heures | 22 vidéos</div>
+                        <a th:href="@{/cours/module/3}" class="btn-module">Accéder au cours →</a>
                     </div>
                 </div>
-                <div class="module-content">
-                    <h3 th:text="${modules[2].title}">JavaScript - Fondamentaux</h3>
-                    <p th:text="${modules[2].description}">Introduction à la programmation avec JavaScript.</p>
-                    <div class="module-details">
-                        <span class="detail-item" th:text="'⏱️ ' + ${modules[2].duree}">⏱️ 15 heures</span>
-                        <span class="detail-item" th:text="'📹 ' + ${modules[2].videos} + ' vidéos'">📹 22 vidéos</span>
-                        <span class="detail-item" th:text="'✏️ ' + ${modules[2].exercices} + ' exercices'">✏️ 8 exercices</span>
-                    </div>
-                </div>
-                <div class="module-footer">
-                    <a th:href="@{/cours/module/3}" class="btn-course">
-                        📖 Accéder au cours →
-                    </a>
-                </div>
-            </div>
 
-            <!-- Bloc Module 4 - Git & GitHub -->
-            <div class="module-card" th:classappend="${modules[3].completed} ? 'completed' : ''">
-                <div class="module-header">
-                    <div class="module-icon">🔧</div>
-                    <div class="module-number">Module 04</div>
-                    <div class="module-status">
-                        <span class="status-badge" 
-                              th:class="${modules[3].completed} ? 'status-badge completed' : 'status-badge not-started'"
-                              th:text="${modules[3].completed} ? '✅ Complété' : 'Non commencé'">
-                        </span>
+                <!-- Module 4 - Advanced Structure of Data -->
+                <div class="module-card module-structure">
+                    <div class="module-header">
+                        <div class="module-number">Module 04</div>
+                        <div class="module-title">Advanced Structure of Data</div>
+                    </div>
+                    <div class="module-content">
+                        <div class="module-icon">🗂️</div>
+                        <div class="module-description">Structures de données avancées : arbres, graphes, tables de hachage</div>
+                        <div class="module-duration">⏱️ 6 heures | 10 vidéos</div>
+                        <a th:href="@{/cours/module/4}" class="btn-module">Accéder au cours →</a>
                     </div>
                 </div>
-                <div class="module-content">
-                    <h3 th:text="${modules[3].title}">Git & GitHub - Versionnement</h3>
-                    <p th:text="${modules[3].description}">Apprenez à gérer vos projets avec Git.</p>
-                    <div class="module-details">
-                        <span class="detail-item" th:text="'⏱️ ' + ${modules[3].duree}">⏱️ 6 heures</span>
-                        <span class="detail-item" th:text="'📹 ' + ${modules[3].videos} + ' vidéos'">📹 10 vidéos</span>
-                        <span class="detail-item" th:text="'✏️ ' + ${modules[3].exercices} + ' exercices'">✏️ 4 exercices</span>
-                    </div>
-                </div>
-                <div class="module-footer">
-                    <a th:href="@{/cours/module/4}" class="btn-course">
-                        📖 Accéder au cours →
-                    </a>
-                </div>
-            </div>
 
-            <!-- Bloc Module 5 - Responsive Design -->
-            <div class="module-card" th:classappend="${modules[4].completed} ? 'completed' : ''">
-                <div class="module-header">
-                    <div class="module-icon">📱</div>
-                    <div class="module-number">Module 05</div>
-                    <div class="module-status">
-                        <span class="status-badge" 
-                              th:class="${modules[4].completed} ? 'status-badge completed' : 'status-badge not-started'"
-                              th:text="${modules[4].completed} ? '✅ Complété' : 'Non commencé'">
-                        </span>
+                <!-- Module 5 - Advanced Structure of Data 2 -->
+                <div class="module-card module-structure2">
+                    <div class="module-header">
+                        <div class="module-number">Module 05</div>
+                        <div class="module-title">Advanced Structure of Data 2</div>
                     </div>
-                </div>
-                <div class="module-content">
-                    <h3 th:text="${modules[4].title}">Responsive Design</h3>
-                    <p th:text="${modules[4].description}">Créez des sites adaptés à tous les écrans.</p>
-                    <div class="module-details">
-                        <span class="detail-item" th:text="'⏱️ ' + ${modules[4].duree}">⏱️ 10 heures</span>
-                        <span class="detail-item" th:text="'📹 ' + ${modules[4].videos} + ' vidéos'">📹 14 vidéos</span>
-                        <span class="detail-item" th:text="'✏️ ' + ${modules[4].exercices} + ' exercices'">✏️ 4 exercices</span>
+                    <div class="module-content">
+                        <div class="module-icon">🏗️</div>
+                        <div class="module-description">Algorithmes avancés, optimisation et complexité des structures</div>
+                        <div class="module-duration">⏱️ 10 heures | 14 vidéos</div>
+                        <a th:href="@{/cours/module/5}" class="btn-module">Accéder au cours →</a>
                     </div>
-                </div>
-                <div class="module-footer">
-                    <a th:href="@{/cours/module/5}" class="btn-course">
-                        📖 Accéder au cours →
-                    </a>
-                </div>
-            </div>
-
-            <!-- Bloc Module 6 - Bootstrap -->
-            <div class="module-card" th:classappend="${modules[5].completed} ? 'completed' : ''">
-                <div class="module-header">
-                    <div class="module-icon">🚀</div>
-                    <div class="module-number">Module 06</div>
-                    <div class="module-status">
-                        <span class="status-badge" 
-                              th:class="${modules[5].completed} ? 'status-badge completed' : 'status-badge not-started'"
-                              th:text="${modules[5].completed} ? '✅ Complété' : 'Non commencé'">
-                        </span>
-                    </div>
-                </div>
-                <div class="module-content">
-                    <h3 th:text="${modules[5].title}">Bootstrap Framework</h3>
-                    <p th:text="${modules[5].description}">Accélérez votre développement avec Bootstrap 5.</p>
-                    <div class="module-details">
-                        <span class="detail-item" th:text="'⏱️ ' + ${modules[5].duree}">⏱️ 8 heures</span>
-                        <span class="detail-item" th:text="'📹 ' + ${modules[5].videos} + ' vidéos'">📹 10 vidéos</span>
-                        <span class="detail-item" th:text="'✏️ ' + ${modules[5].exercices} + ' exercices'">✏️ 3 exercices</span>
-                    </div>
-                </div>
-                <div class="module-footer">
-                    <a th:href="@{/cours/module/6}" class="btn-course">
-                        📖 Accéder au cours →
-                    </a>
-                </div>
-            </div>
-
-            <!-- Bloc Module 7 - JavaScript Avancé -->
-            <div class="module-card" th:classappend="${modules[6].completed} ? 'completed' : ''">
-                <div class="module-header">
-                    <div class="module-icon">🔷</div>
-                    <div class="module-number">Module 07</div>
-                    <div class="module-status">
-                        <span class="status-badge" 
-                              th:class="${modules[6].completed} ? 'status-badge completed' : 'status-badge not-started'"
-                              th:text="${modules[6].completed} ? '✅ Complété' : 'Non commencé'">
-                        </span>
-                    </div>
-                </div>
-                <div class="module-content">
-                    <h3 th:text="${modules[6].title}">JavaScript Avancé</h3>
-                    <p th:text="${modules[6].description}">Approfondissez vos connaissances JavaScript.</p>
-                    <div class="module-details">
-                        <span class="detail-item" th:text="'⏱️ ' + ${modules[6].duree}">⏱️ 14 heures</span>
-                        <span class="detail-item" th:text="'📹 ' + ${modules[6].videos} + ' vidéos'">📹 20 vidéos</span>
-                        <span class="detail-item" th:text="'✏️ ' + ${modules[6].exercices} + ' exercices'">✏️ 6 exercices</span>
-                    </div>
-                </div>
-                <div class="module-footer">
-                    <a th:href="@{/cours/module/7}" class="btn-course">
-                        📖 Accéder au cours →
-                    </a>
-                </div>
-            </div>
-
-            <!-- Bloc Module 8 - SEO & Accessibilité -->
-            <div class="module-card" th:classappend="${modules[7].completed} ? 'completed' : ''">
-                <div class="module-header">
-                    <div class="module-icon">♿</div>
-                    <div class="module-number">Module 08</div>
-                    <div class="module-status">
-                        <span class="status-badge" 
-                              th:class="${modules[7].completed} ? 'status-badge completed' : 'status-badge not-started'"
-                              th:text="${modules[7].completed} ? '✅ Complété' : 'Non commencé'">
-                        </span>
-                    </div>
-                </div>
-                <div class="module-content">
-                    <h3 th:text="${modules[7].title}">SEO & Accessibilité</h3>
-                    <p th:text="${modules[7].description}">Optimisez vos sites pour les moteurs de recherche.</p>
-                    <div class="module-details">
-                        <span class="detail-item" th:text="'⏱️ ' + ${modules[7].duree}">⏱️ 6 heures</span>
-                        <span class="detail-item" th:text="'📹 ' + ${modules[7].videos} + ' vidéos'">📹 8 vidéos</span>
-                        <span class="detail-item" th:text="'✏️ ' + ${modules[7].exercices} + ' exercices'">✏️ 3 exercices</span>
-                    </div>
-                </div>
-                <div class="module-footer">
-                    <a th:href="@{/cours/module/8}" class="btn-course">
-                        📖 Accéder au cours →
-                    </a>
-                </div>
-            </div>
-
-            <!-- Bloc Module 9 - Projet Portfolio -->
-            <div class="module-card" th:classappend="${modules[8].completed} ? 'completed' : ''">
-                <div class="module-header">
-                    <div class="module-icon">🏆</div>
-                    <div class="module-number">Module 09</div>
-                    <div class="module-status">
-                        <span class="status-badge" 
-                              th:class="${modules[8].completed} ? 'status-badge completed' : 'status-badge not-started'"
-                              th:text="${modules[8].completed} ? '✅ Complété' : 'Non commencé'">
-                        </span>
-                    </div>
-                </div>
-                <div class="module-content">
-                    <h3 th:text="${modules[8].title}">Projet - Portfolio Personnel</h3>
-                    <p th:text="${modules[8].description}">Créez votre premier portfolio professionnel.</p>
-                    <div class="module-details">
-                        <span class="detail-item" th:text="'⏱️ ' + ${modules[8].duree}">⏱️ 20 heures</span>
-                        <span class="detail-item" th:text="'📹 ' + ${modules[8].videos} + ' vidéos'">📹 5 vidéos</span>
-                        <span class="detail-item">📝 1 projet</span>
-                    </div>
-                </div>
-                <div class="module-footer">
-                    <a th:href="@{/cours/module/9}" class="btn-course">
-                        📖 Accéder au projet →
-                    </a>
-                </div>
-            </div>
-
-            <!-- Bloc Module 10 - Evaluation Finale -->
-            <div class="module-card" th:classappend="${modules[9].completed} ? 'completed' : ''">
-                <div class="module-header">
-                    <div class="module-icon">🎯</div>
-                    <div class="module-number">Module 10</div>
-                    <div class="module-status">
-                        <span class="status-badge" 
-                              th:class="${modules[9].completed} ? 'status-badge completed' : 'status-badge not-started'"
-                              th:text="${modules[9].completed} ? '✅ Complété' : 'Non commencé'">
-                        </span>
-                    </div>
-                </div>
-                <div class="module-content">
-                    <h3 th:text="${modules[9].title}">Évaluation Finale</h3>
-                    <p th:text="${modules[9].description}">Testez vos connaissances avec un examen complet.</p>
-                    <div class="module-details">
-                        <span class="detail-item" th:text="'⏱️ ' + ${modules[9].duree}">⏱️ 4 heures</span>
-                        <span class="detail-item">📝 QCM 50 questions</span>
-                        <span class="detail-item">🏅 Certification</span>
-                    </div>
-                </div>
-                <div class="module-footer">
-                    <a th:href="@{/cours/module/10}" class="btn-course">
-                        📖 Commencer l'évaluation →
-                    </a>
                 </div>
             </div>
         </div>
 
-        <!-- Section statistiques -->
-        <div class="completion-section">
-            <div class="completion-stats">
-                <div class="stat-card">
-                    <div class="stat-number" th:text="${completedCount}">0</div>
-                    <div class="stat-label">Modules complétés</div>
+        <!-- Séparateur décoratif -->
+        <div class="separator">
+            <span>✨ Transition ✨</span>
+        </div>
+
+        <!-- ========== SEMESTRE 2 ========== -->
+        <div class="semestre-section">
+            <div class="semestre-title">
+                <h2>📗 Semestre 2 <span class="semestre-badge">Advance</span></h2>
+            </div>
+            <div class="modules-grid">
+                
+                <!-- Module 6 - Courses1 -->
+                <div class="module-card module-courses">
+                    <div class="module-header">
+                        <div class="module-number">Module 06</div>
+                        <div class="module-title">Courses 1</div>
+                    </div>
+                    <div class="module-content">
+                        <div class="module-icon">🎯</div>
+                        <div class="module-description">Introduction aux algorithmes de recherche et de tri</div>
+                        <div class="module-duration">⏱️ 8 heures | 10 vidéos</div>
+                        <a th:href="@{/cours/module/6}" class="btn-module">Accéder au cours →</a>
+                    </div>
                 </div>
-                <div class="stat-card">
-                    <div class="stat-number" th:text="${hoursCompleted}">0</div>
-                    <div class="stat-label">Heures de formation</div>
+
+                <!-- Module 7 - AI -->
+                <div class="module-card module-ai">
+                    <div class="module-header">
+                        <div class="module-number">Module 07</div>
+                        <div class="module-title">AI - Intelligence Artificielle</div>
+                    </div>
+                    <div class="module-content">
+                        <div class="module-icon">🤖</div>
+                        <div class="module-description">Fondamentaux de l'IA, machine learning, réseaux de neurones</div>
+                        <div class="module-duration">⏱️ 14 heures | 20 vidéos</div>
+                        <a th:href="@{/cours/module/7}" class="btn-module">Accéder au cours →</a>
+                    </div>
                 </div>
-                <div class="stat-card">
-                    <div class="stat-number" th:text="${points}">0</div>
-                    <div class="stat-label">Points obtenus</div>
+
+                <!-- Module 8 - Opens -->
+                <div class="module-card module-opens">
+                    <div class="module-header">
+                        <div class="module-number">Module 08</div>
+                        <div class="module-title">Open Source & Collaboration</div>
+                    </div>
+                    <div class="module-content">
+                        <div class="module-icon">🌐</div>
+                        <div class="module-description">Contribuer à des projets open source, outils de collaboration</div>
+                        <div class="module-duration">⏱️ 6 heures | 8 vidéos</div>
+                        <a th:href="@{/cours/module/8}" class="btn-module">Accéder au cours →</a>
+                    </div>
+                </div>
+
+                <!-- Module 9 - Machine Structure -->
+                <div class="module-card module-machine">
+                    <div class="module-header">
+                        <div class="module-number">Module 09</div>
+                        <div class="module-title">Machine Structure</div>
+                    </div>
+                    <div class="module-content">
+                        <div class="module-icon">⚙️</div>
+                        <div class="module-description">Architecture des ordinateurs, composants matériels et logiciels</div>
+                        <div class="module-duration">⏱️ 20 heures | 1 projet</div>
+                        <a th:href="@{/cours/module/9}" class="btn-module">Accéder au projet →</a>
+                    </div>
+                </div>
+
+                <!-- Module 10 - Electricité -->
+                <div class="module-card module-electricite">
+                    <div class="module-header">
+                        <div class="module-number">Module 10</div>
+                        <div class="module-title">Électricité & Électronique</div>
+                    </div>
+                    <div class="module-content">
+                        <div class="module-icon">💡</div>
+                        <div class="module-description">Circuits électriques, composants électroniques, lois fondamentales</div>
+                        <div class="module-duration">⏱️ 4 heures | QCM 50 questions</div>
+                        <a th:href="@{/cours/module/10}" class="btn-module">Commencer l'évaluation →</a>
+                    </div>
                 </div>
             </div>
         </div>

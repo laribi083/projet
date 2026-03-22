@@ -3,156 +3,176 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>1ère année - BrainLearning</title>
-    <link rel="stylesheet" th:href="@{/cssstudent/cssinterface.css}">
+    <title>1st year - BrainLearning</title>
+    <link rel="stylesheet" th:href="@{/cssstudent/interface1er.css}">
 </head>
 <body>
     <div class="container">
         <div class="header">
             <a th:href="@{/niveux}" class="back-button">← Retour à l'accueil</a>
-            <h1>🎓 1ère année - Développement Web</h1>
-            <p>Choisissez un module pour commencer votre apprentissage</p>
+            <h1>🎓 1st year - Brainlearning</h1>
+            <p>Complete program over 2 semesters | 10 modules to be validated</p>
         </div>
 
-        <div class="modules-grid">
-            
-            <!-- Module 1 - HTML5 -->
-            <div class="module-card">
-                <div class="module-header">
-                    <div class="module-number">Module 01</div>
-                    <div class="module-title">HTML5</div>
+        <!-- ========== SEMESTRE 1 ========== -->
+        <div class="semestre-section">
+            <div class="semestre-title">
+                <h2>📘 Semester 1 <span class="semestre-badge">Fundamentals</span></h2>
+            </div>
+            <div class="modules-grid">
+                
+                <!-- Module 1 - Algebra 01 -->
+                <div class="module-card module-algebra">
+                    <div class="module-header">
+                        <div class="module-number">Module 01</div>
+                        <div class="module-title">Algebra 01</div>
+                    </div>
+                    <div class="module-content">
+                        <div class="module-icon">📐</div>
+                        <div class="module-description">Study of algebraic structures, equations, polynomials, and matrices. Introduction to vector spaces and linear transformations.</div>
+                        <div class="module-duration">⏱️ 8 hours | 12 videos</div>
+                        <a th:href="@{/cours/module/1}" class="btn-module">Access the course →</a>
+                    </div>
                 </div>
-                <div class="module-content">
-                    <div class="module-icon">📄</div>
-                    <div class="module-description">Structure du Web - Créez des pages web avec HTML5, balises sémantiques et formulaires</div>
-                    <div class="module-duration">⏱️ 8 heures | 12 vidéos</div>
-                    <a th:href="@{/cours/module/1}" class="btn-module">Accéder au cours →</a>
+
+                <!-- Module 2 - Analysis 01 -->
+                <div class="module-card module-analyses">
+                    <div class="module-header">
+                        <div class="module-number">Module 02</div>
+                        <div class="module-title">Analysis 01</div>
+                    </div>
+                    <div class="module-content">
+                        <div class="module-icon">📊</div>
+                        <div class="module-description">Mathematical analysis: limits, derivatives, integrals, sequences, and series. Fundamental concepts of calculus.</div>
+                        <div class="module-duration">⏱️ 12 hours | 18 videos</div>
+                        <a th:href="@{/cours/module/2}" class="btn-module">Access the course →</a>
+                    </div>
+                </div>
+
+                <!-- Module 3 - Component and Representation of Information -->
+                <div class="module-card module-analyses2">
+                    <div class="module-header">
+                        <div class="module-number">Module 03</div>
+                        <div class="module-title">Component & Representation of Information</div>
+                    </div>
+                    <div class="module-content">
+                        <div class="module-icon">💾</div>
+                        <div class="module-description">Digital systems, number systems, data representation (binary, hexadecimal), and computer architecture fundamentals.</div>
+                        <div class="module-duration">⏱️ 15 hours | 22 videos</div>
+                        <a th:href="@{/cours/module/3}" class="btn-module">Access the course →</a>
+                    </div>
+                </div>
+
+                <!-- Module 4 - Electricity & Electronics -->
+                <div class="module-card module-electricite">
+                    <div class="module-header">
+                        <div class="module-number">Module 04</div>
+                        <div class="module-title">Electricity & Electronics</div>
+                    </div>
+                    <div class="module-content">
+                        <div class="module-icon">💡</div>
+                        <div class="module-description">Electrical circuits, electronic components, Ohm's law, Kirchhoff's laws, and basic electronic systems.</div>
+                        <div class="module-duration">⏱️ 6 hours | 10 videos</div>
+                        <a th:href="@{/cours/module/4}" class="btn-module">Access the course →</a>
+                    </div>
+                </div>
+
+                <!-- Module 5 - Information Coding and Representation -->
+                <div class="module-card module-structure2">
+                    <div class="module-header">
+                        <div class="module-number">Module 05</div>
+                        <div class="module-title">Information Coding & Representation</div>
+                    </div>
+                    <div class="module-content">
+                        <div class="module-icon">🔢</div>
+                        <div class="module-description">Coding theory, data compression, encryption, and information representation in computer systems.</div>
+                        <div class="module-duration">⏱️ 10 hours | 14 videos</div>
+                        <a th:href="@{/cours/module/5}" class="btn-module">Access the course →</a>
+                    </div>
                 </div>
             </div>
+        </div>
 
-            <!-- Module 2 - CSS3 -->
-            <div class="module-card">
-                <div class="module-header">
-                    <div class="module-number">Module 02</div>
-                    <div class="module-title">CSS3</div>
-                </div>
-                <div class="module-content">
-                    <div class="module-icon">🎨</div>
-                    <div class="module-description">Style et Design - Maîtrisez les feuilles de style, Flexbox, Grid et animations</div>
-                    <div class="module-duration">⏱️ 12 heures | 18 vidéos</div>
-                    <a th:href="@{/cours/module/2}" class="btn-module">Accéder au cours →</a>
-                </div>
+        <!-- Séparateur décoratif -->
+        <div class="separator">
+            <span>✨ Transition ✨</span>
+        </div>
+
+        <!-- ========== SEMESTRE 2 ========== -->
+        <div class="semestre-section">
+            <div class="semestre-title">
+                <h2>📗 Semester 2 <span class="semestre-badge">Advanced</span></h2>
             </div>
+            <div class="modules-grid">
+                
+                <!-- Module 6 - Algebra 02 -->
+                <div class="module-card module-courses">
+                    <div class="module-header">
+                        <div class="module-number">Module 06</div>
+                        <div class="module-title">Algebra 02</div>
+                    </div>
+                    <div class="module-content">
+                        <div class="module-icon">📐</div>
+                        <div class="module-description">Advanced algebra: groups, rings, fields, eigenvalues, eigenvectors, and matrix diagonalization.</div>
+                        <div class="module-duration">⏱️ 8 hours | 10 videos</div>
+                        <a th:href="@{/cours/module/6}" class="btn-module">Access the course →</a>
+                    </div>
+                </div>
 
-            <!-- Module 3 - JavaScript -->
-            <div class="module-card">
-                <div class="module-header">
-                    <div class="module-number">Module 03</div>
-                    <div class="module-title">JavaScript</div>
+                <!-- Module 7 - Analysis 02 -->
+                <div class="module-card module-ai">
+                    <div class="module-header">
+                        <div class="module-number">Module 07</div>
+                        <div class="module-title">Analysis 02</div>
+                    </div>
+                    <div class="module-content">
+                        <div class="module-icon">📈</div>
+                        <div class="module-description">Advanced analysis: differential equations, multivariable calculus, Fourier series, and complex analysis.</div>
+                        <div class="module-duration">⏱️ 14 hours | 20 videos</div>
+                        <a th:href="@{/cours/module/7}" class="btn-module">Access the course →</a>
+                    </div>
                 </div>
-                <div class="module-content">
-                    <div class="module-icon">⚡</div>
-                    <div class="module-description">Fondamentaux de la programmation web : variables, fonctions, conditions, boucles</div>
-                    <div class="module-duration">⏱️ 15 heures | 22 vidéos</div>
-                    <a th:href="@{/cours/module/3}" class="btn-module">Accéder au cours →</a>
-                </div>
-            </div>
 
-            <!-- Module 4 - Git & GitHub -->
-            <div class="module-card">
-                <div class="module-header">
-                    <div class="module-number">Module 04</div>
-                    <div class="module-title">Git & GitHub</div>
+                <!-- Module 8 - Introduction to Object-Oriented Programming -->
+                <div class="module-card module-opens">
+                    <div class="module-header">
+                        <div class="module-number">Module 08</div>
+                        <div class="module-title">Introduction to Object-Oriented Programming</div>
+                    </div>
+                    <div class="module-content">
+                        <div class="module-icon">☕</div>
+                        <div class="module-description">OOP fundamentals: classes, objects, inheritance, polymorphism, encapsulation, and design patterns.</div>
+                        <div class="module-duration">⏱️ 6 hours | 8 videos</div>
+                        <a th:href="@{/cours/module/8}" class="btn-module">Access the course →</a>
+                    </div>
                 </div>
-                <div class="module-content">
-                    <div class="module-icon">🔧</div>
-                    <div class="module-description">Versionnement et collaboration - Gérez vos projets avec Git</div>
-                    <div class="module-duration">⏱️ 6 heures | 10 vidéos</div>
-                    <a th:href="@{/cours/module/4}" class="btn-module">Accéder au cours →</a>
-                </div>
-            </div>
 
-            <!-- Module 5 - Responsive Design -->
-            <div class="module-card">
-                <div class="module-header">
-                    <div class="module-number">Module 05</div>
-                    <div class="module-title">Responsive Design</div>
+                <!-- Module 9 - Machine Structure -->
+                <div class="module-card module-machine">
+                    <div class="module-header">
+                        <div class="module-number">Module 09</div>
+                        <div class="module-title">Machine Structure</div>
+                    </div>
+                    <div class="module-content">
+                        <div class="module-icon">⚙️</div>
+                        <div class="module-description">Computer architecture, processor design, memory hierarchy, assembly language, and operating systems basics.</div>
+                        <div class="module-duration">⏱️ 20 hours | 1 project</div>
+                        <a th:href="@{/cours/module/9}" class="btn-module">Access the project →</a>
+                    </div>
                 </div>
-                <div class="module-content">
-                    <div class="module-icon">📱</div>
-                    <div class="module-description">Sites adaptés à tous les écrans - Media queries, mobile-first</div>
-                    <div class="module-duration">⏱️ 10 heures | 14 vidéos</div>
-                    <a th:href="@{/cours/module/5}" class="btn-module">Accéder au cours →</a>
-                </div>
-            </div>
 
-            <!-- Module 6 - Bootstrap -->
-            <div class="module-card">
-                <div class="module-header">
-                    <div class="module-number">Module 06</div>
-                    <div class="module-title">Bootstrap</div>
-                </div>
-                <div class="module-content">
-                    <div class="module-icon">🚀</div>
-                    <div class="module-description">Framework CSS rapide et efficace - Composants, grille, thèmes</div>
-                    <div class="module-duration">⏱️ 8 heures | 10 vidéos</div>
-                    <a th:href="@{/cours/module/6}" class="btn-module">Accéder au cours →</a>
-                </div>
-            </div>
-
-            <!-- Module 7 - JavaScript Avancé -->
-            <div class="module-card">
-                <div class="module-header">
-                    <div class="module-number">Module 07</div>
-                    <div class="module-title">JavaScript Avancé</div>
-                </div>
-                <div class="module-content">
-                    <div class="module-icon">🔷</div>
-                    <div class="module-description">API, Promesses, Async/Await, manipulation du DOM avancée</div>
-                    <div class="module-duration">⏱️ 14 heures | 20 vidéos</div>
-                    <a th:href="@{/cours/module/7}" class="btn-module">Accéder au cours →</a>
-                </div>
-            </div>
-
-            <!-- Module 8 - SEO & Accessibilité -->
-            <div class="module-card">
-                <div class="module-header">
-                    <div class="module-number">Module 08</div>
-                    <div class="module-title">SEO & Accessibilité</div>
-                </div>
-                <div class="module-content">
-                    <div class="module-icon">♿</div>
-                    <div class="module-description">Optimisation et accessibilité pour tous</div>
-                    <div class="module-duration">⏱️ 6 heures | 8 vidéos</div>
-                    <a th:href="@{/cours/module/8}" class="btn-module">Accéder au cours →</a>
-                </div>
-            </div>
-
-            <!-- Module 9 - Projet Portfolio -->
-            <div class="module-card">
-                <div class="module-header">
-                    <div class="module-number">Module 09</div>
-                    <div class="module-title">Projet Portfolio</div>
-                </div>
-                <div class="module-content">
-                    <div class="module-icon">🏆</div>
-                    <div class="module-description">Créez votre portfolio professionnel</div>
-                    <div class="module-duration">⏱️ 20 heures | 1 projet</div>
-                    <a th:href="@{/cours/module/9}" class="btn-module">Accéder au projet →</a>
-                </div>
-            </div>
-
-            <!-- Module 10 - Évaluation Finale -->
-            <div class="module-card">
-                <div class="module-header">
-                    <div class="module-number">Module 10</div>
-                    <div class="module-title">Évaluation Finale</div>
-                </div>
-                <div class="module-content">
-                    <div class="module-icon">🎯</div>
-                    <div class="module-description">Testez vos connaissances et obtenez votre certification</div>
-                    <div class="module-duration">⏱️ 4 heures | QCM 50 questions</div>
-                    <a th:href="@{/cours/module/10}" class="btn-module">Commencer l'évaluation →</a>
+                <!-- Module 10 - Advanced Data Structures -->
+                <div class="module-card module-structure">
+                    <div class="module-header">
+                        <div class="module-number">Module 10</div>
+                        <div class="module-title">Advanced Data Structures</div>
+                    </div>
+                    <div class="module-content">
+                        <div class="module-icon">🗂️</div>
+                        <div class="module-description">Advanced data structures: trees, graphs, hash tables, heaps, and algorithm complexity analysis.</div>
+                        <div class="module-duration">⏱️ 4 hours | Final Assessment</div>
+                        <a th:href="@{/cours/module/10}" class="btn-module">Start evaluation →</a>
+                    </div>
                 </div>
             </div>
         </div>

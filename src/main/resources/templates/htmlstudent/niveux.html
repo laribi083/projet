@@ -1,14 +1,26 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>web development</title>
-    <link rel="stylesheet" href="css/cssstudent/module1.css">
+    <title>Web Development - Choix de la filière</title>
+    <!-- Lien vers le fichier CSS - EXPLICATION CI-DESSOUS -->
+    <link rel="stylesheet" href="cssstudent/module1.css">
 </head>
 <body>
-    <button><a href="cours1.html">1eme années</a></button>
-    <button><a href="cours2.html">2eme années</a></button>
-<button><a href="cours3.html">3eme années</a></button>
+    <!-- Ajout d'un titre pour une meilleure expérience utilisateur -->
+    <div class="page-title">
+        <h1>📖 BrainLearning</h1>
+        <p>Select your level of study</p>
+    </div>
+   <a th:href="@{/interface1er}" class="btn-year">1ère année</a>
+    <a th:href="@{/interface2eme}" class="btn-year">2ème année</a>
+    <a th:href="@{/interface3eme}" class="btn-year">3ème année</a>
+
+    
+    <!-- Carte d'information optionnelle -->
+    <div class="info-card">
+        🚀Choose your route| <span>3 levels</span>
+    </div>
 </body>
 </html>

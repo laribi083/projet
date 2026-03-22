@@ -1,6 +1,12 @@
-/* Import Google Fonts */
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+/* ============================================
+   MODULE1.CSS - Style pour la page de sélection des années
+   Interface moderne avec dégradé bleu et bordures arrondies
+   ============================================ */
 
+/* Import Google Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap');
+
+/* ========== RESET & BASE ========== */
 * {
     margin: 0;
     padding: 0;
@@ -9,18 +15,20 @@
 
 body {
     font-family: 'Poppins', sans-serif;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    /* Dégradé bleu élégant */
+    background: linear-gradient(135deg, #0f2027 0%, #203a43 50%, #2c5364 100%);
     min-height: 100vh;
     display: flex;
-    flex-direction: column;
     justify-content: center;
     align-items: center;
-    padding: 20px;
+    gap: 30px;
+    flex-wrap: wrap;
+    padding: 40px 20px;
     position: relative;
     overflow-x: hidden;
 }
 
-/* Animated background elements */
+/* Animation de fond avec particules bleues */
 body::before {
     content: '';
     position: absolute;
@@ -28,124 +36,110 @@ body::before {
     left: 0;
     right: 0;
     bottom: 0;
-    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" opacity="0.1"><path d="M10 10 L90 10 L90 90 L10 90 Z" fill="none" stroke="white" stroke-width="2"/><circle cx="50" cy="50" r="20" fill="none" stroke="white" stroke-width="2"/></svg>') repeat;
-    animation: moveBackground 20s linear infinite;
+    background: radial-gradient(circle at 20% 50%, rgba(52, 152, 219, 0.15) 0%, transparent 50%),
+                radial-gradient(circle at 80% 80%, rgba(41, 128, 185, 0.1) 0%, transparent 60%),
+                repeating-linear-gradient(45deg, rgba(52, 152, 219, 0.05) 0px, rgba(52, 152, 219, 0.05) 2px, transparent 2px, transparent 8px);
+    pointer-events: none;
+    animation: bgPulse 10s ease-in-out infinite;
 }
 
-@keyframes moveBackground {
-    from { transform: translate(0, 0) rotate(0deg); }
-    to { transform: translate(100px, 100px) rotate(45deg); }
+@keyframes bgPulse {
+    0%, 100% { opacity: 0.6; }
+    50% { opacity: 1; }
 }
 
-/* Main container */
-.container {
-    text-align: center;
-    background: rgba(255, 255, 255, 0.95);
-    padding: 50px;
-    border-radius: 30px;
-    box-shadow: 0 30px 60px rgba(0, 0, 0, 0.3);
-    max-width: 900px;
-    width: 100%;
-    backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    position: relative;
-    z-index: 1;
-    animation: slideUp 0.8s ease-out;
-}
-
-@keyframes slideUp {
-    from {
-        opacity: 0;
-        transform: translateY(50px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-/* Title styles */
-h1 {
-    color: #333;
-    font-size: 3em;
-    margin-bottom: 15px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 3px;
-    background: linear-gradient(45deg, #667eea, #764ba2, #667eea);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-    background-size: 200% 200%;
-    animation: gradientShift 5s ease infinite;
-}
-
-@keyframes gradientShift {
-    0% { background-position: 0% 50%; }
-    50% { background-position: 100% 50%; }
-    100% { background-position: 0% 50%; }
-}
-
-.subtitle {
-    color: #666;
-    margin-bottom: 40px;
-    font-size: 1.2em;
-    font-weight: 300;
-    position: relative;
-    display: inline-block;
-}
-
-.subtitle::after {
-    content: '';
-    position: absolute;
-    bottom: -10px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 50px;
-    height: 3px;
-    background: linear-gradient(90deg, #667eea, #764ba2);
-    border-radius: 3px;
-}
-
-/* Button container */
-.button-container {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 25px;
-    margin-top: 40px;
-}
-
-/* Button styles */
+/* ========== STYLES DES BOUTONS AVEC BORDURES ARRONDIES ========== */
 button {
     border: none;
     cursor: pointer;
-    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     position: relative;
+    border-radius: 50px;  /* Bordures très arrondies */
     overflow: hidden;
-    border-radius: 60px;
-    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
-    min-width: 220px;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.25), 0 0 0 2px rgba(255, 255, 255, 0.1) inset;
     opacity: 0;
-    animation: fadeInButton 0.5s ease forwards;
+    animation: fadeInUp 0.6s ease forwards;
+    backdrop-filter: blur(5px);
 }
 
-button:nth-child(1) { animation-delay: 0.2s; }
-button:nth-child(2) { animation-delay: 0.4s; }
-button:nth-child(3) { animation-delay: 0.6s; }
+/* Animation d'apparition différée pour chaque bouton */
+button:nth-child(1) { animation-delay: 0.1s; }
+button:nth-child(2) { animation-delay: 0.3s; }
+button:nth-child(3) { animation-delay: 0.5s; }
 
-@keyframes fadeInButton {
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(40px);
+    }
     to {
         opacity: 1;
         transform: translateY(0);
     }
-    from {
-        opacity: 0;
-        transform: translateY(20px);
-    }
 }
 
-/* Shine effect */
+/* Style des liens à l'intérieur des boutons */
+button a {
+    display: block;
+    padding: 18px 42px;
+    text-decoration: none;
+    font-size: 1.3em;
+    font-weight: 600;
+    letter-spacing: 1.5px;
+    transition: all 0.3s ease;
+    position: relative;
+    z-index: 2;
+}
+
+/* ========== BOUTON 1 - 1ère ANNÉE (Bleu océan) ========== */
+button:nth-child(1) {
+    background: linear-gradient(135deg, #2980b9, #3498db, #5dade2);
+    box-shadow: 0 15px 30px rgba(52, 152, 219, 0.4), 0 0 0 2px rgba(255, 255, 255, 0.2) inset;
+}
+
+button:nth-child(1) a {
+    color: white;
+}
+
+button:nth-child(1):hover {
+    background: linear-gradient(135deg, #3498db, #2980b9, #5dade2);
+    transform: translateY(-10px) scale(1.05);
+    box-shadow: 0 25px 45px rgba(52, 152, 219, 0.5), 0 0 0 3px rgba(255, 255, 255, 0.3) inset;
+}
+
+/* ========== BOUTON 2 - 2ème ANNÉE (Bleu royal) ========== */
+button:nth-child(2) {
+    background: linear-gradient(135deg, #1e3c72, #2c3e50, #3498db);
+    box-shadow: 0 15px 30px rgba(30, 60, 114, 0.4), 0 0 0 2px rgba(255, 255, 255, 0.2) inset;
+}
+
+button:nth-child(2) a {
+    color: white;
+}
+
+button:nth-child(2):hover {
+    background: linear-gradient(135deg, #2c3e50, #1e3c72, #3498db);
+    transform: translateY(-10px) scale(1.05);
+    box-shadow: 0 25px 45px rgba(30, 60, 114, 0.5), 0 0 0 3px rgba(255, 255, 255, 0.3) inset;
+}
+
+/* ========== BOUTON 3 - 3ème ANNÉE (Bleu turquoise) ========== */
+button:nth-child(3) {
+    background: linear-gradient(135deg, #16a085, #1abc9c, #2ecc71);
+    box-shadow: 0 15px 30px rgba(26, 188, 156, 0.4), 0 0 0 2px rgba(255, 255, 255, 0.2) inset;
+}
+
+button:nth-child(3) a {
+    color: white;
+}
+
+button:nth-child(3):hover {
+    background: linear-gradient(135deg, #1abc9c, #16a085, #2ecc71);
+    transform: translateY(-10px) scale(1.05);
+    box-shadow: 0 25px 45px rgba(26, 188, 156, 0.5), 0 0 0 3px rgba(255, 255, 255, 0.3) inset;
+}
+
+/* ========== EFFET DE BRILLANCE (SHINE) ========== */
 button::before {
     content: '';
     position: absolute;
@@ -155,16 +149,18 @@ button::before {
     height: 100%;
     background: linear-gradient(90deg, 
         transparent, 
-        rgba(255, 255, 255, 0.4), 
+        rgba(255, 255, 255, 0.5), 
         transparent);
-    transition: left 0.7s ease;
+    transition: left 0.6s ease;
+    z-index: 1;
+    pointer-events: none;
 }
 
 button:hover::before {
     left: 100%;
 }
 
-/* Pulse effect on hover */
+/* ========== EFFET RIPPLE (ONDE) ========== */
 button::after {
     content: '';
     position: absolute;
@@ -175,168 +171,248 @@ button::after {
     border-radius: 50%;
     background: rgba(255, 255, 255, 0.3);
     transform: translate(-50%, -50%);
-    transition: width 0.4s, height 0.4s;
+    transition: width 0.5s, height 0.5s;
+    pointer-events: none;
+    z-index: 0;
 }
 
 button:hover::after {
-    width: 300px;
-    height: 300px;
+    width: 400px;
+    height: 400px;
 }
 
-button a {
-    display: block;
-    padding: 18px 35px;
-    text-decoration: none;
-    font-size: 1.3em;
-    font-weight: 600;
-    letter-spacing: 1.5px;
-    transition: all 0.3s ease;
-    position: relative;
-    z-index: 1;
+/* ========== EFFET AU CLIC ========== */
+button:active {
+    transform: translateY(-5px) scale(0.98);
+    transition: transform 0.1s ease;
 }
 
-/* Button 1 - 1ère année (Red theme) */
-button:nth-child(1) {
-    background: linear-gradient(45deg, #FF416C, #FF4B2B);
-    box-shadow: 0 10px 20px rgba(255, 65, 108, 0.3);
+/* ========== AJOUT D'ICÔNES AVEC PSEUDO-ÉLÉMENTS ========== */
+button a::before {
+    content: '📘 ';
+    font-size: 1.2em;
+    transition: transform 0.3s ease;
+    display: inline-block;
 }
 
-button:nth-child(1) a {
-    color: white;
+button:nth-child(2) a::before {
+    content: '📚 ';
 }
 
-/* Button 2 - 2ème année (Blue theme) */
-button:nth-child(2) {
-    background: linear-gradient(45deg, #4776E6, #8E54E9);
-    box-shadow: 0 10px 20px rgba(71, 118, 230, 0.3);
+button:nth-child(3) a::before {
+    content: '🎓 ';
 }
 
-button:nth-child(2) a {
-    color: white;
+button:hover a::before {
+    transform: translateX(-8px);
 }
 
-/* Button 3 - 3ème année (Green theme) */
-button:nth-child(3) {
-    background: linear-gradient(45deg, #11998e, #38ef7d);
-    box-shadow: 0 10px 20px rgba(17, 153, 142, 0.3);
+/* ========== CARTE D'INFORMATIONS AVEC BORDURES ARRONDIES ========== */
+.info-card {
+    position: fixed;
+    bottom: 25px;
+    right: 25px;
+    background: rgba(255, 255, 255, 0.98);
+    backdrop-filter: blur(15px);
+    padding: 14px 24px;
+    border-radius: 60px;  /* Bordures très arrondies */
+    font-size: 0.9em;
+    color: #1e3c72;
+    font-weight: 500;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2), 0 0 0 1px rgba(52, 152, 219, 0.3) inset;
+    z-index: 100;
+    animation: slideInRight 0.5s ease-out 0.8s forwards;
+    opacity: 0;
+    transform: translateX(100px);
+    border: 1px solid rgba(52, 152, 219, 0.5);
 }
 
-button:nth-child(3) a {
-    color: white;
+@keyframes slideInRight {
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
 }
 
-/* Hover effects */
-button:hover {
-    transform: translateY(-8px) scale(1.05);
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+.info-card span {
+    color: #3498db;
+    font-weight: 700;
 }
 
-button:hover a {
-    transform: scale(1.05);
+/* ========== STYLE POUR LES PARAGRAPHES ========== */
+p, .paragraph, .text, .description {
+    color: rgba(255, 255, 255, 0.95);
+    line-height: 1.6;
+}
+
+/* ========== STYLE POUR LE TITRE AVEC BORDURES ========== */
+.page-title {
+    text-align: center;
+    width: 100%;
+    margin-bottom: 30px;
+    padding: 25px 35px;
+    background: rgba(255, 255, 255, 0.12);
+    border-radius: 70px;  /* Bordures très arrondies */
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+    animation: slideDown 0.6s ease-out;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-40px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.page-title h1 {
+    font-size: 2.8em;
+    font-weight: 700;
+    background: linear-gradient(135deg, #ffffff, #3498db, #5dade2);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    text-shadow: 0 2px 10px rgba(52, 152, 219, 0.3);
     letter-spacing: 2px;
 }
 
-/* Button 1 hover */
-button:nth-child(1):hover {
-    background: linear-gradient(45deg, #FF4B2B, #FF416C);
+.page-title p {
+    color: rgba(255, 255, 255, 0.95);
+    font-size: 1.1em;
+    margin-top: 12px;
+    font-weight: 400;
 }
 
-/* Button 2 hover */
-button:nth-child(2):hover {
-    background: linear-gradient(45deg, #8E54E9, #4776E6);
-}
-
-/* Button 3 hover */
-button:nth-child(3):hover {
-    background: linear-gradient(45deg, #38ef7d, #11998e);
-}
-
-/* Active state */
-button:active {
-    transform: translateY(-3px) scale(1.02);
-    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
-}
-
-/* Icon styles (if you want to add icons) */
-.button-icon {
-    margin-right: 10px;
-    font-size: 1.2em;
-}
-
-/* Responsive design */
+/* ========== RESPONSIVE DESIGN ========== */
 @media (max-width: 768px) {
-    .container {
-        padding: 40px 25px;
-        margin: 20px;
-    }
-    
-    h1 {
-        font-size: 2.2em;
-    }
-    
-    .subtitle {
-        font-size: 1.1em;
-    }
-    
-    .button-container {
+    body {
         flex-direction: column;
-        align-items: center;
         gap: 20px;
+        justify-content: center;
+        padding: 30px 20px;
     }
     
     button {
-        width: 100%;
-        max-width: 300px;
+        width: 90%;
+        max-width: 320px;
     }
     
     button a {
-        padding: 15px 25px;
+        padding: 15px 30px;
         font-size: 1.2em;
+        text-align: center;
+    }
+    
+    .info-card {
+        bottom: 15px;
+        right: 15px;
+        left: 15px;
+        text-align: center;
+        border-radius: 50px;
+        font-size: 0.8em;
+    }
+    
+    .page-title {
+        padding: 18px 25px;
+        border-radius: 50px;
+        margin-bottom: 20px;
+    }
+    
+    .page-title h1 {
+        font-size: 2em;
+    }
+    
+    .page-title p {
+        font-size: 0.95em;
     }
 }
 
 @media (max-width: 480px) {
-    .container {
-        padding: 30px 20px;
+    button a {
+        padding: 12px 25px;
+        font-size: 1.1em;
     }
     
-    h1 {
-        font-size: 1.8em;
-        letter-spacing: 2px;
-    }
-    
-    .subtitle {
+    button a::before {
         font-size: 1em;
     }
     
-    button a {
-        padding: 12px 20px;
-        font-size: 1.1em;
+    .page-title h1 {
+        font-size: 1.6em;
+    }
+    
+    .page-title {
+        padding: 15px 20px;
     }
 }
 
-/* Extra animations for fun */
-@keyframes float {
-    0% { transform: translateY(0px); }
-    50% { transform: translateY(-10px); }
-    100% { transform: translateY(0px); }
+/* ========== ANIMATION DE FLOTTEMENT POUR LES BOUTONS ========== */
+@keyframes gentleFloat {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-6px); }
 }
 
-.container {
-    animation: slideUp 0.8s ease-out, float 6s ease-in-out infinite 1s;
-}
-
-/* Loading animation for buttons */
 button {
-    position: relative;
+    animation: fadeInUp 0.6s ease forwards, gentleFloat 5s ease-in-out infinite;
+    animation-delay: 0s, 0.8s;
 }
 
-button:active {
-    animation: click 0.2s ease;
+/* Empêcher l'animation de flottement sur hover pour éviter les conflits */
+button:hover {
+    animation: fadeInUp 0.6s ease forwards, none;
 }
 
-@keyframes click {
-    0% { transform: scale(1); }
-    50% { transform: scale(0.95); }
-    100% { transform: scale(1); }
+/* ========== ACCESSIBILITÉ ========== */
+button:focus-visible {
+    outline: 3px solid #3498db;
+    outline-offset: 4px;
+    transform: scale(1.02);
+}
+
+button a:focus-visible {
+    outline: none;
+}
+
+/* ========== CONTENEUR PRINCIPAL AVEC BORDURES ========== */
+.main-container {
+    max-width: 1200px;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 40px;
+    padding: 20px;
+    border-radius: 80px;
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(5px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 0 25px 50px rgba(0, 0, 0, 0.25);
+}
+
+/* ========== STYLES ADDITIONNELS POUR UNE INTERFACE CLAIRE ========== */
+/* Effet de verre (glassmorphism) pour tous les éléments */
+.glass-effect {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    border-radius: 60px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+}
+
+/* Animation d'entrée pour le conteneur */
+@keyframes fadeInScale {
+    from {
+        opacity: 0;
+        transform: scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
 }

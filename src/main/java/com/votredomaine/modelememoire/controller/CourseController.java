@@ -11,18 +11,18 @@ public class CourseController {
         return "htmlstudent/niveux"; 
     }
     
-    @GetMapping("/cours1")
+    @GetMapping("/interface1er")
     public String showCours1() {
-        return "htmlstudent/1year/cours1"; 
+        return "htmlstudent/1year/interface1er"; 
     }
     
-    @GetMapping("/cours2")
+    @GetMapping("/interface2eme")
     public String showCours2() {
-        return "htmlstudent/2year/cours2"; 
+        return "htmlstudent/2year/interface2eme"; 
     }
     
-    @GetMapping("/cours3")
+    @GetMapping("/interface3eme")
     public String showCours3() {
-        return "htmlstudent/3year/cours3"; 
+        return "htmlstudent/3year/interface3eme"; 
     }
 }

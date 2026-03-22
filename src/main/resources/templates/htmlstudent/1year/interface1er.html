@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>1st year - Brainlearning</title>
+    <link rel="stylesheet" th:href="@{/cssstudent/inteface1er.css}">
+    <style>
+        /* Styles supplémentaires pour Thymeleaf */
+        .notification {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: linear-gradient(135deg, #4caf50, #45a049);
+            color: white;
+            padding: 15px 25px;
+            border-radius: 50px;
+            font-weight: 500;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+            transform: translateX(400px);
+            transition: transform 0.3s ease;
+            z-index: 1000;
+            max-width: 350px;
+        }
+        .notification.show {
+            transform: translateX(0);
+        }
+        .reset-button {
+            background: rgba(255, 255, 255, 0.25);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 50px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            margin-left: 15px;
+        }
+        .reset-button:hover {
+            background: rgba(255, 255, 255, 0.4);
+            transform: scale(1.05);
+        }
+        .completed-badge {
+            text-align: center;
+            padding: 12px;
+            background: linear-gradient(135deg, #4caf50, #45a049);
+            color: white;
+            border-radius: 50px;
+            font-weight: 600;
+        }
+        .header-section {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+        .progress-bar-container {
+            flex: 1;
+            min-width: 200px;
+        }
+        .module-card.completed {
+            border-left: 5px solid #4caf50;
+            background: linear-gradient(135deg, rgba(255,255,255,0.98), rgba(200,230,255,0.98));
+        }
+    </style>
+</head>
+<body>
+    <div class="main-container">
+        <!-- En-tête avec informations de progression -->
+        <div class="header-section">
+            <a th:href="@{/niveux}" class="back-button">
+                ← Retour à l'accueil
+            </a>
+            <div class="progress-bar-container">
+                <div class="progress-info">
+                    <span>📊 Progression globale</span>
+                    <span class="progress-percentage" th:text="${progress} + '%'">0%</span>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill" th:style="'width: ' + ${progress} + '%'"></div>
+                </div>
+            </div>
+            <form th:action="@{/cours1/reset}" method="post">
+                <button type="submit" class="reset-button">🔄 Réinitialiser</button>
+            </form>
+        </div>
+
+        <!-- Titre de la page -->
+        <div class="page-title">
+            <h1>🎓 1ère année - Développement Web</h1>
+            <p>Fondamentaux du développement web | 10 modules à valider</p>
+        </div>
+
+        <!-- Grille des modules -->
+        <div class="modules-grid">
+            
+            <!-- Module 1 - HTML5 -->
+            <div class="module-card" th:classappend="${modules[0].completed} ? 'completed' : ''">
+                <div class="module-header">
+                    <div class="module-icon">📄</div>
+                    <div class="module-number">Module 01</div>
+                    <div class="module-status">
+                        <span class="status-badge" 
+                              th:class="${modules[0].completed} ? 'status-badge completed' : 'status-badge not-started'"
+                              th:text="${modules[0].completed} ? '✅ Complété' : 'Non commencé'">
+                        </span>
+                    </div>
+                </div>
+                <div class="module-content">
+                    <h3 th:text="${modules[0].title}">HTML5 - Structure du Web</h3>
+                    <p th:text="${modules[0].description}">Apprenez à créer la structure de base des pages web avec HTML5.</p>
+                    <div class="module-details">
+                        <span class="detail-item" th:text="'⏱️ ' + ${modules[0].duree}">⏱️ 8 heures</span>
+                        <span class="detail-item" th:text="'📹 ' + ${modules[0].videos} + ' vidéos'">📹 12 vidéos</span>
+                        <span class="detail-item" th:text="'✏️ ' + ${modules[0].exercices} + ' exercices'">✏️ 3 exercices</span>
+                    </div>
+                </div>
+                <div class="module-footer">
+                    <form th:unless="${modules[0].completed}" th:action="@{/cours1/module/1/complete}" method="post">
+                        <button type="submit" class="btn-start">
+                            Commencer le module →
+                        </button>
+                    </form>
+                    <div th:if="${modules[0].completed}" class="completed-badge">
+                        ✅ Module validé
+                    </div>
+                </div>
+            </div>
+
+            <!-- Module 2 - CSS3 -->
+            <div class="module-card" th:classappend="${modules[1].completed} ? 'completed' : ''">
+                <div class="module-header">
+                    <div class="module-icon">🎨</div>
+                    <div class="module-number">Module 02</div>
+                    <div class="module-status">
+                        <span class="status-badge" 
+                              th:class="${modules[1].completed} ? 'status-badge completed' : 'status-badge not-started'"
+                              th:text="${modules[1].completed} ? '✅ Complété' : 'Non commencé'">
+                        </span>
+                    </div>
+                </div>
+                <div class="module-content">
+                    <h3 th:text="${modules[1].title}">CSS3 - Style et Design</h3>
+                    <p th:text="${modules[1].description}">Maîtrisez les feuilles de style pour donner vie à vos pages.</p>
+                    <div class="module-details">
+                        <span class="detail-item" th:text="'⏱️ ' + ${modules[1].duree}">⏱️ 12 heures</span>
+                        <span class="detail-item" th:text="'📹 ' + ${modules[1].videos} + ' vidéos'">📹 18 vidéos</span>
+                        <span class="detail-item" th:text="'✏️ ' + ${modules[1].exercices} + ' exercices'">✏️ 5 exercices</span>
+                    </div>
+                </div>
+                <div class="module-footer">
+                    <form th:unless="${modules[1].completed}" th:action="@{/cours1/module/2/complete}" method="post">
+                        <button type="submit" class="btn-start">
+                            Commencer le module →
+                        </button>
+                    </form>
+                    <div th:if="${modules[1].completed}" class="completed-badge">
+                        ✅ Module validé
+                    </div>
+                </div>
+            </div>
+
+            <!-- Module 3 - JavaScript Fondamentaux -->
+            <div class="module-card" th:classappend="${modules[2].completed} ? 'completed' : ''">
+                <div class="module-header">
+                    <div class="module-icon">⚡</div>
+                    <div class="module-number">Module 03</div>
+                    <div class="module-status">
+                        <span class="status-badge" 
+                              th:class="${modules[2].completed} ? 'status-badge completed' : 'status-badge not-started'"
+                              th:text="${modules[2].completed} ? '✅ Complété' : 'Non commencé'">
+                        </span>
+                    </div>
+                </div>
+                <div class="module-content">
+                    <h3 th:text="${modules[2].title}">JavaScript - Fondamentaux</h3>
+                    <p th:text="${modules[2].description}">Introduction à la programmation avec JavaScript.</p>
+                    <div class="module-details">
+                        <span class="detail-item" th:text="'⏱️ ' + ${modules[2].duree}">⏱️ 15 heures</span>
+                        <span class="detail-item" th:text="'📹 ' + ${modules[2].videos} + ' vidéos'">📹 22 vidéos</span>
+                        <span class="detail-item" th:text="'✏️ ' + ${modules[2].exercices} + ' exercices'">✏️ 8 exercices</span>
+                    </div>
+                </div>
+                <div class="module-footer">
+                    <form th:unless="${modules[2].completed}" th:action="@{/cours1/module/3/complete}" method="post">
+                        <button type="submit" class="btn-start">
+                            Commencer le module →
+                        </button>
+                    </form>
+                    <div th:if="${modules[2].completed}" class="completed-badge">
+                        ✅ Module validé
+                    </div>
+                </div>
+            </div>
+
+            <!-- Module 4 - Git & GitHub -->
+            <div class="module-card" th:classappend="${modules[3].completed} ? 'completed' : ''">
+                <div class="module-header">
+                    <div class="module-icon">🔧</div>
+                    <div class="module-number">Module 04</div>
+                    <div class="module-status">
+                        <span class="status-badge" 
+                              th:class="${modules[3].completed} ? 'status-badge completed' : 'status-badge not-started'"
+                              th:text="${modules[3].completed} ? '✅ Complété' : 'Non commencé'">
+                        </span>
+                    </div>
+                </div>
+                <div class="module-content">
+                    <h3 th:text="${modules[3].title}">Git & GitHub - Versionnement</h3>
+                    <p th:text="${modules[3].description}">Apprenez à gérer vos projets avec Git.</p>
+                    <div class="module-details">
+                        <span class="detail-item" th:text="'⏱️ ' + ${modules[3].duree}">⏱️ 6 heures</span>
+                        <span class="detail-item" th:text="'📹 ' + ${modules[3].videos} + ' vidéos'">📹 10 vidéos</span>
+                        <span class="detail-item" th:text="'✏️ ' + ${modules[3].exercices} + ' exercices'">✏️ 4 exercices</span>
+                    </div>
+                </div>
+                <div class="module-footer">
+                    <form th:unless="${modules[3].completed}" th:action="@{/cours1/module/4/complete}" method="post">
+                        <button type="submit" class="btn-start">
+                            Commencer le module →
+                        </button>
+                    </form>
+                    <div th:if="${modules[3].completed}" class="completed-badge">
+                        ✅ Module validé
+                    </div>
+                </div>
+            </div>
+
+            <!-- Module 5 - Responsive Design -->
+            <div class="module-card" th:classappend="${modules[4].completed} ? 'completed' : ''">
+                <div class="module-header">
+                    <div class="module-icon">📱</div>
+                    <div class="module-number">Module 05</div>
+                    <div class="module-status">
+                        <span class="status-badge" 
+                              th:class="${modules[4].completed} ? 'status-badge completed' : 'status-badge not-started'"
+                              th:text="${modules[4].completed} ? '✅ Complété' : 'Non commencé'">
+                        </span>
+                    </div>
+                </div>
+                <div class="module-content">
+                    <h3 th:text="${modules[4].title}">Responsive Design</h3>
+                    <p th:text="${modules[4].description}">Créez des sites adaptés à tous les écrans.</p>
+                    <div class="module-details">
+                        <span class="detail-item" th:text="'⏱️ ' + ${modules[4].duree}">⏱️ 10 heures</span>
+                        <span class="detail-item" th:text="'📹 ' + ${modules[4].videos} + ' vidéos'">📹 14 vidéos</span>
+                        <span class="detail-item" th:text="'✏️ ' + ${modules[4].exercices} + ' exercices'">✏️ 4 exercices</span>
+                    </div>
+                </div>
+                <div class="module-footer">
+                    <form th:unless="${modules[4].completed}" th:action="@{/cours1/module/5/complete}" method="post">
+                        <button type="submit" class="btn-start">
+                            Commencer le module →
+                        </button>
+                    </form>
+                    <div th:if="${modules[4].completed}" class="completed-badge">
+                        ✅ Module validé
+                    </div>
+                </div>
+            </div>
+
+            <!-- Module 6 - Bootstrap -->
+            <div class="module-card" th:classappend="${modules[5].completed} ? 'completed' : ''">
+                <div class="module-header">
+                    <div class="module-icon">🚀</div>
+                    <div class="module-number">Module 06</div>
+                    <div class="module-status">
+                        <span class="status-badge" 
+                              th:class="${modules[5].completed} ? 'status-badge completed' : 'status-badge not-started'"
+                              th:text="${modules[5].completed} ? '✅ Complété' : 'Non commencé'">
+                        </span>
+                    </div>
+                </div>
+                <div class="module-content">
+                    <h3 th:text="${modules[5].title}">Bootstrap Framework</h3>
+                    <p th:text="${modules[5].description}">Accélérez votre développement avec Bootstrap 5.</p>
+                    <div class="module-details">
+                        <span class="detail-item" th:text="'⏱️ ' + ${modules[5].duree}">⏱️ 8 heures</span>
+                        <span class="detail-item" th:text="'📹 ' + ${modules[5].videos} + ' vidéos'">📹 10 vidéos</span>
+                        <span class="detail-item" th:text="'✏️ ' + ${modules[5].exercices} + ' exercices'">✏️ 3 exercices</span>
+                    </div>
+                </div>
+                <div class="module-footer">
+                    <form th:unless="${modules[5].completed}" th:action="@{/cours1/module/6/complete}" method="post">
+                        <button type="submit" class="btn-start">
+                            Commencer le module →
+                        </button>
+                    </form>
+                    <div th:if="${modules[5].completed}" class="completed-badge">
+                        ✅ Module validé
+                    </div>
+                </div>
+            </div>
+
+            <!-- Module 7 - JavaScript Avancé -->
+            <div class="module-card" th:classappend="${modules[6].completed} ? 'completed' : ''">
+                <div class="module-header">
+                    <div class="module-icon">🔷</div>
+                    <div class="module-number">Module 07</div>
+                    <div class="module-status">
+                        <span class="status-badge" 
+                              th:class="${modules[6].completed} ? 'status-badge completed' : 'status-badge not-started'"
+                              th:text="${modules[6].completed} ? '✅ Complété' : 'Non commencé'">
+                        </span>
+                    </div>
+                </div>
+                <div class="module-content">
+                    <h3 th:text="${modules[6].title}">JavaScript Avancé</h3>
+                    <p th:text="${modules[6].description}">Approfondissez vos connaissances JavaScript.</p>
+                    <div class="module-details">
+                        <span class="detail-item" th:text="'⏱️ ' + ${modules[6].duree}">⏱️ 14 heures</span>
+                        <span class="detail-item" th:text="'📹 ' + ${modules[6].videos} + ' vidéos'">📹 20 vidéos</span>
+                        <span class="detail-item" th:text="'✏️ ' + ${modules[6].exercices} + ' exercices'">✏️ 6 exercices</span>
+                    </div>
+                </div>
+                <div class="module-footer">
+                    <form th:unless="${modules[6].completed}" th:action="@{/cours1/module/7/complete}" method="post">
+                        <button type="submit" class="btn-start">
+                            Commencer le module →
+                        </button>
+                    </form>
+                    <div th:if="${modules[6].completed}" class="completed-badge">
+                        ✅ Module validé
+                    </div>
+                </div>
+            </div>
+
+            <!-- Module 8 - SEO & Accessibilité -->
+            <div class="module-card" th:classappend="${modules[7].completed} ? 'completed' : ''">
+                <div class="module-header">
+                    <div class="module-icon">♿</div>
+                    <div class="module-number">Module 08</div>
+                    <div class="module-status">
+                        <span class="status-badge" 
+                              th:class="${modules[7].completed} ? 'status-badge completed' : 'status-badge not-started'"
+                              th:text="${modules[7].completed} ? '✅ Complété' : 'Non commencé'">
+                        </span>
+                    </div>
+                </div>
+                <div class="module-content">
+                    <h3 th:text="${modules[7].title}">SEO & Accessibilité</h3>
+                    <p th:text="${modules[7].description}">Optimisez vos sites pour les moteurs de recherche.</p>
+                    <div class="module-details">
+                        <span class="detail-item" th:text="'⏱️ ' + ${modules[7].duree}">⏱️ 6 heures</span>
+                        <span class="detail-item" th:text="'📹 ' + ${modules[7].videos} + ' vidéos'">📹 8 vidéos</span>
+                        <span class="detail-item" th:text="'✏️ ' + ${modules[7].exercices} + ' exercices'">✏️ 3 exercices</span>
+                    </div>
+                </div>
+                <div class="module-footer">
+                    <form th:unless="${modules[7].completed}" th:action="@{/cours1/module/8/complete}" method="post">
+                        <button type="submit" class="btn-start">
+                            Commencer le module →
+                        </button>
+                    </form>
+                    <div th:if="${modules[7].completed}" class="completed-badge">
+                        ✅ Module validé
+                    </div>
+                </div>
+            </div>
+
+            <!-- Module 9 - Projet Pratique -->
+            <div class="module-card" th:classappend="${modules[8].completed} ? 'completed' : ''">
+                <div class="module-header">
+                    <div class="module-icon">🏆</div>
+                    <div class="module-number">Module 09</div>
+                    <div class="module-status">
+                        <span class="status-badge" 
+                              th:class="${modules[8].completed} ? 'status-badge completed' : 'status-badge not-started'"
+                              th:text="${modules[8].completed} ? '✅ Complété' : 'Non commencé'">
+                        </span>
+                    </div>
+                </div>
+                <div class="module-content">
+                    <h3 th:text="${modules[8].title}">Projet - Portfolio Personnel</h3>
+                    <p th:text="${modules[8].description}">Créez votre premier portfolio professionnel.</p>
+                    <div class="module-details">
+                        <span class="detail-item" th:text="'⏱️ ' + ${modules[8].duree}">⏱️ 20 heures</span>
+                        <span class="detail-item" th:text="'📹 ' + ${modules[8].videos} + ' vidéos'">📹 5 vidéos</span>
+                        <span class="detail-item">📝 1 projet</span>
+                    </div>
+                </div>
+                <div class="module-footer">
+                    <form th:unless="${modules[8].completed}" th:action="@{/cours1/module/9/complete}" method="post">
+                        <button type="submit" class="btn-start">
+                            Commencer le module →
+                        </button>
+                    </form>
+                    <div th:if="${modules[8].completed}" class="completed-badge">
+                        ✅ Module validé
+                    </div>
+                </div>
+            </div>
+
+            <!-- Module 10 - Evaluation Finale -->
+            <div class="module-card" th:classappend="${modules[9].completed} ? 'completed' : ''">
+                <div class="module-header">
+                    <div class="module-icon">🎯</div>
+                    <div class="module-number">Module 10</div>
+                    <div class="module-status">
+                        <span class="status-badge" 
+                              th:class="${modules[9].completed} ? 'status-badge completed' : 'status-badge not-started'"
+                              th:text="${modules[9].completed} ? '✅ Complété' : 'Non commencé'">
+                        </span>
+                    </div>
+                </div>
+                <div class="module-content">
+                    <h3 th:text="${modules[9].title}">Évaluation Finale</h3>
+                    <p th:text="${modules[9].description}">Testez vos connaissances avec un examen complet.</p>
+                    <div class="module-details">
+                        <span class="detail-item" th:text="'⏱️ ' + ${modules[9].duree}">⏱️ 4 heures</span>
+                        <span class="detail-item">📝 QCM 50 questions</span>
+                        <span class="detail-item">🏅 Certification</span>
+                    </div>
+                </div>
+                <div class="module-footer">
+                    <form th:unless="${modules[9].completed}" th:action="@{/cours1/module/10/complete}" method="post">
+                        <button type="submit" class="btn-start">
+                            Commencer l'évaluation →
+                        </button>
+                    </form>
+                    <div th:if="${modules[9].completed}" class="completed-badge">
+                        ✅ Module validé
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section de progression -->
+        <div class="completion-section">
+            <div class="completion-stats">
+                <div class="stat-card">
+                    <div class="stat-number" th:text="${completedCount}">0</div>
+                    <div class="stat-label">Modules complétés</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" th:text="${hoursCompleted}">0</div>
+                    <div class="stat-label">Heures de formation</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" th:text="${points}">0</div>
+                    <div class="stat-label">Points obtenus</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

@@ -28,7 +28,7 @@ public class PageController {
                                @RequestParam String password,
                                HttpSession session) {
         try {
-            // Préparer la requête pour l'API
+       
             RestTemplate restTemplate = new RestTemplate();
             
             HttpHeaders headers = new HttpHeaders();
@@ -40,7 +40,7 @@ public class PageController {
             
             HttpEntity<Map<String, String>> request = new HttpEntity<>(requestBody, headers);
             
-            // Appeler l'API
+            
             ResponseEntity<Map> response = restTemplate.postForEntity(
                 API_URL, 
                 request, 
@@ -50,7 +50,6 @@ public class PageController {
             if (response.getStatusCode().is2xxSuccessful()) {
                 Map<String, Object> responseBody = response.getBody();
                 
-                // Stocker les infos utilisateur dans la session
                 session.setAttribute("userId", responseBody.get("userId"));
                 session.setAttribute("userName", responseBody.get("userName"));
                 session.setAttribute("loggedIn", true);

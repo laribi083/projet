@@ -28,14 +28,13 @@ public class InscriptionController {
             return ResponseEntity.badRequest().body("Email already exists");
         }
         
-        // 🔐 HASHER LE MOT DE PASSE AVANT SAUVEGARDE
+        
         String hashedPassword = passwordEncoder.encode(utilisateur.getPassword());
         utilisateur.setPassword(hashedPassword);
-        
-        // ✅ Sauvegarde avec mot de passe hashé
+    
         Utilisateur savedUser = userRepository.save(utilisateur);
         
-        // LOG POUR DEBUG
+      
         System.out.println("✅ UTILISATEUR CRÉÉ: " + savedUser.getEmail() + " avec ID: " + savedUser.getId());
         
         return ResponseEntity.ok("Account created successfully");

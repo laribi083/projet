@@ -1,114 +1,85 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Student Courses</title>
-    <link rel="stylesheet" href="cssstudent/courses.css">
-
+    <title>Component & Representation of Information - BrainLearning</title>
+    <link rel="stylesheet" th:href="@{/cssstudent/modul.css}">
 </head>
 <body>
-    <h1>Course Catalog</h1>
-    <h2>semaster1</h2>
-    <div class="courses-container" id="courses">
+<header>
+    <a th:href="@{/niveux/1st-year}" class="back-link">← Back to courses</a>
+</header>
 
-        <div class="course-card">
-           
-            <h2>Algebra </h2>
-            <p>Learn the basics of Mathematiques.</p>
-            <div class="info">
-                ⏱️ 8 weeks <br>
-                👨‍🎓 245 students
-            </div>
-            <button class="btn"><a href="ALG.html">see courses</a></button>
-        </div>
-
-        <div class="course-card">
-           
-            <h2>Analyses</h2>
-          
-            <div class="info">
-                ⏱️ 10 weeks <br>
-                👨‍🎓 189 students
-            </div>
-            <button class="btn"><a href="Ana.html">see courses</a></button>
-        </div>
-
-        <div class="course-card">
-            
-            <h2>Algorithmique ans Data strucature</h2>
-           
-            <div class="info">
-                ⏱️ 7 weeks <br>
-                👨‍🎓 170 students
-            </div>
-            <button class="btn"><a href="ASD1.html">see courses</a></button>
-        </div>
-
-        <div class="course-card">
-            
-            <h2>Machines  Structure </h2>
-           
-            <div class="info">
-                ⏱️ 6 weeks <br>
-                👨‍🎓 280 students
-            </div>
-            <button class="btn"><a href="SM.html">see courses</a></button>
-        </div>
-
-        <div class="course-card">
-           
-            <h2>trecité</h2>
-     
-            <div class="info">
-                ⏱️ 4 weeks <br>
-                👨‍🎓 400 students
-            </div>
-            <button class="btn"><a href="trécité.html">see courses</a></button>
-        </div>
-        <h1>semaster 2</h1>
-        <div class="course-card">
-           
-            <h2>open soures </h2>
-         
-            <div class="info">
-                ⏱️ 8 weeks <br>
-                👨‍🎓 245 students
-            </div>
-            <button class="btn"><a href="opens.html">see courses</a></button>
-        </div>
-        <div class="course-card">
-           
-            <h2>Introdaction of Artificalle inttligent</h2>
-            <p>the basis of AI.</p>
-            <div class="info">
-                ⏱️ 8 weeks <br>
-                👨‍🎓 245 students
-            </div>
-            <button class="btn"><a href="IAI.html">see courses</a></button>
-        </div>
-        <div class="course-card">
-           
-            <h2> Algorithmique ans Data strucature 2</h2>
-            <p>Learn hwo to manager your project  .</p>
-            <div class="info">
-                ⏱️ 8 weeks <br>
-                👨‍🎓 245 students
-            </div>
-            <button class="btn"><a href="ASD2.html">see courses</a></button>
-        </div>
-         <div class="course-card">
-           
-            <h2> Analyses  2</h2>
-    
-            <div class="info">
-                ⏱️ 8 weeks <br>
-                👨‍🎓 245 students
-            </div>
-            <button class="btn"><a href="Ana2.html">see courses</a></button>
-        </div>
-
+<section class="course-header">
+    <h1>Component & Representation of Information</h1>
+    <div class="course-meta">
+        <span class="instructor">👨‍🏫 Instructor: Dr. Karim Hadjadj</span>
+        <span class="duration">⏱️ Duration: 15 hours</span>
+        <span class="chapters">📚 Chapters: 8</span>
     </div>
-    <script src="jsstudent/cours.js"></script>
+    <div class="progress-bar">
+        <div class="progress-fill" style="width: 0%"></div>
+    </div>
+    <p><strong>Progress:</strong> <span th:text="${progress}">0</span> / 8 chapters</p>
+</section>
+<hr>
+
+<section>
+    <h2>Course Content</h2>
+    <ol class="chapters-list">
+        <li>
+            <h3>Chapter 1: Number Systems (Binary, Octal, Hexadecimal)</h3>
+            <p>Type: PDF | Duration: 50 min | Size: 4.5 MB</p>
+            <button class="btn-download">Download</button>
+        </li>
+        <li>
+            <h3>Chapter 2: Boolean Algebra and Logic Gates</h3>
+            <p>Type: PDF | Duration: 60 min | Size: 5.8 MB</p>
+            <button class="btn-download">Download</button>
+        </li>
+        <li>
+            <h3>Chapter 3: Combinational Logic Circuits</h3>
+            <p>Type: PDF | Duration: 55 min | Size: 6.2 MB</p>
+            <button class="btn-download">Download</button>
+        </li>
+        <li>
+            <h3>Chapter 4: Sequential Logic Circuits</h3>
+            <p>Type: PDF | Duration: 60 min | Size: 7.1 MB</p>
+            <button class="btn-download">Download</button>
+        </li>
+        <li>
+            <h3>Chapter 5: Data Representation (Integer, Floating Point)</h3>
+            <p>Type: PDF | Duration: 50 min | Size: 5.3 MB</p>
+            <button class="btn-download">Download</button>
+        </li>
+        <li>
+            <h3>Chapter 6: Computer Architecture Basics</h3>
+            <p>Type: PDF | Duration: 45 min | Size: 4.9 MB</p>
+            <button class="btn-download">Download</button>
+        </li>
+        <li>
+            <h3>Chapter 7: Memory and Storage Systems</h3>
+            <p>Type: PDF | Duration: 40 min | Size: 4.2 MB</p>
+            <button class="btn-download">Download</button>
+        </li>
+        <li>
+            <h3>Quiz: Digital Systems</h3>
+            <p>Type: Quiz | Duration: 40 min | Questions: 30</p>
+            <button class="btn-quiz">Start Quiz</button>
+        </li>
+    </ol>
+</section>
+<hr>
+
+<section>
+    <h2>Statistics</h2>
+    <ul class="stats">
+        <li>📖 Chapters: 8</li>
+        <li>✅ Completed: 0</li>
+        <li>⏳ Remaining: 8</li>
+        <li>🛠️ Practical Labs: 3</li>
+    </ul>
+</section>
 </body>
 </html>

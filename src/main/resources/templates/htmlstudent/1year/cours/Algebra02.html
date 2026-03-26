@@ -1,56 +1,62 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Introduction of Artificille intelegent</title>
-    <link rel="stylesheet" href="css/modul.css">
+    <title>Algebra 02 - BrainLearning</title>
+    <link rel="stylesheet" th:href="@{/cssstudent/modul.css}">
 </head>
 <body>
 <header>
-    <a href="cours1.html">← Back to Courses</a>
+    <a th:href="@{/niveux/1st-year}" class="back-link">← Back to courses</a>
 </header>
 
-<section>
-    <h1>Introduction of Artificille intelegent  </h1>
-   
-    <p>
-        <strong>Instructor:</strong> Kitouni  | 
-        <strong>Duration:</strong> 10hours | 
-        <strong>Chapters:</strong> 4
-    </p>
-    <p><strong>Progress:</strong> 4 / 4 chapters</p>
+<section class="course-header">
+    <h1>Algebra 02</h1>
+    <div class="course-meta">
+        <span class="instructor">👨‍🏫 Instructor: Prof. Ahmed Benali</span>
+        <span class="duration">⏱️ Duration: 8 hours</span>
+        <span class="chapters">📚 Chapters: 6</span>
+    </div>
+    <div class="progress-bar">
+        <div class="progress-fill" style="width: 0%"></div>
+    </div>
+    <p><strong>Progress:</strong> <span th:text="${progress}">0</span> / 6 chapters</p>
 </section>
 <hr>
 
 <section>
     <h2>Course Content</h2>
-    <ol>
+    <ol class="chapters-list">
         <li>
-            <h3>
-                <a href="#">chapter 1</a>
-            </h3>
-            <p>Type: PDF | Duration: 25 min | Size: 3.5 MB</p>
-            <button>Download</button>
+            <h3>Chapter 1: Groups and Subgroups</h3>
+            <p>Type: PDF | Duration: 45 min | Size: 4.3 MB</p>
+            <button class="btn-download">Download</button>
         </li>
         <li>
-            <h3>
-                <a href="#">chapter2</a>
-            </h3>
-            <p>Type: Document | Duration: 20 min | Size: 1.8 MB</p>
-            <button>Download</button>
+            <h3>Chapter 2: Rings and Fields</h3>
+            <p>Type: PDF | Duration: 50 min | Size: 5.1 MB</p>
+            <button class="btn-download">Download</button>
         </li>
         <li>
-            <h3>
-                <a href="#">chapter3</a>
-            </h3>
-            <p>Type: PDF | Duration: 10 min | Size: 3.2 MB</p>
-            <button>Download</button>
+            <h3>Chapter 3: Eigenvalues and Eigenvectors</h3>
+            <p>Type: PDF | Duration: 55 min | Size: 6.0 MB</p>
+            <button class="btn-download">Download</button>
         </li>
         <li>
-            <h3>Quiz: </h3>
-            <p>Type: Quiz | Duration: 10 min</p>
-            <button>Retry</button>
+            <h3>Chapter 4: Matrix Diagonalization</h3>
+            <p>Type: PDF | Duration: 50 min | Size: 5.5 MB</p>
+            <button class="btn-download">Download</button>
+        </li>
+        <li>
+            <h3>Chapter 5: Quadratic Forms</h3>
+            <p>Type: PDF | Duration: 45 min | Size: 4.8 MB</p>
+            <button class="btn-download">Download</button>
+        </li>
+        <li>
+            <h3>Quiz: Advanced Algebra</h3>
+            <p>Type: Quiz | Duration: 35 min | Questions: 25</p>
+            <button class="btn-quiz">Start Quiz</button>
         </li>
     </ol>
 </section>
@@ -58,18 +64,12 @@
 
 <section>
     <h2>Statistics</h2>
-    <ul>
-        <li>Chapters: 4</li>
-        <li>Completed: 4</li>
-        <li>Remaining: 0</li>
+    <ul class="stats">
+        <li>📖 Chapters: 6</li>
+        <li>✅ Completed: 0</li>
+        <li>⏳ Remaining: 6</li>
+        <li>📝 Exercises: 5 sets</li>
     </ul>
 </section>
-<hr>
-<section>
-    <h2>Instructor</h2>
-    <p><strong>kitouni</strong></p>
-    <p>Experienced trainer with over 9 years in the field.</p>
-</section>
-<hr>
 </body>
 </html>

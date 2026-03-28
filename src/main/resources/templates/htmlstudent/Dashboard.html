@@ -36,7 +36,7 @@
 </a>
                 <a th:href="@{/quiz.html}" class="nav-item">
                     <i class="fas fa-question-circle"></i>
-                    <span>Quiz</span>
+                    <span>Quizzes</span>
                 </a>
                 <a href="#" class="nav-item">
                     <i class="fas fa-chart-bar"></i>
@@ -46,14 +46,8 @@
                     <i class="fas fa-robot"></i>
                     <span>AI Assistant</span>
                 </a>
-                <a href="#" class="nav-item">
-                    <i class="fas fa-calendar"></i>
-                    <span>Planning</span>
-                </a>
-                <a href="#" class="nav-item">
-                    <i class="fas fa-cog"></i>
-                    <span>Settings</span>
-                </a>
+              
+                
             </nav>
             
             <div class="sidebar-footer">
@@ -69,7 +63,7 @@
             <header class="dashboard-header">
                 <div class="header-left">
                     <h2 th:text="'Hello ' + ${#strings.substringBefore(session.userName, ' ')} + ' !'">Hello Hadil !</h2>
-                    <p class="date">Monday, March 9, 2026 • Have a great study day!</p>
+                    <p class="date">  Have a great study day!</p>
                 </div>
                 
                 <div class="header-right">
@@ -147,7 +141,7 @@
                     <div class="action-icon" style="background: #0f9d58;">
                         <i class="fas fa-pencil-alt"></i>
                     </div>
-                    <h4>Take Quiz</h4>
+                    <h4>Take Quizzes</h4>
                     <p>Test your knowledge with interactive quizzes</p>
                 </div>
                 
@@ -205,7 +199,7 @@
                             <i class="fas fa-clipboard-check"></i>
                             <div>
                                 <h4>Évaluations</h4>
-                                <p><span id="evaluationsDisponibles">0</span> évaluations disponibles</p>
+                                <p><span id="evaluationsDisponibles">0</span> reviews available</p>
                             </div>
                         </div>
                     </div>

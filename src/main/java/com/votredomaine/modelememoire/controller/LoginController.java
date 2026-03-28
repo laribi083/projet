@@ -5,16 +5,13 @@ import com.votredomaine.modelememoire.model.Utilisateur;
 import com.votredomaine.modelememoire.repository.UserRepository;
 import com.votredomaine.modelememoire.service.TeacherService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.http.ResponseEntity;
+import org.springframework.web.servlet.ModelAndView;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
+import jakarta.servlet.http.HttpSession;
 
-@RestController
-@RequestMapping("/api")
-@CrossOrigin("*")
+@Controller
 public class LoginController {
 
     @Autowired
@@ -25,61 +22,112 @@ public class LoginController {
     
     private BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
+    // Traitement du formulaire POST
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody Utilisateur user) {
+    public ModelAndView processLogin(@RequestParam String email, 
+                                     @RequestParam String password,
+                                     HttpSession session) {
         
-        System.out.println("🔐 Tentative de connexion pour: " + user.getEmail());
+        System.out.println("🔐 Tentative de connexion pour: " + email);
         
         // 1. Vérifier d'abord si c'est un TEACHER
-        Optional<Teacher> teacherOpt = teacherService.findByEmail(user.getEmail());
+        var teacherOpt = teacherService.findByEmail(email);
         
         if (teacherOpt.isPresent()) {
             Teacher teacher = teacherOpt.get();
-            System.out.println("📝 Teacher trouvé: " + teacher.getEmail());
-            
-            // Vérifier le mot de passe du teacher
-            if (passwordEncoder.matches(user.getPassword(), teacher.getPassword())) {
-                Map<String, Object> response = new HashMap<>();
-                response.put("message", "Login Success");
-                response.put("userId", teacher.getId());
-                response.put("userName", teacher.getName());
-                response.put("email", teacher.getEmail());
-                response.put("role", "TEACHER");
-                response.put("redirectUrl", "/teacher/dashboard");
+            if (passwordEncoder.matches(password, teacher.getPassword())) {
+                session.setAttribute("userId", teacher.getId());
+                session.setAttribute("userName", teacher.getName());
+                session.setAttribute("userEmail", teacher.getEmail());
+                session.setAttribute("role", "TEACHER");
+                session.setAttribute("loggedIn", true);
                 
-                System.out.println("✅ Connexion TEACHER réussie pour: " + user.getEmail());
-                return ResponseEntity.ok(response);
+                System.out.println("✅ Connexion TEACHER réussie");
+                return new ModelAndView("redirect:/teacher/dashboard");
             } else {
-                System.out.println("❌ Mot de passe incorrect pour teacher: " + user.getEmail());
-                return ResponseEntity.status(401).body("Email or Password incorrect");
+                ModelAndView mav = new ModelAndView("login");
+                mav.addObject("error", "Email ou mot de passe incorrect");
+                return mav;
             }
         }
         
-        // 2. Si ce n'est pas un teacher, vérifier dans la table users (étudiants)
-        Optional<Utilisateur> userOpt = userRepository.findByEmail(user.getEmail());
+        // 2. Vérifier dans la table users (étudiants)
+        var userOpt = userRepository.findByEmail(email);
         
         if (userOpt.isPresent()) {
-            Utilisateur existingUser = userOpt.get();
-            System.out.println("📝 Utilisateur (étudiant) trouvé: " + existingUser.getEmail());
-            
-            if (passwordEncoder.matches(user.getPassword(), existingUser.getPassword())) {
-                Map<String, Object> response = new HashMap<>();
-                response.put("message", "Login Success");
-                response.put("userId", existingUser.getId());
-                response.put("userName", existingUser.getName());
-                response.put("email", existingUser.getEmail());
-                response.put("role", "STUDENT");
-                response.put("redirectUrl", "/student/dashboard");
+            Utilisateur user = userOpt.get();
+            if (passwordEncoder.matches(password, user.getPassword())) {
+                session.setAttribute("userId", user.getId());
+                session.setAttribute("userName", user.getName());
+                session.setAttribute("userEmail", user.getEmail());
+                session.setAttribute("role", "STUDENT");
+                session.setAttribute("loggedIn", true);
                 
-                System.out.println("✅ Connexion ÉTUDIANT réussie pour: " + user.getEmail());
-                return ResponseEntity.ok(response);
-            } else {
-                System.out.println("❌ Mot de passe incorrect pour étudiant: " + user.getEmail());
-                return ResponseEntity.status(401).body("Email or Password incorrect");
+                System.out.println("✅ Connexion ÉTUDIANT réussie");
+                return new ModelAndView("redirect:/student/dashboard");
             }
         }
         
-        System.out.println("❌ Utilisateur non trouvé dans les deux tables: " + user.getEmail());
-        return ResponseEntity.status(401).body("Email or Password incorrect");
+        System.out.println("❌ Connexion échouée");
+        ModelAndView mav = new ModelAndView("login");
+        mav.addObject("error", "Email ou mot de passe incorrect");
+        return mav;
+    }
+    
+    // Dashboard enseignant
+    @GetMapping("/teacher/dashboard")
+    public ModelAndView teacherDashboard(HttpSession session) {
+        if (session.getAttribute("role") == null || !"TEACHER".equals(session.getAttribute("role"))) {
+            return new ModelAndView("redirect:/login");
+        }
+        
+        ModelAndView mav = new ModelAndView("htmlTeacher/dashbord");
+        mav.addObject("teacherName", session.getAttribute("userName"));
+        mav.addObject("teacherEmail", session.getAttribute("userEmail"));
+        return mav;
+    }
+    
+    // Dashboard étudiant
+    @GetMapping("/student/dashboard")
+    public ModelAndView studentDashboard(HttpSession session) {
+        if (session.getAttribute("role") == null || !"STUDENT".equals(session.getAttribute("role"))) {
+            return new ModelAndView("redirect:/login");
+        }
+        
+        ModelAndView mav = new ModelAndView("htmlstudent/Dashboard");
+        mav.addObject("studentName", session.getAttribute("userName"));
+        mav.addObject("studentEmail", session.getAttribute("userEmail"));
+        return mav;
+    }
+    
+    // Route pour les quiz teacher
+    @GetMapping("/teacher/quiz")
+    public ModelAndView teacherQuiz(HttpSession session) {
+        if (session.getAttribute("role") == null || !"TEACHER".equals(session.getAttribute("role"))) {
+            return new ModelAndView("redirect:/login");
+        }
+        
+        ModelAndView mav = new ModelAndView("htmlTeacher/quiz");
+        mav.addObject("teacherName", session.getAttribute("userName"));
+        return mav;
+    }
+    
+    // Route pour créer un cours
+    @GetMapping("/teacher/create-course")
+    public ModelAndView createCourse(HttpSession session) {
+        if (session.getAttribute("role") == null || !"TEACHER".equals(session.getAttribute("role"))) {
+            return new ModelAndView("redirect:/login");
+        }
+        
+        ModelAndView mav = new ModelAndView("htmlTeacher/create-course");
+        mav.addObject("teacherName", session.getAttribute("userName"));
+        return mav;
+    }
+    
+    // Déconnexion
+    @GetMapping("/logout")
+    public String logout(HttpSession session) {
+        session.invalidate();
+        return "redirect:/login";
     }
 }

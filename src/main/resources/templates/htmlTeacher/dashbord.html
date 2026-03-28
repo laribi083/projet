@@ -1,71 +1,141 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Teacher Dashboard</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teacher Dashboard - Brainlearning</title>
+    
+    <!-- Lien vers le CSS -->
+    <link rel="stylesheet" th:href="@{/cssTracher/dashbord.css}" href="/cssTracher/dashbord.css">
 </head>
-
 <body>
 
-<header>
-    🎓 <strong>Teacher Dashboard</strong>
-    <p>Manage courses and create quizzes for students</p>
-</header>
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="logo">
+            Brain<span>learning</span>
+        </div>
+        
+        <div class="user-info-sidebar">
+            <div class="user-avatar">
+                👨‍🏫
+            </div>
+            <div class="user-name" th:text="${teacherName}">Professeur</div>
+            <div class="user-email" th:text="${teacherEmail}">teacher@school.com</div>
+        </div>
+        
+        <ul class="nav-menu">
+            <li class="nav-item">
+                <a href="#" class="nav-link active">
+                    📚 My couses
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="#" class="nav-link">
+                    📝My Quizzes
+                </a>
+            </li>
+            
+            
+        </ul>
+        
+        <div class="logout-btn-sidebar" onclick="logout()">
+            🚪 Disconnect
+        </div>
+    </div>
 
-<main>
-
-    <h2>Courses</h2>
-
-  
-    <div class="course-card">
-        <div>
-            <strong>📘 hhh</strong>
-            <p>kk</p>
+    <!-- Main Content -->
+    <div class="main-content">
+        
+        <!-- Top Bar -->
+        <div class="top-bar">
+            <div class="page-title">
+                📚 My courses
+            </div>
+            <div class="header-actions">
+                <button class="btn-primary" onclick="createCourse()">
+                    ✨ New course
+                </button>
+            </div>
         </div>
 
-        <div>
-            <button><a href=quiz.html>📘</a></button>
-            <button>✏️</button>
-            <button class="delete-course-btn">🗑</button>
+        <!-- Stats Cards -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-info">
+                    <h3 id="totalCourses">0</h3>
+                    <p>Total courses</p>
+                </div>
+                <div class="stat-icon">📚</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-info">
+                    <h3 id="totalQuizzes">0</h3>
+                    <p>Quizzes created</p>
+                </div>
+                <div class="stat-icon">📝</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-info">
+                    <h3 id="totalStudents">0</h3>
+                    <p>Étudiants inscrits</p>
+                </div>
+                <div class="stat-icon">👥</div>
+            </div>
+        </div>
+
+        <!-- Courses Section -->
+        <div class="section-header">
+            <h2>📖 All my courses</h2>
+        </div>
+
+        <div class="courses-grid" id="coursesGrid">
+            <!-- Course Card Example -->
+            <div class="course-card">
+                <div class="course-image">
+                    📘
+                    <span class="course-badge">In progresse</span>
+                </div>
+                <div class="course-content">
+                    <h3 class="course-title">Analyses1:</h3>
+                    <p class="course-description">Description of course</p>
+                    <div class="course-meta">
+                        <div class="course-stats">
+                            <span>📖 0 courses</span>
+                            <span>👥 0 students</span>
+                        </div>
+                        <div class="course-actions">
+                            <button class="btn-view" onclick="viewQuiz(1)">📘 Quizzes</button>
+                            <button class="btn-edit" onclick="editCourse(1)">✏️</button>
+                            <button class="btn-delete" onclick="showDeleteModal(1, 'hhh')">🗑</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
-</main>
-
-
-<div class="delete-modal" id="deleteModal">
-    <div class="delete-box">
-        <h3>Delete Course</h3>
-
-        <p>
-            Are you sure you want to delete <strong>"hhh"</strong>?
-        </p>
-
-        <p>
-            All associated quizzes will also be deleted.
-            This action cannot be undone.
-        </p>
-
-        <div class="delete-actions">
-            <button class="btn-cancel" id="cancelBtn">Cancel</button>
-            <button class="btn-delete">Delete</button>
+    <!-- Delete Modal -->
+    <div class="modal" id="deleteModal">
+        <div class="modal-content">
+            <h3>🗑️ Delete course</h3>
+            <p>
+                Are you sure you want to delete the course 
+                <strong id="courseNameToDelete">"hhh"</strong> ?
+            </p>
+            <p style="font-size: 0.85rem; color: #999;">
+                All associated quizzes will also be deleted.<br>
+                This action is irreversible.
+            </p>
+            <div class="modal-actions">
+                <button class="btn-cancel" onclick="closeModal()">Cancel</button>
+                <button class="btn-confirm" onclick="confirmDelete()">Delete</button>
+            </div>
         </div>
     </div>
-</div>
 
-<script>
-    const deleteBtn = document.querySelector(".delete-course-btn");
-    const modal = document.getElementById("deleteModal");
-    const cancelBtn = document.getElementById("cancelBtn");
-
-    deleteBtn.addEventListener("click", () => {
-        modal.style.display = "flex";
-    });
-
-    cancelBtn.addEventListener("click", () => {
-        modal.style.display = "none";
-    });
-</script>
+    <!-- Lien vers le JavaScript -->
+    <script th:src="@{/js/teacher-dashboard.js}" src="/js/teacher-dashboard.js"></script>
 
 </body>
 </html>

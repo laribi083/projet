@@ -1,5 +1,8 @@
+com\votredomaine\modelememoire\repository\courserepository.class
 com\votredomaine\modelememoire\controller\TeacherTestController.class
+com\votredomaine\modelememoire\service\Courseservice.class
 com\votredomaine\modelememoire\repository\impl\UtilisateurRepositoryImpl.class
+com\votredomaine\modelememoire\controller\courcontroller.class
 com\votredomaine\modelememoire\service\EmailService.class
 com\votredomaine\modelememoire\controller\TeacherController.class
 com\votredomaine\modelememoire\repository\ForgetPasswordRepository.class
@@ -11,6 +14,7 @@ com\votredomaine\modelememoire\controller\HomeController.class
 com\votredomaine\modelememoire\controller\TestController.class
 com\votredomaine\modelememoire\repository\impl\PasswordResetTokenRepositoryImpl.class
 com\votredomaine\modelememoire\model\forgetmodel.class
+com\votredomaine\modelememoire\model\Course.class
 com\votredomaine\modelememoire\model\Teacher.class
 com\votredomaine\modelememoire\controller\LoginController.class
 com\votredomaine\modelememoire\service\UtilisateurService.class
@@ -22,5 +26,6 @@ com\votredomaine\modelememoire\model\Utilisateur.class
 com\votredomaine\modelememoire\service\createservice.class
 com\votredomaine\modelememoire\Application.class
 com\votredomaine\modelememoire\controller\InscriptionController.class
+com\votredomaine\modelememoire\controller\studentcoursecontroller.class
 com\votredomaine\modelememoire\repository\UserRepository.class
 com\votredomaine\modelememoire\controller\forgetController.class

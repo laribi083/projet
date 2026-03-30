@@ -138,4 +138,156 @@
     <script th:src="@{/js/teacher-dashboard.js}" src="/js/teacher-dashboard.js"></script>
 
 </body>
+<!-- Add this script at the bottom of dashboard.html -->
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        loadCourses();
+        loadStats();
+    });
+    
+    function loadCourses() {
+        fetch('/teacher/api/courses')
+            .then(response => response.json())
+            .then(courses => {
+                const coursesGrid = document.getElementById('coursesGrid');
+                coursesGrid.innerHTML = '';
+                
+                if (courses.length === 0) {
+                    coursesGrid.innerHTML = `
+                        <div class="empty-state">
+                            <i class="fas fa-book-open"></i>
+                            <p>You haven't created any courses yet</p>
+                            <button class="btn-primary" onclick="createCourse()">
+                                Create your first course
+                            </button>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                courses.forEach(course => {
+                    const courseCard = createCourseCard(course);
+                    coursesGrid.appendChild(courseCard);
+                });
+            })
+            .catch(error => console.error('Error loading courses:', error));
+    }
+    
+    function createCourseCard(course) {
+        const div = document.createElement('div');
+        div.className = 'course-card';
+        div.innerHTML = `
+            <div class="course-image">
+                📘
+                <span class="course-badge">${course.status === 'ACTIVE' ? 'Active' : 'Draft'}</span>
+            </div>
+            <div class="course-content">
+                <h3 class="course-title">${escapeHtml(course.title)}</h3>
+                <p class="course-description">${escapeHtml(course.description.substring(0, 100))}${course.description.length > 100 ? '...' : ''}</p>
+                <div class="course-meta">
+                    <div class="course-stats">
+                        <span>📖 ${course.totalQuizzes || 0} quizzes</span>
+                        <span>👥 ${course.totalStudents || 0} students</span>
+                    </div>
+                    <div class="course-actions">
+                        <button class="btn-view" onclick="viewCourse(${course.id})">📘 View</button>
+                        <button class="btn-edit" onclick="editCourse(${course.id})">✏️ Edit</button>
+                        <button class="btn-delete" onclick="showDeleteModal(${course.id}, '${escapeHtml(course.title)}')">🗑 Delete</button>
+                    </div>
+                </div>
+            </div>
+        `;
+        return div;
+    }
+    
+    function createCourse() {
+        window.location.href = '/teacher/add-course';
+    }
+    
+    function editCourse(courseId) {
+        window.location.href = `/teacher/edit-course/${courseId}`;
+    }
+    
+    function viewCourse(courseId) {
+        window.location.href = `/teacher/course/${courseId}`;
+    }
+    
+    function loadStats() {
+        fetch('/teacher/api/courses')
+            .then(response => response.json())
+            .then(courses => {
+                document.getElementById('totalCourses').textContent = courses.length;
+                
+                let totalQuizzes = 0;
+                let totalStudents = 0;
+                courses.forEach(course => {
+                    totalQuizzes += course.totalQuizzes || 0;
+                    totalStudents += course.totalStudents || 0;
+                });
+                
+                document.getElementById('totalQuizzes').textContent = totalQuizzes;
+                document.getElementById('totalStudents').textContent = totalStudents;
+            })
+            .catch(error => console.error('Error loading stats:', error));
+    }
+    
+    let courseToDelete = null;
+    
+    function showDeleteModal(courseId, courseTitle) {
+        courseToDelete = courseId;
+        document.getElementById('courseNameToDelete').textContent = courseTitle;
+        document.getElementById('deleteModal').style.display = 'flex';
+    }
+    
+    function closeModal() {
+        document.getElementById('deleteModal').style.display = 'none';
+        courseToDelete = null;
+    }
+    
+    function confirmDelete() {
+        if (courseToDelete) {
+            fetch(`/teacher/delete-course/${courseToDelete}`, {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    closeModal();
+                    loadCourses();
+                    loadStats();
+                    showNotification('Course deleted successfully', 'success');
+                } else {
+                    showNotification('Error deleting course: ' + data.message, 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showNotification('Error deleting course', 'error');
+            });
+        }
+    }
+    
+    function showNotification(message, type) {
+        const notification = document.createElement('div');
+        notification.className = `notification notification-${type}`;
+        notification.innerHTML = `
+            <i class="fas ${type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'}"></i>
+            <span>${message}</span>
+        `;
+        document.body.appendChild(notification);
+        
+        setTimeout(() => {
+            notification.remove();
+        }, 3000);
+    }
+    
+    function escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+</script>
 </html>

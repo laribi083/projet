@@ -20,7 +20,9 @@ import java.util.Map;
 public class courcontroller {
     
     @Autowired
-    private Courseservice courseService;  
+    private Courseservice courseService;
+    
+    // ✅ CORRIGÉ: Garder le mapping /dashboard pour ne pas casser les liens existants
     @GetMapping("/dashboard")
     public String dashboard(HttpSession session, Model model) {
         Long teacherId = (Long) session.getAttribute("teacherId");
@@ -52,23 +54,37 @@ public class courcontroller {
     public String createCourse(@ModelAttribute Course course,
                                @RequestParam(value = "files", required = false) List<MultipartFile> files,
                                @RequestParam(value = "niveau", required = false) String niveau,
+                               @RequestParam(value = "module", required = false) String module,
+                               @RequestParam(value = "totalHours", required = false) Integer totalHours,
+                               @RequestParam(value = "totalVideos", required = false) Integer totalVideos,
                                HttpSession session,
                                RedirectAttributes redirectAttributes) {
         try {
             Long teacherId = (Long) session.getAttribute("teacherId");
             String teacherName = (String) session.getAttribute("teacherName");
             
+            // Vérification des données obligatoires
+            if (teacherId == null) {
+                redirectAttributes.addFlashAttribute("error", "Session expired. Please login again.");
+                return "redirect:/login";
+            }
+            
             course.setTeacherId(teacherId);
             course.setTeacherName(teacherName);
             course.setNiveau(niveau);
+            course.setModule(module);
+          
+            course.setStatus("ACTIVE");
             
             Course savedCourse = courseService.createCourse(course, files);
             redirectAttributes.addFlashAttribute("success", "Course created successfully!");
+            System.out.println("✅ Cours créé: " + savedCourse.getTitle());
         } catch (Exception e) {
             e.printStackTrace();
             redirectAttributes.addFlashAttribute("error", "Error creating course: " + e.getMessage());
         }
         
+        // ✅ CORRIGÉ: Rediriger vers /teacher/dashboard (pas /teacher/courses)
         return "redirect:/teacher/dashboard";
     }
     

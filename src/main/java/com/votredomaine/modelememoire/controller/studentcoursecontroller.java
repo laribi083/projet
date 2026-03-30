@@ -18,6 +18,9 @@ public class studentcoursecontroller {
     @Autowired
     private Courseservice courseService;
     
+    // ⚠️ COMMENTEZ OU SUPPRIMEZ CETTE MÉTHODE
+    // Elle est en conflit avec LoginController.studentDashboard()
+    /*
     @GetMapping("/dashboard")
     public String dashboard(HttpSession session, Model model) {
         String userName = (String) session.getAttribute("userName");
@@ -35,7 +38,9 @@ public class studentcoursecontroller {
         
         return "htmlstudent/Dashboard";
     }
+    */
     
+    // ✅ Gardez les méthodes API pour les requêtes AJAX
     @GetMapping("/api/courses/{niveau}")
     @ResponseBody
     public ResponseEntity<List<Course>> getCoursesByNiveau(@PathVariable String niveau) {

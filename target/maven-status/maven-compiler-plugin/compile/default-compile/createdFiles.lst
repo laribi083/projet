@@ -19,6 +19,7 @@ com\votredomaine\modelememoire\model\Teacher.class
 com\votredomaine\modelememoire\controller\LoginController.class
 com\votredomaine\modelememoire\service\UtilisateurService.class
 com\votredomaine\modelememoire\service\loginservice.class
+com\votredomaine\modelememoire\controller\ReceiveCoursesController.class
 com\votredomaine\modelememoire\util\ValidationUtils.class
 com\votredomaine\modelememoire\repository\TeacherRepository.class
 com\votredomaine\modelememoire\service\forgetpassservice.class

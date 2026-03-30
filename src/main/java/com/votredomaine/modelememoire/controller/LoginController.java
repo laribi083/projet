@@ -22,6 +22,11 @@ public class LoginController {
     
     private BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
+    @GetMapping("/login")
+    public String showLoginPage() {
+        return "login";
+    }
+
     // Traitement du formulaire POST
     @PostMapping("/login")
     public ModelAndView processLogin(@RequestParam String email, 
@@ -36,13 +41,18 @@ public class LoginController {
         if (teacherOpt.isPresent()) {
             Teacher teacher = teacherOpt.get();
             if (passwordEncoder.matches(password, teacher.getPassword())) {
+                // Pour courcontroller
+                session.setAttribute("teacherId", teacher.getId());
+                session.setAttribute("teacherName", teacher.getName());
+                session.setAttribute("teacherEmail", teacher.getEmail());
+                // Pour compatibilité
                 session.setAttribute("userId", teacher.getId());
                 session.setAttribute("userName", teacher.getName());
                 session.setAttribute("userEmail", teacher.getEmail());
                 session.setAttribute("role", "TEACHER");
                 session.setAttribute("loggedIn", true);
                 
-                System.out.println("✅ Connexion TEACHER réussie");
+                System.out.println("✅ Connexion TEACHER réussie - ID: " + teacher.getId());
                 return new ModelAndView("redirect:/teacher/dashboard");
             } else {
                 ModelAndView mav = new ModelAndView("login");
@@ -63,27 +73,13 @@ public class LoginController {
                 session.setAttribute("role", "STUDENT");
                 session.setAttribute("loggedIn", true);
                 
-                System.out.println("✅ Connexion ÉTUDIANT réussie");
-                return new ModelAndView("redirect:/student/dashboard");
+                
             }
         }
         
-        System.out.println("❌ Connexion échouée");
+        System.out.println("❌ Connexion échouée pour: " + email);
         ModelAndView mav = new ModelAndView("login");
         mav.addObject("error", "Email ou mot de passe incorrect");
-        return mav;
-    }
-    
-    // Dashboard enseignant
-    @GetMapping("/teacher/dashboard")
-    public ModelAndView teacherDashboard(HttpSession session) {
-        if (session.getAttribute("role") == null || !"TEACHER".equals(session.getAttribute("role"))) {
-            return new ModelAndView("redirect:/login");
-        }
-        
-        ModelAndView mav = new ModelAndView("htmlTeacher/dashbord");
-        mav.addObject("teacherName", session.getAttribute("userName"));
-        mav.addObject("teacherEmail", session.getAttribute("userEmail"));
         return mav;
     }
     
@@ -95,8 +91,11 @@ public class LoginController {
         }
         
         ModelAndView mav = new ModelAndView("htmlstudent/Dashboard");
+        mav.addObject("userName", session.getAttribute("userName"));
         mav.addObject("studentName", session.getAttribute("userName"));
         mav.addObject("studentEmail", session.getAttribute("userEmail"));
+        mav.addObject("niveau", session.getAttribute("niveau"));
+        mav.addObject("filiere", session.getAttribute("filiere"));
         return mav;
     }
     
@@ -108,7 +107,7 @@ public class LoginController {
         }
         
         ModelAndView mav = new ModelAndView("htmlTeacher/quiz");
-        mav.addObject("teacherName", session.getAttribute("userName"));
+        mav.addObject("teacherName", session.getAttribute("teacherName"));
         return mav;
     }
     
@@ -120,7 +119,7 @@ public class LoginController {
         }
         
         ModelAndView mav = new ModelAndView("htmlTeacher/create-course");
-        mav.addObject("teacherName", session.getAttribute("userName"));
+        mav.addObject("teacherName", session.getAttribute("teacherName"));
         return mav;
     }
     

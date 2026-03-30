@@ -25,11 +25,11 @@ public class HomeController {
         return "forgetpss";
     }
     
-    // Page de connexion
+    /** Page de connexion
     @GetMapping("/login")
     public String login() {
         return "login";
-    }
+    }**/
     
     // API REST pour vérifier le statut
     @GetMapping("/api/status")

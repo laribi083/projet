@@ -35,9 +35,16 @@ public class Course {
     
     private String status = "ACTIVE";
     
-    private String niveau;
+    // ✅ CHAMPS AJOUTÉS
+    private String niveau;      // 1year, 2year, 3year
+    private String module;      // Mathematics, Computer Science, etc.
+    private String filiere;      // Filière de l'étudiant
     
-    private String filiere;
+    // ✅ NOUVEAUX CHAMPS pour les statistiques d'affichage
+    @Column(name = "total_hours")
+    private Integer totalHours = 8;
+    
+   
     
     @ElementCollection
     @CollectionTable(name = "course_files", joinColumns = @JoinColumn(name = "course_id"))
@@ -88,8 +95,18 @@ public class Course {
     public String getNiveau() { return niveau; }
     public void setNiveau(String niveau) { this.niveau = niveau; }
     
+    // ✅ GETTER/SETTER pour module
+    public String getModule() { return module; }
+    public void setModule(String module) { this.module = module; }
+    
     public String getFiliere() { return filiere; }
     public void setFiliere(String filiere) { this.filiere = filiere; }
+    
+    // ✅ GETTER/SETTER pour totalHours
+    public Integer getTotalHours() { return totalHours; }
+    public void setTotalHours(Integer totalHours) { this.totalHours = totalHours; }
+    
+  
     
     public List<String> getFilePaths() { return filePaths; }
     public void setFilePaths(List<String> filePaths) { this.filePaths = filePaths; }

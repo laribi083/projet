@@ -40,24 +40,22 @@ public class LoginController {
         
         if (teacherOpt.isPresent()) {
             Teacher teacher = teacherOpt.get();
-            if (passwordEncoder.matches(password, teacher.getPassword())) {
-                // Pour courcontroller
-                session.setAttribute("teacherId", teacher.getId());
-                session.setAttribute("teacherName", teacher.getName());
-                session.setAttribute("teacherEmail", teacher.getEmail());
-                // Pour compatibilité
-                session.setAttribute("userId", teacher.getId());
-                session.setAttribute("userName", teacher.getName());
-                session.setAttribute("userEmail", teacher.getEmail());
-                session.setAttribute("role", "TEACHER");
-                session.setAttribute("loggedIn", true);
-                
-                System.out.println("✅ Connexion TEACHER réussie - ID: " + teacher.getId());
-                return new ModelAndView("redirect:/teacher/dashboard");
-            } else {
-                ModelAndView mav = new ModelAndView("login");
-                mav.addObject("error", "Email ou mot de passe incorrect");
-                return mav;
+            try {
+                if (passwordEncoder.matches(password, teacher.getPassword())) {
+                    session.setAttribute("teacherId", teacher.getId());
+                    session.setAttribute("teacherName", teacher.getName());
+                    session.setAttribute("teacherEmail", teacher.getEmail());
+                    session.setAttribute("userId", teacher.getId());
+                    session.setAttribute("userName", teacher.getName());
+                    session.setAttribute("userEmail", teacher.getEmail());
+                    session.setAttribute("role", "TEACHER");
+                    session.setAttribute("loggedIn", true);
+                    
+                    System.out.println("✅ Connexion TEACHER réussie - ID: " + teacher.getId());
+                    return new ModelAndView("redirect:/teacher/dashboard");
+                }
+            } catch (Exception e) {
+                System.out.println("⚠️ Erreur BCrypt pour teacher: " + e.getMessage());
             }
         }
         
@@ -66,14 +64,19 @@ public class LoginController {
         
         if (userOpt.isPresent()) {
             Utilisateur user = userOpt.get();
-            if (passwordEncoder.matches(password, user.getPassword())) {
-                session.setAttribute("userId", user.getId());
-                session.setAttribute("userName", user.getName());
-                session.setAttribute("userEmail", user.getEmail());
-                session.setAttribute("role", "STUDENT");
-                session.setAttribute("loggedIn", true);
-                
-                
+            try {
+                if (passwordEncoder.matches(password, user.getPassword())) {
+                    session.setAttribute("userId", user.getId());
+                    session.setAttribute("userName", user.getName());
+                    session.setAttribute("userEmail", user.getEmail());
+                    session.setAttribute("role", "STUDENT");
+                    session.setAttribute("loggedIn", true);
+                    
+                    System.out.println("✅ Connexion STUDENT réussie - ID: " + user.getId());
+                    return new ModelAndView("redirect:/student/dashboard");  // ← AJOUTÉ !
+                }
+            } catch (Exception e) {
+                System.out.println("⚠️ Erreur BCrypt pour student: " + e.getMessage());
             }
         }
         

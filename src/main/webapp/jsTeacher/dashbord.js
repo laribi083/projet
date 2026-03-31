@@ -1,237 +1,317 @@
-// teacher-dashboard.js - Scripts pour le dashboard enseignant
+// dashbord.js - Teacher Dashboard Logic
 
-let currentCourseToDelete = null;
-let currentStats = {
-    totalCourses: 0,
-    totalQuizzes: 0,
-    totalStudents: 0
-};
+// Global variables
+let courseToDelete = null;
+let selectedFiles = [];
 
-
-
-/**
- * Créer un nouveau cours
- */
-function createCourse() {
-    window.location.href = '/teacher/create-course';
-}
-
-/**
- * Modifier un cours existant
- * @param {number} courseId - L'identifiant du cours
- */
-function editCourse(courseId) {
-    window.location.href = `/teacher/edit-course/${courseId}`;
-}
-
-/**
- * Voir le quiz d'un cours
- * @param {number} courseId - L'identifiant du cours
- */
-function viewQuiz(courseId) {
-    window.location.href = `/teacher/quiz/${courseId}`;
-}
-
-/**
- * Déconnexion de l'utilisateur
- */
-function logout() {
-    window.location.href = '/logout';
-}
-
-// ==================== GESTION DU MODAL DE SUPPRESSION ====================
-
-/**
- * Afficher le modal de confirmation de suppression
- * @param {number} courseId - L'identifiant du cours
- * @param {string} courseName - Le nom du cours
- */
-function showDeleteModal(courseId, courseName) {
-    currentCourseToDelete = { id: courseId, name: courseName };
-    const modal = document.getElementById('deleteModal');
-    const courseNameSpan = document.getElementById('courseNameToDelete');
-    
-    if (modal && courseNameSpan) {
-        courseNameSpan.textContent = courseName;
-        modal.style.display = 'flex';
-    }
-}
-
-/**
- * Fermer le modal de suppression
- */
-function closeModal() {
-    const modal = document.getElementById('deleteModal');
+// ==================== MODAL MANAGEMENT ====================
+function openAddCourseModal() {
+    console.log('Opening modal...');
+    const modal = document.getElementById('addCourseModal');
     if (modal) {
-        modal.style.display = 'none';
-        currentCourseToDelete = null;
+        modal.classList.add('active');
+        document.body.style.overflow = 'hidden';
+        resetCourseForm();
+        console.log('Modal opened');
+    } else {
+        console.error('Modal not found!');
     }
 }
 
-/**
- * Confirmer et exécuter la suppression du cours
- */
-async function confirmDelete() {
-    if (!currentCourseToDelete) return;
+function closeAddCourseModal() {
+    console.log('Closing modal...');
+    const modal = document.getElementById('addCourseModal');
+    if (modal) {
+        modal.classList.remove('active');
+        document.body.style.overflow = 'auto';
+        resetCourseForm();
+    }
+}
+
+function resetCourseForm() {
+    const form = document.getElementById('courseForm');
+    if (form) {
+        form.reset();
+    }
+    selectedFiles = [];
+    updateFileList();
+    const fileInput = document.getElementById('filesInput');
+    if (fileInput) fileInput.value = '';
+}
+
+// File upload handling
+function setupFileUpload() {
+    const fileInput = document.getElementById('filesInput');
+    const dropArea = document.getElementById('fileUploadArea');
+    
+    if (fileInput) {
+        fileInput.addEventListener('change', function(e) {
+            const files = Array.from(e.target.files);
+            selectedFiles = [...selectedFiles, ...files];
+            updateFileList();
+        });
+    }
+    
+    if (dropArea) {
+        dropArea.addEventListener('click', () => {
+            if (fileInput) fileInput.click();
+        });
+        
+        dropArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            dropArea.style.borderColor = '#667eea';
+            dropArea.style.background = '#f3f4f6';
+        });
+        
+        dropArea.addEventListener('dragleave', (e) => {
+            e.preventDefault();
+            dropArea.style.borderColor = '#d1d5db';
+            dropArea.style.background = '#f9fafb';
+        });
+        
+        dropArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropArea.style.borderColor = '#d1d5db';
+            dropArea.style.background = '#f9fafb';
+            const files = Array.from(e.dataTransfer.files);
+            selectedFiles = [...selectedFiles, ...files];
+            updateFileList();
+            if (fileInput) {
+                const dataTransfer = new DataTransfer();
+                selectedFiles.forEach(file => dataTransfer.items.add(file));
+                fileInput.files = dataTransfer.files;
+            }
+        });
+    }
+}
+
+function updateFileList() {
+    const fileListDiv = document.getElementById('fileList');
+    if (!fileListDiv) return;
+    
+    if (selectedFiles.length === 0) {
+        fileListDiv.innerHTML = '';
+        return;
+    }
+    
+    fileListDiv.innerHTML = selectedFiles.map((file, index) => `
+        <div class="file-item">
+            <div>
+                <i class="fas fa-file-alt"></i>
+                <span>${escapeHtml(file.name)}</span>
+                <small style="color:#6b7280; margin-left:8px;">(${(file.size / 1024).toFixed(1)} KB)</small>
+            </div>
+            <button type="button" class="remove-file" onclick="removeFile(${index})">
+                <i class="fas fa-trash-alt"></i>
+            </button>
+        </div>
+    `).join('');
+}
+
+function removeFile(index) {
+    selectedFiles.splice(index, 1);
+    updateFileList();
+    const fileInput = document.getElementById('filesInput');
+    if (fileInput) {
+        const dataTransfer = new DataTransfer();
+        selectedFiles.forEach(file => dataTransfer.items.add(file));
+        fileInput.files = dataTransfer.files;
+    }
+}
+
+// Submit course form
+async function submitCourseForm(event) {
+    event.preventDefault();
+    
+    const submitBtn = document.getElementById('submitBtn');
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Création...';
+    
+    const title = document.getElementById('courseTitle').value.trim();
+    const description = document.getElementById('courseDescription').value.trim();
+    const niveau = document.getElementById('courseLevel').value;
+    
+    if (!title || !description || !niveau) {
+        showNotification('Veuillez remplir tous les champs obligatoires', 'error');
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = '<i class="fas fa-save"></i> Créer';
+        return;
+    }
+    
+    const formData = new FormData();
+    formData.append('title', title);
+    formData.append('description', description);
+    formData.append('niveau', niveau);
+    
+    selectedFiles.forEach(file => {
+        formData.append('files', file);
+    });
     
     try {
-        const response = await fetch(`/api/courses/${currentCourseToDelete.id}`, {
-            method: 'DELETE',
-            headers: {
-                'Content-Type': 'application/json'
-            }
+        const response = await fetch('/teacher/api/courses', {
+            method: 'POST',
+            body: formData
         });
         
         if (response.ok) {
-            showNotification(`✅ Cours "${currentCourseToDelete.name}" supprimé avec succès`, 'success');
-            // Recharger la liste des cours
-            loadCourses();
-            loadStats();
+            showNotification('Cours créé avec succès!', 'success');
+            closeAddCourseModal();
+            await loadCourses();
+            await loadStats();
         } else {
-            const error = await response.text();
-            showNotification(`❌ Erreur: ${error}`, 'error');
+            throw new Error('Erreur lors de la création');
         }
     } catch (error) {
-        console.error('Erreur lors de la suppression:', error);
-        showNotification('❌ Erreur de connexion au serveur', 'error');
-    }
-    closeModal();
-}
-
-// ==================== CHARGEMENT DES DONNÉES ====================
-
-/**
- * Charger les statistiques du tableau de bord
- */
-async function loadStats() {
-    try {
-        const response = await fetch('/api/teacher/stats');
-        if (response.ok) {
-            const data = await response.json();
-            currentStats = {
-                totalCourses: data.totalCourses || 0,
-                totalQuizzes: data.totalQuizzes || 0,
-                totalStudents: data.totalStudents || 0
-            };
-            
-            // Mettre à jour l'affichage
-            document.getElementById('totalCourses').textContent = currentStats.totalCourses;
-            document.getElementById('totalQuizzes').textContent = currentStats.totalQuizzes;
-            document.getElementById('totalStudents').textContent = currentStats.totalStudents;
-        }
-    } catch (error) {
-        console.error('Erreur lors du chargement des statistiques:', error);
+        console.error('Error:', error);
+        showNotification('Erreur lors de la création du cours', 'error');
+    } finally {
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = '<i class="fas fa-save"></i> Créer';
     }
 }
 
-/**
- * Charger la liste des cours
- */
+// ==================== COURSE MANAGEMENT ====================
 async function loadCourses() {
     try {
-        const response = await fetch('/api/teacher/courses');
-        const container = document.getElementById('coursesGrid');
+        const response = await fetch('/teacher/api/courses');
+        if (!response.ok) throw new Error('Failed to fetch courses');
         
-        if (!container) return;
+        const courses = await response.json();
+        const coursesGrid = document.getElementById('coursesGrid');
         
-        if (response.ok) {
-            const courses = await response.json();
-            
-            if (courses && courses.length > 0) {
-                container.innerHTML = courses.map(course => createCourseCard(course)).join('');
-            } else {
-                container.innerHTML = `
-                    <div class="empty-state">
-                        📭 Aucun cours pour le moment<br>
-                        Cliquez sur "Nouveau cours" pour commencer
-                    </div>
-                `;
-            }
-        } else {
-            container.innerHTML = `
+        if (!coursesGrid) return;
+        
+        if (courses.length === 0) {
+            coursesGrid.innerHTML = `
                 <div class="empty-state">
-                    ⚠️ Erreur lors du chargement des cours<br>
-                    Veuillez réessayer plus tard
+                    <i class="fas fa-book-open"></i>
+                    <p>Vous n'avez pas encore créé de cours</p>
+                    <button class="btn-primary" onclick="openAddCourseModal()">
+                        Créer votre premier cours
+                    </button>
                 </div>
             `;
+            return;
         }
+        
+        coursesGrid.innerHTML = '';
+        courses.forEach(course => {
+            const courseCard = createCourseCard(course);
+            coursesGrid.appendChild(courseCard);
+        });
     } catch (error) {
-        console.error('Erreur lors du chargement des cours:', error);
-        const container = document.getElementById('coursesGrid');
-        if (container) {
-            container.innerHTML = `
-                <div class="empty-state">
-                    ⚠️ Erreur de connexion au serveur<br>
-                    Veuillez vérifier votre connexion
-                </div>
-            `;
-        }
+        console.error('Error loading courses:', error);
+        showNotification('Erreur lors du chargement des cours', 'error');
     }
 }
 
-/**
- * Créer une carte de cours HTML
- * @param {Object} course - Les données du cours
- * @returns {string} Le HTML de la carte
- */
 function createCourseCard(course) {
-    const icon = course.icon || getRandomIcon();
-    const status = course.status || getCourseStatus(course);
-    const lessonsCount = course.lessonsCount || 0;
-    const studentsCount = course.studentsCount || 0;
-    const description = course.description || 'Aucune description';
-    
-    return `
-        <div class="course-card" data-course-id="${course.id}">
-            <div class="course-image">
-                ${icon}
-                <span class="course-badge">${status}</span>
-            </div>
-            <div class="course-content">
-                <h3 class="course-title">${escapeHtml(course.title)}</h3>
-                <p class="course-description">${escapeHtml(description)}</p>
-                <div class="course-meta">
-                    <div class="course-stats">
-                        <span>📖 ${lessonsCount} leçons</span>
-                        <span>👥 ${studentsCount} étudiants</span>
-                    </div>
-                    <div class="course-actions">
-                        <button class="btn-view" onclick="viewQuiz(${course.id})">📘 Quiz</button>
-                        <button class="btn-edit" onclick="editCourse(${course.id})">✏️</button>
-                        <button class="btn-delete" onclick="showDeleteModal(${course.id}, '${escapeHtml(course.title)}')">🗑</button>
-                    </div>
+    const div = document.createElement('div');
+    div.className = 'course-card';
+    div.innerHTML = `
+        <div class="course-image">
+            📘
+            <span class="course-badge">${course.status === 'ACTIVE' ? 'Actif' : 'Brouillon'}</span>
+        </div>
+        <div class="course-content">
+            <h3 class="course-title">${escapeHtml(course.title)}</h3>
+            <p class="course-description">${escapeHtml(course.description ? course.description.substring(0, 100) : '')}${course.description && course.description.length > 100 ? '...' : ''}</p>
+            <div class="course-meta">
+                <div class="course-stats">
+                    <span>📖 ${course.totalQuizzes || 0} quiz</span>
+                    <span>👥 ${course.totalStudents || 0} étudiants</span>
+                </div>
+                <div class="course-actions">
+                    <button class="btn-view" onclick="viewCourse(${course.id})">📘 Voir</button>
+                    <button class="btn-edit" onclick="editCourse(${course.id})">✏️ Modifier</button>
+                    <button class="btn-delete" onclick="showDeleteModal(${course.id}, '${escapeHtml(course.title)}')">🗑 Supprimer</button>
                 </div>
             </div>
         </div>
     `;
+    return div;
 }
 
-/**
- * Obtenir un statut aléatoire pour le cours
- * @param {Object} course - Les données du cours
- * @returns {string} Le statut du cours
- */
-function getCourseStatus(course) {
-    const statuses = ['En cours', 'Brouillon', 'Publié', 'Archivé'];
-    return course.status || statuses[Math.floor(Math.random() * statuses.length)];
+async function loadStats() {
+    try {
+        const response = await fetch('/teacher/api/courses');
+        if (!response.ok) throw new Error('Failed to fetch stats');
+        
+        const courses = await response.json();
+        
+        document.getElementById('totalCourses').textContent = courses.length;
+        
+        let totalQuizzes = 0;
+        let totalStudents = 0;
+        courses.forEach(course => {
+            totalQuizzes += course.totalQuizzes || 0;
+            totalStudents += course.totalStudents || 0;
+        });
+        
+        document.getElementById('totalQuizzes').textContent = totalQuizzes;
+        document.getElementById('totalStudents').textContent = totalStudents;
+    } catch (error) {
+        console.error('Error loading stats:', error);
+    }
 }
 
-/**
- * Obtenir une icône aléatoire pour le cours
- * @returns {string} L'icône du cours
- */
-function getRandomIcon() {
-    const icons = ['📘', '📙', '📗', '📕', '📓', '📔', '📒'];
-    return icons[Math.floor(Math.random() * icons.length)];
+function viewCourse(courseId) {
+    window.location.href = `/teacher/course/${courseId}`;
 }
 
-// ==================== FONCTIONS UTILITAIRES ====================
+function editCourse(courseId) {
+    window.location.href = `/teacher/edit-course/${courseId}`;
+}
 
-/**
- * Échapper les caractères HTML pour éviter les injections XSS
- * @param {string} text - Le texte à échapper
- * @returns {string} Le texte échappé
- */
+function showDeleteModal(courseId, courseTitle) {
+    courseToDelete = courseId;
+    document.getElementById('courseNameToDelete').textContent = courseTitle;
+    document.getElementById('deleteModal').style.display = 'flex';
+}
+
+function closeDeleteModal() {
+    document.getElementById('deleteModal').style.display = 'none';
+    courseToDelete = null;
+}
+
+async function confirmDelete() {
+    if (courseToDelete) {
+        try {
+            const response = await fetch(`/teacher/delete-course/${courseToDelete}`, {
+                method: 'DELETE'
+            });
+            
+            if (response.ok) {
+                showNotification('Cours supprimé avec succès', 'success');
+                closeDeleteModal();
+                loadCourses();
+                loadStats();
+            } else {
+                throw new Error('Delete failed');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            showNotification('Erreur lors de la suppression', 'error');
+        }
+    }
+}
+
+// ==================== UTILITY FUNCTIONS ====================
+function showNotification(message, type) {
+    const notification = document.createElement('div');
+    notification.className = `notification notification-${type}`;
+    const icon = type === 'success' ? 'fa-check-circle' : (type === 'error' ? 'fa-exclamation-circle' : 'fa-info-circle');
+    notification.innerHTML = `
+        <i class="fas ${icon}"></i>
+        <span>${message}</span>
+    `;
+    document.body.appendChild(notification);
+    
+    setTimeout(() => {
+        notification.remove();
+    }, 3000);
+}
+
 function escapeHtml(text) {
     if (!text) return '';
     const div = document.createElement('div');
@@ -239,82 +319,65 @@ function escapeHtml(text) {
     return div.innerHTML;
 }
 
-/**
- * Afficher une notification
- * @param {string} message - Le message à afficher
- * @param {string} type - Le type de notification (success, error, info)
- */
-function showNotification(message, type = 'info') {
-    // Créer un élément de notification
-    const notification = document.createElement('div');
-    notification.className = `notification notification-${type}`;
-    notification.textContent = message;
-    notification.style.cssText = `
-        position: fixed;
-        top: 20px;
-        right: 20px;
-        padding: 12px 20px;
-        border-radius: 10px;
-        background: ${type === 'success' ? '#4caf50' : type === 'error' ? '#f44336' : '#2196f3'};
-        color: white;
-        z-index: 3000;
-        animation: slideIn 0.3s ease;
-        box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-    `;
-    
-    document.body.appendChild(notification);
-    
-    // Supprimer la notification après 3 secondes
-    setTimeout(() => {
-        notification.style.animation = 'slideOut 0.3s ease';
-        setTimeout(() => notification.remove(), 300);
-    }, 3000);
+function logout() {
+    if (confirm('Voulez-vous vraiment vous déconnecter ?')) {
+        window.location.href = '/logout';
+    }
 }
 
-// ==================== GESTION DES ÉVÉNEMENTS ====================
-
-/**
- * Fermer le modal en cliquant en dehors
- */
-window.onclick = function(event) {
-    const modal = document.getElementById('deleteModal');
-    if (event.target === modal) {
-        closeModal();
-    }
-};
-
-/**
- * Initialisation au chargement de la page
- */
+// Initialize everything when DOM is loaded
 document.addEventListener('DOMContentLoaded', function() {
-    console.log('Dashboard Teacher chargé');
-    loadStats();
+    console.log('DOM loaded, initializing...');
+    
+    // Load initial data
     loadCourses();
-});
-
-// Ajouter les animations CSS pour les notifications
-const style = document.createElement('style');
-style.textContent = `
-    @keyframes slideIn {
-        from {
-            transform: translateX(100%);
-            opacity: 0;
-        }
-        to {
-            transform: translateX(0);
-            opacity: 1;
-        }
+    loadStats();
+    
+    // Setup file upload
+    setupFileUpload();
+    
+    // Setup button event listeners
+    const openBtn = document.getElementById('openNewCourseBtn');
+    const closeModalBtn = document.getElementById('closeModalBtn');
+    const cancelModalBtn = document.getElementById('cancelModalBtn');
+    
+    if (openBtn) {
+        console.log('Open button found');
+        openBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            openAddCourseModal();
+        });
+    } else {
+        console.error('Open button not found!');
     }
     
-    @keyframes slideOut {
-        from {
-            transform: translateX(0);
-            opacity: 1;
-        }
-        to {
-            transform: translateX(100%);
-            opacity: 0;
-        }
+    if (closeModalBtn) {
+        closeModalBtn.addEventListener('click', closeAddCourseModal);
     }
-`;
-document.head.appendChild(style);
+    
+    if (cancelModalBtn) {
+        cancelModalBtn.addEventListener('click', closeAddCourseModal);
+    }
+    
+    // Setup form submission
+    const courseForm = document.getElementById('courseForm');
+    if (courseForm) {
+        courseForm.addEventListener('submit', submitCourseForm);
+    }
+    
+    // Close modal when clicking outside
+    window.addEventListener('click', function(event) {
+        const addModal = document.getElementById('addCourseModal');
+        const deleteModal = document.getElementById('deleteModal');
+        
+        if (event.target === addModal) {
+            closeAddCourseModal();
+        }
+        
+        if (event.target === deleteModal) {
+            closeDeleteModal();
+        }
+    });
+    
+    console.log('Initialization complete');
+});

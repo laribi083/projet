@@ -5,8 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Teacher Dashboard - Brainlearning</title>
     
-    <!-- Lien vers le CSS -->
-    <link rel="stylesheet" th:href="@{/cssTracher/dashbord.css}" href="/cssTracher/dashbord.css">
+    <!-- CSS Files with Thymeleaf links -->
+    <link rel="stylesheet" th:href="@{/cssTracher/dashbord.css}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
 
@@ -20,23 +21,21 @@
             <div class="user-avatar">
                 👨‍🏫
             </div>
-            <div class="user-name" th:text="${teacherName}">Professeur</div>
-            <div class="user-email" th:text="${teacherEmail}">teacher@school.com</div>
+            <div class="user-name" th:text="${teacherName}">Professeur Martin</div>
+            <div class="user-email" th:text="${teacherEmail}">martin@school.com</div>
         </div>
         
         <ul class="nav-menu">
             <li class="nav-item">
                 <a href="#" class="nav-link active">
-                    📚 My couses
+                    📚 My courses
                 </a>
             </li>
             <li class="nav-item">
                 <a href="#" class="nav-link">
-                    📝My Quizzes
+                    📝 My Quizzes
                 </a>
             </li>
-            
-            
         </ul>
         
         <div class="logout-btn-sidebar" onclick="logout()">
@@ -52,11 +51,9 @@
             <div class="page-title">
                 📚 My courses
             </div>
-            <div class="header-actions">
-                <button class="btn-primary" onclick="createCourse()">
-                    ✨ New course
-                </button>
-            </div>
+            <button class="btn-add-course" id="openNewCourseBtn">
+                ✨ New course
+            </button>
         </div>
 
         <!-- Stats Cards -->
@@ -90,204 +87,115 @@
         </div>
 
         <div class="courses-grid" id="coursesGrid">
-            <!-- Course Card Example -->
-            <div class="course-card">
-                <div class="course-image">
-                    📘
-                    <span class="course-badge">In progresse</span>
-                </div>
-                <div class="course-content">
-                    <h3 class="course-title">Analyses1:</h3>
-                    <p class="course-description">Description of course</p>
-                    <div class="course-meta">
-                        <div class="course-stats">
-                            <span>📖 0 courses</span>
-                            <span>👥 0 students</span>
-                        </div>
-                        <div class="course-actions">
-                            <button class="btn-view" onclick="viewQuiz(1)">📘 Quizzes</button>
-                            <button class="btn-edit" onclick="editCourse(1)">✏️</button>
-                            <button class="btn-delete" onclick="showDeleteModal(1, 'hhh')">🗑</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
+            <!-- Course cards will be dynamically loaded -->
         </div>
     </div>
 
     <!-- Delete Modal -->
-    <div class="modal" id="deleteModal">
+    <div id="deleteModal" class="modal">
         <div class="modal-content">
             <h3>🗑️ Delete course</h3>
             <p>
                 Are you sure you want to delete the course 
-                <strong id="courseNameToDelete">"hhh"</strong> ?
+                <strong id="courseNameToDelete"></strong> ?
             </p>
             <p style="font-size: 0.85rem; color: #999;">
                 All associated quizzes will also be deleted.<br>
                 This action is irreversible.
             </p>
             <div class="modal-actions">
-                <button class="btn-cancel" onclick="closeModal()">Cancel</button>
+                <button class="btn-cancel" onclick="closeDeleteModal()">Cancel</button>
                 <button class="btn-confirm" onclick="confirmDelete()">Delete</button>
             </div>
         </div>
     </div>
 
-    <!-- Lien vers le JavaScript -->
-    <script th:src="@{/js/teacher-dashboard.js}" src="/js/teacher-dashboard.js"></script>
+    <!-- ADD COURSE MODAL -->
+    <div id="addCourseModal" class="modal-overlay">
+        <div class="modal-container">
+            <div class="modal-header">
+                <button class="modal-close" id="closeModalBtn">&times;</button>
+                <h2>
+                    <i class="fas fa-plus-circle"></i> Ajouter un cours
+                </h2>
+                <p>Remplissez les informations pour créer un nouveau cours</p>
+            </div>
+            
+            <div class="modal-body">
+                <form id="courseForm" th:action="@{/teacher/add-course}" method="post" enctype="multipart/form-data">
+                    <div class="form-group">
+                        <label>
+                            <i class="fas fa-heading"></i> Titre du cours
+                        </label>
+                        <input type="text" 
+                               id="courseTitle" 
+                               name="title" 
+                               placeholder="Ex: Introduction à la programmation"
+                               required>
+                        <div class="form-hint">Choisissez un titre clair et descriptif</div>
+                    </div>
 
-</body>
-<!-- Add this script at the bottom of dashboard.html -->
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        loadCourses();
-        loadStats();
-    });
-    
-    function loadCourses() {
-        fetch('/teacher/api/courses')
-            .then(response => response.json())
-            .then(courses => {
-                const coursesGrid = document.getElementById('coursesGrid');
-                coursesGrid.innerHTML = '';
-                
-                if (courses.length === 0) {
-                    coursesGrid.innerHTML = `
-                        <div class="empty-state">
-                            <i class="fas fa-book-open"></i>
-                            <p>You haven't created any courses yet</p>
-                            <button class="btn-primary" onclick="createCourse()">
-                                Create your first course
-                            </button>
+                    <div class="form-group">
+                        <label>
+                            <i class="fas fa-align-left"></i> Description
+                        </label>
+                        <textarea id="courseDescription" 
+                                  name="description" 
+                                  rows="4" 
+                                  placeholder="Décrivez le contenu du cours, les objectifs..."
+                                  required></textarea>
+                        <div class="form-hint">Fournissez une description détaillée</div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>
+                            <i class="fas fa-graduation-cap"></i> Niveau / Année
+                        </label>
+                        <select id="courseLevel" name="niveau" required>
+                            <option value="">Sélectionnez le niveau</option>
+                            <option value="1year">1ère Année</option>
+                            <option value="2year">2ème Année</option>
+                            <option value="3year">3ème Année</option>
+                        </select>
+                        <div class="form-hint">Sélectionnez le niveau académique</div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>
+                            <i class="fas fa-paperclip"></i> Fichiers du cours
+                        </label>
+                        
+                        <div class="file-upload-area" id="fileUploadArea">
+                            <input type="file" 
+                                   id="filesInput" 
+                                   name="files" 
+                                   multiple 
+                                   accept=".pdf,.doc,.docx,.ppt,.pptx,.txt,.zip"
+                                   style="display: none;">
+                            <div class="file-upload-content">
+                                <i class="fas fa-cloud-upload-alt upload-icon"></i>
+                                <p>Cliquez pour télécharger des fichiers</p>
+                                <p class="file-hint">PDF, DOC, PPT, TXT, ZIP (max 50MB par fichier)</p>
+                            </div>
                         </div>
-                    `;
-                    return;
-                }
-                
-                courses.forEach(course => {
-                    const courseCard = createCourseCard(course);
-                    coursesGrid.appendChild(courseCard);
-                });
-            })
-            .catch(error => console.error('Error loading courses:', error));
-    }
-    
-    function createCourseCard(course) {
-        const div = document.createElement('div');
-        div.className = 'course-card';
-        div.innerHTML = `
-            <div class="course-image">
-                📘
-                <span class="course-badge">${course.status === 'ACTIVE' ? 'Active' : 'Draft'}</span>
-            </div>
-            <div class="course-content">
-                <h3 class="course-title">${escapeHtml(course.title)}</h3>
-                <p class="course-description">${escapeHtml(course.description.substring(0, 100))}${course.description.length > 100 ? '...' : ''}</p>
-                <div class="course-meta">
-                    <div class="course-stats">
-                        <span>📖 ${course.totalQuizzes || 0} quizzes</span>
-                        <span>👥 ${course.totalStudents || 0} students</span>
+                        
+                        <div id="fileList" class="file-list"></div>
                     </div>
-                    <div class="course-actions">
-                        <button class="btn-view" onclick="viewCourse(${course.id})">📘 View</button>
-                        <button class="btn-edit" onclick="editCourse(${course.id})">✏️ Edit</button>
-                        <button class="btn-delete" onclick="showDeleteModal(${course.id}, '${escapeHtml(course.title)}')">🗑 Delete</button>
+
+                    <div class="form-actions">
+                        <button type="button" class="btn-cancel" id="cancelModalBtn">
+                            Annuler
+                        </button>
+                        <button type="submit" class="btn-submit" id="submitBtn">
+                            <i class="fas fa-save"></i> Créer
+                        </button>
                     </div>
-                </div>
+                </form>
             </div>
-        `;
-        return div;
-    }
-    
-    function createCourse() {
-        window.location.href = '/teacher/add-course';
-    }
-    
-    function editCourse(courseId) {
-        window.location.href = `/teacher/edit-course/${courseId}`;
-    }
-    
-    function viewCourse(courseId) {
-        window.location.href = `/teacher/course/${courseId}`;
-    }
-    
-    function loadStats() {
-        fetch('/teacher/api/courses')
-            .then(response => response.json())
-            .then(courses => {
-                document.getElementById('totalCourses').textContent = courses.length;
-                
-                let totalQuizzes = 0;
-                let totalStudents = 0;
-                courses.forEach(course => {
-                    totalQuizzes += course.totalQuizzes || 0;
-                    totalStudents += course.totalStudents || 0;
-                });
-                
-                document.getElementById('totalQuizzes').textContent = totalQuizzes;
-                document.getElementById('totalStudents').textContent = totalStudents;
-            })
-            .catch(error => console.error('Error loading stats:', error));
-    }
-    
-    let courseToDelete = null;
-    
-    function showDeleteModal(courseId, courseTitle) {
-        courseToDelete = courseId;
-        document.getElementById('courseNameToDelete').textContent = courseTitle;
-        document.getElementById('deleteModal').style.display = 'flex';
-    }
-    
-    function closeModal() {
-        document.getElementById('deleteModal').style.display = 'none';
-        courseToDelete = null;
-    }
-    
-    function confirmDelete() {
-        if (courseToDelete) {
-            fetch(`/teacher/delete-course/${courseToDelete}`, {
-                method: 'DELETE',
-                headers: {
-                    'Content-Type': 'application/json'
-                }
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    closeModal();
-                    loadCourses();
-                    loadStats();
-                    showNotification('Course deleted successfully', 'success');
-                } else {
-                    showNotification('Error deleting course: ' + data.message, 'error');
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                showNotification('Error deleting course', 'error');
-            });
-        }
-    }
-    
-    function showNotification(message, type) {
-        const notification = document.createElement('div');
-        notification.className = `notification notification-${type}`;
-        notification.innerHTML = `
-            <i class="fas ${type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'}"></i>
-            <span>${message}</span>
-        `;
-        document.body.appendChild(notification);
-        
-        setTimeout(() => {
-            notification.remove();
-        }, 3000);
-    }
-    
-    function escapeHtml(text) {
-        const div = document.createElement('div');
-        div.textContent = text;
-        return div.innerHTML;
-    }
-</script>
+        </div>
+    </div>
+
+    <!-- JavaScript File with Thymeleaf link -->
+    <script th:src="@{/jsTeacher/dashbord.js}"></script>
+</body>
 </html>

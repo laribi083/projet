@@ -1,3 +1,4 @@
+
 package com.votredomaine.modelememoire.service;
 
 import com.votredomaine.modelememoire.model.Course;
@@ -23,6 +24,8 @@ public class Courseservice {
     
     private final String UPLOAD_DIR = System.getProperty("user.dir") + "/uploads/courses/";
     
+    // ========== MÉTHODES EXISTANTES ==========
+    
     public List<Course> getCoursesByTeacherId(Long teacherId) {
         return courseRepository.findByTeacherId(teacherId);
     }
@@ -47,11 +50,9 @@ public class Courseservice {
             course.setStatus("ACTIVE");
         }
         
-     
         if (files != null && !files.isEmpty()) {
             List<String> filePaths = new ArrayList<>();
             List<String> fileNames = new ArrayList<>();
-            
             
             Path uploadPath = Paths.get(UPLOAD_DIR);
             if (!Files.exists(uploadPath)) {
@@ -85,10 +86,9 @@ public class Courseservice {
         existingCourse.setTitle(courseDetails.getTitle());
         existingCourse.setDescription(courseDetails.getDescription());
         existingCourse.setNiveau(courseDetails.getNiveau());
-        existingCourse.setFiliere(courseDetails.getFiliere());
+        existingCourse.setModule(courseDetails.getModule());
         existingCourse.setUpdatedAt(LocalDateTime.now());
         
-        // Handle new file uploads
         if (newFiles != null && !newFiles.isEmpty()) {
             List<String> filePaths = existingCourse.getFilePaths();
             List<String> fileNames = existingCourse.getFileNames();
@@ -121,12 +121,10 @@ public class Courseservice {
     public void deleteCourse(Long id) {
         Course course = courseRepository.findById(id).orElse(null);
         if (course != null) {
-            // Delete associated files
             for (String filePath : course.getFilePaths()) {
                 try {
                     Files.deleteIfExists(Paths.get(filePath));
                 } catch (IOException e) {
-                    // Log error but continue
                     System.err.println("Could not delete file: " + filePath);
                 }
             }
@@ -136,5 +134,78 @@ public class Courseservice {
     
     public long getTotalCoursesByTeacher(Long teacherId) {
         return courseRepository.countByTeacherId(teacherId);
+    }
+    
+    // ========== MÉTHODES POUR LE CONTROLLER ==========
+    
+    /**
+     * Trouve tous les cours d'un enseignant par son ID
+     */
+    public List<Course> findByTeacherId(Long teacherId) {
+        return courseRepository.findByTeacherId(teacherId);
+    }
+    
+    /**
+     * Trouve tous les cours par niveau (1year, 2year, 3year)
+     */
+    public List<Course> findByNiveau(String niveau) {
+        return courseRepository.findByNiveau(niveau);
+    }
+    
+    /**
+     * Trouve tous les cours par niveau et statut
+     */
+    public List<Course> findByNiveauAndStatus(String niveau, String status) {
+        return courseRepository.findByNiveauAndStatus(niveau, status);
+    }
+    
+    /**
+     * ⭐ CORRIGÉ : Trouve tous les cours par module et niveau
+     */
+    public List<Course> findByModuleAndNiveau(String module, String niveau) {
+        // Si module est null ou vide, retourner tous les cours du niveau
+        if (module == null || module.trim().isEmpty()) {
+            return courseRepository.findByNiveau(niveau);
+        }
+        // Sinon, filtrer par module et niveau
+        return courseRepository.findByModuleAndNiveau(module, niveau);
+    }
+    
+    
+    public List<Course> findByModuleAndNiveauAndStatus(String module, String niveau, String status) {
+        return courseRepository.findByModuleAndNiveauAndStatus(module, niveau, status);
+    }
+    
+    /**
+     * Sauvegarde un cours
+     */
+    public Course save(Course course) {
+        if (course.getCreatedAt() == null) {
+            course.setCreatedAt(LocalDateTime.now());
+        }
+        course.setUpdatedAt(LocalDateTime.now());
+        return courseRepository.save(course);
+    }
+    
+    /**
+     * Met à jour un cours
+     */
+    public Course update(Course course) {
+        course.setUpdatedAt(LocalDateTime.now());
+        return courseRepository.save(course);
+    }
+    
+    /**
+     * Récupère tous les cours
+     */
+    public List<Course> findAll() {
+        return courseRepository.findAll();
+    }
+    
+    /**
+     * Trouve les cours par statut
+     */
+    public List<Course> findByStatus(String status) {
+        return courseRepository.findByStatus(status);
     }
 }

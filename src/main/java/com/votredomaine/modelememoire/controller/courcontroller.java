@@ -22,7 +22,6 @@ public class courcontroller {
     @Autowired
     private Courseservice courseService;
     
-    // ✅ CORRIGÉ: Garder le mapping /dashboard pour ne pas casser les liens existants
     @GetMapping("/dashboard")
     public String dashboard(HttpSession session, Model model) {
         Long teacherId = (Long) session.getAttribute("teacherId");
@@ -63,7 +62,6 @@ public class courcontroller {
             Long teacherId = (Long) session.getAttribute("teacherId");
             String teacherName = (String) session.getAttribute("teacherName");
             
-            // Vérification des données obligatoires
             if (teacherId == null) {
                 redirectAttributes.addFlashAttribute("error", "Session expired. Please login again.");
                 return "redirect:/login";
@@ -73,7 +71,6 @@ public class courcontroller {
             course.setTeacherName(teacherName);
             course.setNiveau(niveau);
             course.setModule(module);
-          
             course.setStatus("ACTIVE");
             
             Course savedCourse = courseService.createCourse(course, files);
@@ -84,7 +81,6 @@ public class courcontroller {
             redirectAttributes.addFlashAttribute("error", "Error creating course: " + e.getMessage());
         }
         
-        // ✅ CORRIGÉ: Rediriger vers /teacher/dashboard (pas /teacher/courses)
         return "redirect:/teacher/dashboard";
     }
     
@@ -153,7 +149,8 @@ public class courcontroller {
         }
     }
     
-    @GetMapping("/api/courses")
+    // ⭐ MODIFICATION ICI : Changer le chemin pour éviter le conflit
+    @GetMapping("/teacher-courses")  // Changé de /api/courses à /teacher-courses
     @ResponseBody
     public ResponseEntity<List<Course>> getCourses(HttpSession session) {
         Long teacherId = (Long) session.getAttribute("teacherId");

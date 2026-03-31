@@ -38,7 +38,7 @@ public class Course {
     // ✅ CHAMPS AJOUTÉS
     private String niveau;      // 1year, 2year, 3year
     private String module;      // Mathematics, Computer Science, etc.
-    private String filiere;      // Filière de l'étudiant
+   
     
     // ✅ NOUVEAUX CHAMPS pour les statistiques d'affichage
     @Column(name = "total_hours")
@@ -99,8 +99,7 @@ public class Course {
     public String getModule() { return module; }
     public void setModule(String module) { this.module = module; }
     
-    public String getFiliere() { return filiere; }
-    public void setFiliere(String filiere) { this.filiere = filiere; }
+    
     
     // ✅ GETTER/SETTER pour totalHours
     public Integer getTotalHours() { return totalHours; }

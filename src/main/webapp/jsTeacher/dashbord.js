@@ -39,7 +39,7 @@ function resetCourseForm() {
     if (fileInput) fileInput.value = '';
 }
 
-// File upload handling
+// File upload handling - Sans limite de taille
 function setupFileUpload() {
     const fileInput = document.getElementById('filesInput');
     const dropArea = document.getElementById('fileUploadArea');
@@ -61,18 +61,21 @@ function setupFileUpload() {
             e.preventDefault();
             dropArea.style.borderColor = '#667eea';
             dropArea.style.background = '#f3f4f6';
+            dropArea.classList.add('dragover');
         });
         
         dropArea.addEventListener('dragleave', (e) => {
             e.preventDefault();
             dropArea.style.borderColor = '#d1d5db';
             dropArea.style.background = '#f9fafb';
+            dropArea.classList.remove('dragover');
         });
         
         dropArea.addEventListener('drop', (e) => {
             e.preventDefault();
             dropArea.style.borderColor = '#d1d5db';
             dropArea.style.background = '#f9fafb';
+            dropArea.classList.remove('dragover');
             const files = Array.from(e.dataTransfer.files);
             selectedFiles = [...selectedFiles, ...files];
             updateFileList();
@@ -85,6 +88,63 @@ function setupFileUpload() {
     }
 }
 
+// Formater la taille du fichier (en Bytes, KB, MB, GB)
+function formatFileSize(bytes) {
+    if (bytes === 0) return '0 Bytes';
+    const k = 1024;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+}
+
+// Obtenir l'icône selon le type de fichier
+function getFileIcon(fileName, fileType) {
+    const extension = fileName.split('.').pop().toLowerCase();
+    
+    // Images
+    if (['jpg', 'jpeg', 'png', 'gif', 'bmp', 'svg', 'webp'].includes(extension)) {
+        return 'fa-file-image';
+    }
+    // PDF
+    if (extension === 'pdf') {
+        return 'fa-file-pdf';
+    }
+    // Word
+    if (['doc', 'docx'].includes(extension)) {
+        return 'fa-file-word';
+    }
+    // Excel
+    if (['xls', 'xlsx', 'csv'].includes(extension)) {
+        return 'fa-file-excel';
+    }
+    // PowerPoint
+    if (['ppt', 'pptx'].includes(extension)) {
+        return 'fa-file-powerpoint';
+    }
+    // Vidéos
+    if (['mp4', 'avi', 'mov', 'wmv', 'flv', 'mkv', 'webm'].includes(extension)) {
+        return 'fa-file-video';
+    }
+    // Audio
+    if (['mp3', 'wav', 'ogg', 'flac', 'aac', 'm4a'].includes(extension)) {
+        return 'fa-file-audio';
+    }
+    // Archives
+    if (['zip', 'rar', '7z', 'tar', 'gz'].includes(extension)) {
+        return 'fa-file-archive';
+    }
+    // Code
+    if (['html', 'css', 'js', 'java', 'py', 'cpp', 'c', 'php', 'xml', 'json'].includes(extension)) {
+        return 'fa-file-code';
+    }
+    // Texte
+    if (['txt', 'md', 'rtf'].includes(extension)) {
+        return 'fa-file-alt';
+    }
+    // Par défaut
+    return 'fa-file';
+}
+
 function updateFileList() {
     const fileListDiv = document.getElementById('fileList');
     if (!fileListDiv) return;
@@ -94,18 +154,41 @@ function updateFileList() {
         return;
     }
     
-    fileListDiv.innerHTML = selectedFiles.map((file, index) => `
-        <div class="file-item">
-            <div>
-                <i class="fas fa-file-alt"></i>
-                <span>${escapeHtml(file.name)}</span>
-                <small style="color:#6b7280; margin-left:8px;">(${(file.size / 1024).toFixed(1)} KB)</small>
-            </div>
-            <button type="button" class="remove-file" onclick="removeFile(${index})">
-                <i class="fas fa-trash-alt"></i>
-            </button>
+    // Calculer la taille totale
+    const totalSize = selectedFiles.reduce((sum, file) => sum + file.size, 0);
+    const totalSizeFormatted = formatFileSize(totalSize);
+    
+    // Afficher l'en-tête avec le nombre de fichiers et la taille totale
+    const header = `
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; padding: 5px; background: #f9fafb; border-radius: 8px;">
+            <span style="font-size: 0.8rem; font-weight: 600; color: #4b5563;">
+                <i class="fas fa-files"></i> ${selectedFiles.length} fichier(s)
+            </span>
+            <span style="font-size: 0.75rem; color: #6b7280;">
+                Taille totale: ${totalSizeFormatted}
+            </span>
         </div>
-    `).join('');
+    `;
+    
+    const filesList = selectedFiles.map((file, index) => {
+        const fileIcon = getFileIcon(file.name, file.type);
+        const fileSize = formatFileSize(file.size);
+        
+        return `
+            <div class="file-item">
+                <div>
+                    <i class="fas ${fileIcon}"></i>
+                    <span title="${escapeHtml(file.name)}">${escapeHtml(file.name.length > 40 ? file.name.substring(0, 37) + '...' : file.name)}</span>
+                    <small style="color:#6b7280; margin-left:8px;">(${fileSize})</small>
+                </div>
+                <button type="button" class="remove-file" onclick="removeFile(${index})" title="Supprimer">
+                    <i class="fas fa-trash-alt"></i>
+                </button>
+            </div>
+        `;
+    }).join('');
+    
+    fileListDiv.innerHTML = header + filesList;
 }
 
 function removeFile(index) {
@@ -143,27 +226,40 @@ async function submitCourseForm(event) {
     formData.append('description', description);
     formData.append('niveau', niveau);
     
+    // Ajouter tous les fichiers sans vérification de taille
     selectedFiles.forEach(file => {
         formData.append('files', file);
     });
     
+    // Afficher une notification de progression
+    if (selectedFiles.length > 0) {
+        showNotification(`Téléchargement de ${selectedFiles.length} fichier(s) (${formatFileSize(selectedFiles.reduce((sum, f) => sum + f.size, 0))}) en cours...`, 'info');
+    }
+    
     try {
+        // ⭐ URL POUR LA CRÉATION - POST vers /teacher/api/courses
         const response = await fetch('/teacher/api/courses', {
             method: 'POST',
             body: formData
         });
         
         if (response.ok) {
-            showNotification('Cours créé avec succès!', 'success');
-            closeAddCourseModal();
-            await loadCourses();
-            await loadStats();
+            const data = await response.json();
+            if (data.success) {
+                showNotification('Cours créé avec succès!', 'success');
+                closeAddCourseModal();
+                await loadCourses();
+                await loadStats();
+            } else {
+                throw new Error(data.message || 'Erreur lors de la création');
+            }
         } else {
-            throw new Error('Erreur lors de la création');
+            const errorData = await response.json();
+            throw new Error(errorData.message || 'Erreur lors de la création');
         }
     } catch (error) {
         console.error('Error:', error);
-        showNotification('Erreur lors de la création du cours', 'error');
+        showNotification(`Erreur: ${error.message}`, 'error');
     } finally {
         submitBtn.disabled = false;
         submitBtn.innerHTML = '<i class="fas fa-save"></i> Créer';
@@ -173,7 +269,8 @@ async function submitCourseForm(event) {
 // ==================== COURSE MANAGEMENT ====================
 async function loadCourses() {
     try {
-        const response = await fetch('/teacher/api/courses');
+        // ⭐ URL POUR RÉCUPÉRER LES COURS - GET vers /teacher/teacher-courses
+        const response = await fetch('/teacher/teacher-courses');
         if (!response.ok) throw new Error('Failed to fetch courses');
         
         const courses = await response.json();
@@ -185,9 +282,9 @@ async function loadCourses() {
             coursesGrid.innerHTML = `
                 <div class="empty-state">
                     <i class="fas fa-book-open"></i>
-                    <p>Vous n'avez pas encore créé de cours</p>
+                    <p>You have not yet created a course</p>
                     <button class="btn-primary" onclick="openAddCourseModal()">
-                        Créer votre premier cours
+                        Create your first course
                     </button>
                 </div>
             `;
@@ -202,6 +299,20 @@ async function loadCourses() {
     } catch (error) {
         console.error('Error loading courses:', error);
         showNotification('Erreur lors du chargement des cours', 'error');
+        
+        // Afficher un message d'erreur dans la grille
+        const coursesGrid = document.getElementById('coursesGrid');
+        if (coursesGrid) {
+            coursesGrid.innerHTML = `
+                <div class="empty-state">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <p>Erreur de chargement des cours</p>
+                    <button class="btn-primary" onclick="loadCourses()">
+                        Réessayer
+                    </button>
+                </div>
+            `;
+        }
     }
 }
 
@@ -234,7 +345,8 @@ function createCourseCard(course) {
 
 async function loadStats() {
     try {
-        const response = await fetch('/teacher/api/courses');
+        // ⭐ URL POUR RÉCUPÉRER LES STATISTIQUES - GET vers /teacher/teacher-courses
+        const response = await fetch('/teacher/teacher-courses');
         if (!response.ok) throw new Error('Failed to fetch stats');
         
         const courses = await response.json();
@@ -252,6 +364,9 @@ async function loadStats() {
         document.getElementById('totalStudents').textContent = totalStudents;
     } catch (error) {
         console.error('Error loading stats:', error);
+        document.getElementById('totalCourses').textContent = '0';
+        document.getElementById('totalQuizzes').textContent = '0';
+        document.getElementById('totalStudents').textContent = '0';
     }
 }
 
@@ -282,10 +397,15 @@ async function confirmDelete() {
             });
             
             if (response.ok) {
-                showNotification('Cours supprimé avec succès', 'success');
-                closeDeleteModal();
-                loadCourses();
-                loadStats();
+                const data = await response.json();
+                if (data.success) {
+                    showNotification('Cours supprimé avec succès', 'success');
+                    closeDeleteModal();
+                    await loadCourses();
+                    await loadStats();
+                } else {
+                    throw new Error(data.message || 'Delete failed');
+                }
             } else {
                 throw new Error('Delete failed');
             }
@@ -298,6 +418,10 @@ async function confirmDelete() {
 
 // ==================== UTILITY FUNCTIONS ====================
 function showNotification(message, type) {
+    // Supprimer les notifications existantes
+    const existingNotifications = document.querySelectorAll('.notification');
+    existingNotifications.forEach(notification => notification.remove());
+    
     const notification = document.createElement('div');
     notification.className = `notification notification-${type}`;
     const icon = type === 'success' ? 'fa-check-circle' : (type === 'error' ? 'fa-exclamation-circle' : 'fa-info-circle');

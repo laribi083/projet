@@ -116,23 +116,23 @@
             <div class="modal-header">
                 <button class="modal-close" id="closeModalBtn">&times;</button>
                 <h2>
-                    <i class="fas fa-plus-circle"></i> Ajouter un cours
+                    <i class="fas fa-plus-circle"></i> Add a course
                 </h2>
-                <p>Remplissez les informations pour créer un nouveau cours</p>
+                <p>Fill in the information to create a new course</p>
             </div>
             
             <div class="modal-body">
                 <form id="courseForm" th:action="@{/teacher/add-course}" method="post" enctype="multipart/form-data">
                     <div class="form-group">
                         <label>
-                            <i class="fas fa-heading"></i> Titre du cours
+                            <i class="fas fa-heading"></i> Course Title
                         </label>
                         <input type="text" 
                                id="courseTitle" 
                                name="title" 
-                               placeholder="Ex: Introduction à la programmation"
+                               placeholder="Ex: Introduction to programming"
                                required>
-                        <div class="form-hint">Choisissez un titre clair et descriptif</div>
+                        <div class="form-hint">Choose a clear and descriptive title.</div>
                     </div>
 
                     <div class="form-group">
@@ -142,52 +142,78 @@
                         <textarea id="courseDescription" 
                                   name="description" 
                                   rows="4" 
-                                  placeholder="Décrivez le contenu du cours, les objectifs..."
+                                  placeholder="Describe the course content and objectives..."
                                   required></textarea>
-                        <div class="form-hint">Fournissez une description détaillée</div>
+                        <div class="form-hint">Provide a detailed description.</div>
                     </div>
 
                     <div class="form-group">
                         <label>
-                            <i class="fas fa-graduation-cap"></i> Niveau / Année
+                            <i class="fas fa-graduation-cap">Module</i> 
                         </label>
                         <select id="courseLevel" name="niveau" required>
-                            <option value="">Sélectionnez le niveau</option>
-                            <option value="1year">1ère Année</option>
-                            <option value="2year">2ème Année</option>
-                            <option value="3year">3ème Année</option>
+                            <option value="">select module</option>
+                            <option value="1year">Algebra 01</option>
+                            <option value="1year">Algebra 02</option>
+                            <option value="1year">Analysis 01</option>
+                            <option value="1year">Analysis 02</option>
+                            <option value="1year">Advanced Data Structures 01</option>
+                            <option value="2year">Advanced Data Structures 02</option>
+                            <option value="1year">Information Coding & Representation</option>
+                            <option value="1year">Component & Representation of Information</option>
+                            <option value="1year">Introduction to  project-oriented programming</option>
+                            <option value="1year">Machine Structure</option>
+                            <option value="1year">Electricity & Electronics</option>
+                            <option value="2year">Computer Architecture</option>
+                            <option value="2year">DataBases and SQL</option>
+                            <option value="2year">Softwere ingenery 01</option>
+                            <option value="3year">Softwere ingenery 02</option>
+                            <option value="2year">Logique mathématiques</option>
+                            <option value="2year">advanced project-oriented programming</option>
+                            <option value="2year">comunication network 01</option>
+                            <option value="3year">comunication network 02</option>
+                            <option value="2year">operating system</option>
+                            <option value="2year">langages theorique</option>
+                            <option value="3year"> advanced DataBases and SQL</option>
+                            <option value="3year">development of competing applications</option>
+                            <option value="2year">web development 01</option>
+                            <option value="3year">web development 02</option>
+                            <option value="3year">Interactive Software Development</option>
+                            <option value="3year">Git and GitHub</option>
+                            <option value="3year">software maintenance</option>
+                            <option value="3year"> project management</option>
+                             <option value="3year">software quality test</option>
                         </select>
-                        <div class="form-hint">Sélectionnez le niveau académique</div>
+                        <div class="form-hint">Select a module</div>
                     </div>
 
                     <div class="form-group">
                         <label>
-                            <i class="fas fa-paperclip"></i> Fichiers du cours
+                            <i class="fas fa-paperclip"></i> Course files
                         </label>
-                        
-                        <div class="file-upload-area" id="fileUploadArea">
-                            <input type="file" 
-                                   id="filesInput" 
-                                   name="files" 
-                                   multiple 
-                                   accept=".pdf,.doc,.docx,.ppt,.pptx,.txt,.zip"
-                                   style="display: none;">
-                            <div class="file-upload-content">
-                                <i class="fas fa-cloud-upload-alt upload-icon"></i>
-                                <p>Cliquez pour télécharger des fichiers</p>
-                                <p class="file-hint">PDF, DOC, PPT, TXT, ZIP (max 50MB par fichier)</p>
-                            </div>
-                        </div>
+                       <div class="file-upload-area" id="fileUploadArea">
+    <input type="file" 
+           id="filesInput" 
+           name="files" 
+           multiple 
+           accept=".pdf,.doc,.docx,.ppt,.pptx,.txt,.zip,.jpg,.jpeg,.png,.mp4,.mp3"
+           style="display: none;">
+    <div class="file-upload-content">
+        <i class="fas fa-cloud-upload-alt upload-icon"></i>
+        <p>Click to upload files</p>
+        <p class="file-hint">All file types accepted - No size limit</p>
+    </div>
+</div>
                         
                         <div id="fileList" class="file-list"></div>
                     </div>
 
                     <div class="form-actions">
                         <button type="button" class="btn-cancel" id="cancelModalBtn">
-                            Annuler
+                            Cancel
                         </button>
                         <button type="submit" class="btn-submit" id="submitBtn">
-                            <i class="fas fa-save"></i> Créer
+                            <i class="fas fa-save"></i> Create
                         </button>
                     </div>
                 </form>

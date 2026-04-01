@@ -32,16 +32,14 @@ public class ReceiveCoursesController {
             return "redirect:/login";
         }
         
-        // Récupérer tous les cours actifs
         List<Course> allCourses = courseService.getAllActiveCourses();
         
-        // Compter les cours par niveau
+    
         long totalCourses = allCourses.size();
         long total1stYear = allCourses.stream().filter(c -> "1year".equals(c.getNiveau())).count();
         long total2ndYear = allCourses.stream().filter(c -> "2year".equals(c.getNiveau())).count();
         long total3rdYear = allCourses.stream().filter(c -> "3year".equals(c.getNiveau())).count();
         
-        // Récupérer tous les modules uniques
         List<String> modules = allCourses.stream()
             .map(Course::getModule)
             .filter(module -> module != null && !module.isEmpty())

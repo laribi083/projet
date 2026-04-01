@@ -26,9 +26,7 @@ public class TeacherController {
     
     @Autowired
     private Courseservice courseService;
-    
-    // ========== GESTION DES ENSEIGNANTS ==========
-    
+   
     @PostMapping("/register")
     public ResponseEntity<?> registerTeacher(@RequestBody Map<String, String> request) {
         try {

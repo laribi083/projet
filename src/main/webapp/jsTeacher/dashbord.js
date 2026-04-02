@@ -88,7 +88,6 @@ function setupFileUpload() {
     }
 }
 
-// Formater la taille du fichier (en Bytes, KB, MB, GB)
 function formatFileSize(bytes) {
     if (bytes === 0) return '0 Bytes';
     const k = 1024;
@@ -97,51 +96,19 @@ function formatFileSize(bytes) {
     return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
 }
 
-// Obtenir l'icône selon le type de fichier
 function getFileIcon(fileName, fileType) {
     const extension = fileName.split('.').pop().toLowerCase();
     
-    // Images
-    if (['jpg', 'jpeg', 'png', 'gif', 'bmp', 'svg', 'webp'].includes(extension)) {
-        return 'fa-file-image';
-    }
-    // PDF
-    if (extension === 'pdf') {
-        return 'fa-file-pdf';
-    }
-    // Word
-    if (['doc', 'docx'].includes(extension)) {
-        return 'fa-file-word';
-    }
-    // Excel
-    if (['xls', 'xlsx', 'csv'].includes(extension)) {
-        return 'fa-file-excel';
-    }
-    // PowerPoint
-    if (['ppt', 'pptx'].includes(extension)) {
-        return 'fa-file-powerpoint';
-    }
-    // Vidéos
-    if (['mp4', 'avi', 'mov', 'wmv', 'flv', 'mkv', 'webm'].includes(extension)) {
-        return 'fa-file-video';
-    }
-    // Audio
-    if (['mp3', 'wav', 'ogg', 'flac', 'aac', 'm4a'].includes(extension)) {
-        return 'fa-file-audio';
-    }
-    // Archives
-    if (['zip', 'rar', '7z', 'tar', 'gz'].includes(extension)) {
-        return 'fa-file-archive';
-    }
-    // Code
-    if (['html', 'css', 'js', 'java', 'py', 'cpp', 'c', 'php', 'xml', 'json'].includes(extension)) {
-        return 'fa-file-code';
-    }
-    // Texte
-    if (['txt', 'md', 'rtf'].includes(extension)) {
-        return 'fa-file-alt';
-    }
-    // Par défaut
+    if (['jpg', 'jpeg', 'png', 'gif', 'bmp', 'svg', 'webp'].includes(extension)) return 'fa-file-image';
+    if (extension === 'pdf') return 'fa-file-pdf';
+    if (['doc', 'docx'].includes(extension)) return 'fa-file-word';
+    if (['xls', 'xlsx', 'csv'].includes(extension)) return 'fa-file-excel';
+    if (['ppt', 'pptx'].includes(extension)) return 'fa-file-powerpoint';
+    if (['mp4', 'avi', 'mov', 'wmv', 'flv', 'mkv', 'webm'].includes(extension)) return 'fa-file-video';
+    if (['mp3', 'wav', 'ogg', 'flac', 'aac', 'm4a'].includes(extension)) return 'fa-file-audio';
+    if (['zip', 'rar', '7z', 'tar', 'gz'].includes(extension)) return 'fa-file-archive';
+    if (['html', 'css', 'js', 'java', 'py', 'cpp', 'c', 'php', 'xml', 'json'].includes(extension)) return 'fa-file-code';
+    if (['txt', 'md', 'rtf'].includes(extension)) return 'fa-file-alt';
     return 'fa-file';
 }
 
@@ -154,11 +121,9 @@ function updateFileList() {
         return;
     }
     
-    // Calculer la taille totale
     const totalSize = selectedFiles.reduce((sum, file) => sum + file.size, 0);
     const totalSizeFormatted = formatFileSize(totalSize);
     
-    // Afficher l'en-tête avec le nombre de fichiers et la taille totale
     const header = `
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; padding: 5px; background: #f9fafb; border-radius: 8px;">
             <span style="font-size: 0.8rem; font-weight: 600; color: #4b5563;">
@@ -202,7 +167,7 @@ function removeFile(index) {
     }
 }
 
-// Submit course form
+// ⭐ SUBMIT COURSE FORM - CORRIGÉ
 async function submitCourseForm(event) {
     event.preventDefault();
     
@@ -221,41 +186,37 @@ async function submitCourseForm(event) {
         return;
     }
     
+    console.log('📤 Envoi du cours:', { title, description, niveau });
+    
     const formData = new FormData();
     formData.append('title', title);
     formData.append('description', description);
     formData.append('niveau', niveau);
     
-    // Ajouter tous les fichiers sans vérification de taille
     selectedFiles.forEach(file => {
         formData.append('files', file);
     });
     
-    // Afficher une notification de progression
     if (selectedFiles.length > 0) {
-        showNotification(`Téléchargement de ${selectedFiles.length} fichier(s) (${formatFileSize(selectedFiles.reduce((sum, f) => sum + f.size, 0))}) en cours...`, 'info');
+        showNotification(`Téléchargement de ${selectedFiles.length} fichier(s)...`, 'info');
     }
     
     try {
-        // ⭐ URL POUR LA CRÉATION - POST vers /teacher/api/courses
+        // ✅ POST vers /teacher/api/courses
         const response = await fetch('/teacher/api/courses', {
             method: 'POST',
             body: formData
         });
         
-        if (response.ok) {
-            const data = await response.json();
-            if (data.success) {
-                showNotification('Cours créé avec succès!', 'success');
-                closeAddCourseModal();
-                await loadCourses();
-                await loadStats();
-            } else {
-                throw new Error(data.message || 'Erreur lors de la création');
-            }
+        const data = await response.json();
+        
+        if (data.success) {
+            showNotification('Cours créé avec succès!', 'success');
+            closeAddCourseModal();
+            await loadCourses();
+            await loadStats();
         } else {
-            const errorData = await response.json();
-            throw new Error(errorData.message || 'Erreur lors de la création');
+            throw new Error(data.message || 'Erreur lors de la création');
         }
     } catch (error) {
         console.error('Error:', error);
@@ -266,15 +227,17 @@ async function submitCourseForm(event) {
     }
 }
 
-// ==================== COURSE MANAGEMENT ====================
+// ⭐ LOAD COURSES - CORRIGÉ (utilise /teacher/my-courses)
 async function loadCourses() {
     try {
-        // ⭐ URL POUR RÉCUPÉRER LES COURS - GET vers /teacher/teacher-courses
-        const response = await fetch('/teacher/teacher-courses');
+        // ✅ GET vers /teacher/my-courses (pas /teacher/teacher-courses)
+        const response = await fetch('/teacher/my-courses');
         if (!response.ok) throw new Error('Failed to fetch courses');
         
         const courses = await response.json();
         const coursesGrid = document.getElementById('coursesGrid');
+        
+        console.log('📚 Cours chargés:', courses.length);
         
         if (!coursesGrid) return;
         
@@ -300,7 +263,6 @@ async function loadCourses() {
         console.error('Error loading courses:', error);
         showNotification('Erreur lors du chargement des cours', 'error');
         
-        // Afficher un message d'erreur dans la grille
         const coursesGrid = document.getElementById('coursesGrid');
         if (coursesGrid) {
             coursesGrid.innerHTML = `
@@ -343,10 +305,11 @@ function createCourseCard(course) {
     return div;
 }
 
+// ⭐ LOAD STATS - CORRIGÉ
 async function loadStats() {
     try {
-        // ⭐ URL POUR RÉCUPÉRER LES STATISTIQUES - GET vers /teacher/teacher-courses
-        const response = await fetch('/teacher/teacher-courses');
+        // ✅ GET vers /teacher/my-courses
+        const response = await fetch('/teacher/my-courses');
         if (!response.ok) throw new Error('Failed to fetch stats');
         
         const courses = await response.json();
@@ -416,9 +379,7 @@ async function confirmDelete() {
     }
 }
 
-// ==================== UTILITY FUNCTIONS ====================
 function showNotification(message, type) {
-    // Supprimer les notifications existantes
     const existingNotifications = document.querySelectorAll('.notification');
     existingNotifications.forEach(notification => notification.remove());
     
@@ -453,26 +414,19 @@ function logout() {
 document.addEventListener('DOMContentLoaded', function() {
     console.log('DOM loaded, initializing...');
     
-    // Load initial data
     loadCourses();
     loadStats();
-    
-    // Setup file upload
     setupFileUpload();
     
-    // Setup button event listeners
     const openBtn = document.getElementById('openNewCourseBtn');
     const closeModalBtn = document.getElementById('closeModalBtn');
     const cancelModalBtn = document.getElementById('cancelModalBtn');
     
     if (openBtn) {
-        console.log('Open button found');
         openBtn.addEventListener('click', function(e) {
             e.preventDefault();
             openAddCourseModal();
         });
-    } else {
-        console.error('Open button not found!');
     }
     
     if (closeModalBtn) {
@@ -483,13 +437,11 @@ document.addEventListener('DOMContentLoaded', function() {
         cancelModalBtn.addEventListener('click', closeAddCourseModal);
     }
     
-    // Setup form submission
     const courseForm = document.getElementById('courseForm');
     if (courseForm) {
         courseForm.addEventListener('submit', submitCourseForm);
     }
     
-    // Close modal when clicking outside
     window.addEventListener('click', function(event) {
         const addModal = document.getElementById('addCourseModal');
         const deleteModal = document.getElementById('deleteModal');

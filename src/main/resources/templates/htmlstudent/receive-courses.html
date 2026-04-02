@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Receive Courses - BrainLearning</title>
+    
+    <!-- Liens vers les CSS -->
     <link rel="stylesheet" th:href="@{/cssstudent/dashbord.css}">
     <link rel="stylesheet" th:href="@{/cssstudent/receive-courses.css}">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -65,7 +67,7 @@
             
             <div class="hero-section">
                 <h1><i class="fas fa-download"></i> Receive Courses</h1>
-                <p>Browse and receive courses shared by all professors. Access quality educational content!</p>
+                <p>Cours reçus en temps réel depuis l'interface enseignant</p>
                 <div class="stats-row">
                     <div class="stat-pill">
                         <i class="fas fa-globe"></i> <span id="totalCourses">0</span> Total Courses
@@ -80,6 +82,15 @@
                         <i class="fas fa-microscope"></i> <span id="total3rdYear">0</span> 3rd Year
                     </div>
                 </div>
+                <div style="margin-top: 1rem; display: flex; align-items: center; justify-content: space-between;">
+                    <div>
+                        <i class="fas fa-plug"></i> Connexion en temps réel active
+                        <span class="last-update">Dernière mise à jour : <span id="lastUpdate">--:--:--</span></span>
+                    </div>
+                    <button id="refreshBtn" class="refresh-btn">
+                        <i class="fas fa-sync-alt"></i> Actualiser
+                    </button>
+                </div>
             </div>
             
             <div class="filter-bar">
@@ -93,11 +104,10 @@
                     
                     <select id="filterModule" class="filter-select">
                         <option value="all">📂 All Modules</option>
-                        <!-- Les modules seront chargés dynamiquement -->
                     </select>
                 </div>
                 <div>
-                    <input type="text" id="searchInput" class="search-input" placeholder="🔍 Search courses by title, description or professor...">
+                    <input type="text" id="searchInput" class="search-input" placeholder="🔍 Search courses...">
                 </div>
                 <button id="resetFilters" class="btn-reset">
                     <i class="fas fa-undo-alt"></i> Reset
@@ -107,277 +117,13 @@
             <div class="courses-grid" id="coursesContainer">
                 <div class="loading-spinner">
                     <i class="fas fa-spinner fa-spin fa-2x"></i>
-                    <p>Loading available courses...</p>
+                    <p>Chargement des cours disponibles...</p>
                 </div>
             </div>
         </main>
     </div>
 
-    <script th:inline="javascript">
-        /*<![CDATA[*/
-        let allCourses = [];
-        let receivedCourses = [];
-        let studentNiveau = /*[[${session.niveau}]]*/ '1year';
-        
-        // Charger les cours reçus depuis localStorage
-        function loadReceivedCourses() {
-            const saved = localStorage.getItem(`received_courses_${studentNiveau}`);
-            if (saved) {
-                receivedCourses = JSON.parse(saved);
-            }
-        }
-        
-        // Sauvegarder les cours reçus
-        function saveReceivedCourses() {
-            localStorage.setItem(`received_courses_${studentNiveau}`, JSON.stringify(receivedCourses));
-        }
-        
-        // Charger la liste des modules
-        function loadModules() {
-            fetch('/receive-courses/api/modules')
-                .then(response => response.json())
-                .then(modules => {
-                    const moduleSelect = document.getElementById('filterModule');
-                    if (moduleSelect && modules.length > 0) {
-                        modules.forEach(module => {
-                            const option = document.createElement('option');
-                            option.value = module;
-                            option.textContent = getModuleIcon(module) + ' ' + module;
-                            moduleSelect.appendChild(option);
-                        });
-                    }
-                })
-                .catch(error => console.error('Error loading modules:', error));
-        }
-        
-        function getModuleIcon(module) {
-            const icons = {
-                'Mathematics': '📐',
-                'Computer Science': '💻',
-                'Physics': '⚡',
-                'Chemistry': '🧪',
-                'Biology': '🧬',
-                'Economics': '📊',
-                'Languages': '🗣️',
-                'Engineering': '🔧'
-            };
-            return icons[module] || '📂';
-        }
-        
-        document.addEventListener('DOMContentLoaded', function() {
-            loadReceivedCourses();
-            loadModules();
-            loadCourses();
-            
-            const searchInput = document.getElementById('searchInput');
-            if (searchInput) {
-                searchInput.addEventListener('input', filterAndDisplayCourses);
-            }
-            
-            const filterNiveau = document.getElementById('filterNiveau');
-            const filterModule = document.getElementById('filterModule');
-            const resetBtn = document.getElementById('resetFilters');
-            
-            if (filterNiveau) {
-                filterNiveau.addEventListener('change', filterAndDisplayCourses);
-            }
-            
-            if (filterModule) {
-                filterModule.addEventListener('change', filterAndDisplayCourses);
-            }
-            
-            if (resetBtn) {
-                resetBtn.addEventListener('click', function() {
-                    if (filterNiveau) filterNiveau.value = 'all';
-                    if (filterModule) filterModule.value = 'all';
-                    if (searchInput) searchInput.value = '';
-                    filterAndDisplayCourses();
-                });
-            }
-        });
-        
-        function loadCourses() {
-            fetch('/receive-courses/api/all')
-                .then(response => response.json())
-                .then(courses => {
-                    allCourses = courses.filter(c => c.status === 'ACTIVE');
-                    updateStats();
-                    filterAndDisplayCourses();
-                })
-                .catch(error => {
-                    console.error('Error loading courses:', error);
-                    document.getElementById('coursesContainer').innerHTML = `
-                        <div class="empty-state">
-                            <i class="fas fa-exclamation-circle"></i>
-                            <p>Error loading courses. Please refresh the page.</p>
-                            <button onclick="location.reload()" style="margin-top: 1rem; padding: 0.5rem 1rem; background: #667eea; color: white; border: none; border-radius: 8px; cursor: pointer;">
-                                <i class="fas fa-sync-alt"></i> Retry
-                            </button>
-                        </div>
-                    `;
-                });
-        }
-        
-        function updateStats() {
-            const total = allCourses.length;
-            const total1st = allCourses.filter(c => c.niveau === '1year').length;
-            const total2nd = allCourses.filter(c => c.niveau === '2year').length;
-            const total3rd = allCourses.filter(c => c.niveau === '3year').length;
-            
-            document.getElementById('totalCourses').textContent = total;
-            document.getElementById('total1stYear').textContent = total1st;
-            document.getElementById('total2ndYear').textContent = total2nd;
-            document.getElementById('total3rdYear').textContent = total3rd;
-        }
-        
-        function filterAndDisplayCourses() {
-            const searchTerm = document.getElementById('searchInput')?.value.toLowerCase() || '';
-            const filterNiveau = document.getElementById('filterNiveau')?.value || 'all';
-            const filterModule = document.getElementById('filterModule')?.value || 'all';
-            
-            let filtered = allCourses.filter(course => {
-                const matchesSearch = course.title.toLowerCase().includes(searchTerm) || 
-                                      course.description.toLowerCase().includes(searchTerm) ||
-                                      (course.teacherName && course.teacherName.toLowerCase().includes(searchTerm));
-                
-                const matchesNiveau = filterNiveau === 'all' || course.niveau === filterNiveau;
-                const matchesModule = filterModule === 'all' || course.module === filterModule;
-                
-                return matchesSearch && matchesNiveau && matchesModule;
-            });
-            
-            displayCourses(filtered);
-        }
-        
-        function displayCourses(courses) {
-            const container = document.getElementById('coursesContainer');
-            
-            if (!courses || courses.length === 0) {
-                container.innerHTML = `
-                    <div class="empty-state">
-                        <i class="fas fa-book-open"></i>
-                        <p>No courses available matching your filters.</p>
-                        <p class="empty-hint">Try changing the filters or check back later!</p>
-                    </div>
-                `;
-                return;
-            }
-            
-            container.innerHTML = courses.map(course => {
-                const isReceived = receivedCourses.includes(course.id);
-                return `
-                    <div class="course-card" onclick="viewCourse(${course.id})">
-                        <div class="course-image">
-                            <i class="fas ${getCourseIcon(course.module)}"></i>
-                            <span class="level-badge">${getLevelName(course.niveau)}</span>
-                            <span class="course-badge">${course.status === 'ACTIVE' ? 'Available' : 'Draft'}</span>
-                        </div>
-                        <div class="course-content">
-                            <h3 class="course-title">${escapeHtml(course.title)}</h3>
-                            <p class="course-description">${escapeHtml(course.description.substring(0, 120))}${course.description.length > 120 ? '...' : ''}</p>
-                            <div class="course-meta">
-                                <div class="meta-item">
-                                    <i class="fas fa-clock"></i> ${course.totalHours || 8} hours
-                                </div>
-                                <div class="meta-item">
-                                    <i class="fas fa-video"></i> ${course.totalVideos || 0} videos
-                                </div>
-                                <div class="meta-item">
-                                    <i class="fas fa-file-alt"></i> ${course.fileNames ? course.fileNames.length : 0} resources
-                                </div>
-                            </div>
-                            <div>
-                                <span class="module-tag"><i class="fas fa-tag"></i> ${escapeHtml(course.module || 'General')}</span>
-                            </div>
-                            <div class="teacher-info">
-                                <i class="fas fa-chalkboard-user"></i> ${escapeHtml(course.teacherName || 'Professor')}
-                                <span style="margin-left: auto;">
-                                    <i class="fas fa-calendar-alt"></i> ${formatDate(course.createdAt)}
-                                </span>
-                            </div>
-                            <button class="btn-receive ${isReceived ? 'received' : ''}" 
-                                    onclick="event.stopPropagation(); receiveCourse(${course.id}, this)">
-                                <i class="fas ${isReceived ? 'fa-check-circle' : 'fa-download'}"></i>
-                                ${isReceived ? 'Course Received' : 'Receive Course'}
-                            </button>
-                        </div>
-                    </div>
-                `;
-            }).join('');
-        }
-        
-        function getCourseIcon(module) {
-            const icons = {
-                'Mathematics': 'fa-calculator',
-                'Computer Science': 'fa-laptop-code',
-                'Physics': 'fa-atom',
-                'Chemistry': 'fa-flask',
-                'Biology': 'fa-dna',
-                'Economics': 'fa-chart-line',
-                'Languages': 'fa-language',
-                'Engineering': 'fa-cogs'
-            };
-            return icons[module] || 'fa-graduation-cap';
-        }
-        
-        function receiveCourse(courseId, button) {
-            if (receivedCourses.includes(courseId)) {
-                showNotification('You have already received this course!', 'info');
-                return;
-            }
-            
-            receivedCourses.push(courseId);
-            saveReceivedCourses();
-            
-            button.classList.add('received');
-            button.innerHTML = '<i class="fas fa-check-circle"></i> Course Received';
-            
-            const course = allCourses.find(c => c.id === courseId);
-            showNotification(`✅ "${course?.title}" has been added to your courses!`, 'success');
-        }
-        
-        function viewCourse(courseId) {
-            window.location.href = `/student/course/${courseId}`;
-        }
-        
-        function getLevelName(niveau) {
-            const levels = {
-                '1year': '🎓 1st Year',
-                '2year': '📖 2nd Year',
-                '3year': '🔬 3rd Year'
-            };
-            return levels[niveau] || niveau;
-        }
-        
-        function formatDate(dateString) {
-            if (!dateString) return 'Recently';
-            try {
-                const date = new Date(dateString);
-                return date.toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', year: 'numeric' });
-            } catch (error) {
-                return 'Recently';
-            }
-        }
-        
-        function showNotification(message, type) {
-            const notification = document.createElement('div');
-            notification.className = `notification notification-${type}`;
-            notification.innerHTML = `<i class="fas ${type === 'success' ? 'fa-check-circle' : (type === 'error' ? 'fa-exclamation-circle' : 'fa-info-circle')}"></i> ${message}`;
-            document.body.appendChild(notification);
-            
-            setTimeout(() => {
-                notification.style.animation = 'slideIn 0.3s ease reverse';
-                setTimeout(() => notification.remove(), 300);
-            }, 3000);
-        }
-        
-        function escapeHtml(text) {
-            if (!text) return '';
-            const div = document.createElement('div');
-            div.textContent = text;
-            return div.innerHTML;
-        }
-        /*]]>*/
-    </script>
+    <!-- Lien vers le JavaScript -->
+    <script th:src="@{/jsstudent/receive-courses.js}"></script>
 </body>
 </html>

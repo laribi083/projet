@@ -147,46 +147,54 @@
                         <div class="form-hint">Provide a detailed description.</div>
                     </div>
 
-                    <div class="form-group">
-                        <label>
-                            <i class="fas fa-graduation-cap">Module</i> 
-                        </label>
-                        <select id="courseLevel" name="niveau" required>
-                            <option value="">select module</option>
-                            <option value="1year">Algebra 01</option>
-                            <option value="1year">Algebra 02</option>
-                            <option value="1year">Analysis 01</option>
-                            <option value="1year">Analysis 02</option>
-                            <option value="1year">Advanced Data Structures 01</option>
-                            <option value="2year">Advanced Data Structures 02</option>
-                            <option value="1year">Information Coding & Representation</option>
-                            <option value="1year">Component & Representation of Information</option>
-                            <option value="1year">Introduction to  project-oriented programming</option>
-                            <option value="1year">Machine Structure</option>
-                            <option value="1year">Electricity & Electronics</option>
-                            <option value="2year">Computer Architecture</option>
-                            <option value="2year">DataBases and SQL</option>
-                            <option value="2year">Softwere ingenery 01</option>
-                            <option value="3year">Softwere ingenery 02</option>
-                            <option value="2year">Logique mathématiques</option>
-                            <option value="2year">advanced project-oriented programming</option>
-                            <option value="2year">comunication network 01</option>
-                            <option value="3year">comunication network 02</option>
-                            <option value="2year">operating system</option>
-                            <option value="2year">langages theorique</option>
-                            <option value="3year"> advanced DataBases and SQL</option>
-                            <option value="3year">development of competing applications</option>
-                            <option value="2year">web development 01</option>
-                            <option value="3year">web development 02</option>
-                            <option value="3year">Interactive Software Development</option>
-                            <option value="3year">Git and GitHub</option>
-                            <option value="3year">software maintenance</option>
-                            <option value="3year"> project management</option>
-                             <option value="3year">software quality test</option>
-                        </select>
-                        <div class="form-hint">Select a module</div>
-                    </div>
-
+                  <div class="form-group">
+    <label>
+        <i class="fas fa-graduation-cap"></i> Module
+    </label>
+    <select id="courseLevel" name="niveau" required>
+        <option value="">Select module</option>
+        <!-- 1ère Année - Les valeurs doivent être les NOMS des modules -->
+        <optgroup label="1st Year">
+            <option value="Algebra 01">Algebra 01</option>
+            <option value="Algebra 02">Algebra 02</option>
+            <option value="Analysis 01">Analysis 01</option>
+            <option value="Analysis 02">Analysis 02</option>
+            <option value="Advanced Data Structures 01">Advanced Data Structures 01</option>
+            <option value="Information Coding & Representation">Information Coding & Representation</option>
+            <option value="Component & Representation of Information">Component & Representation of Information</option>
+            <option value="Introduction to project-oriented programming">Introduction to project-oriented programming</option>
+            <option value="Machine Structure">Machine Structure</option>
+            <option value="Electricity & Electronics">Electricity & Electronics</option>
+        </optgroup>
+        <!-- 2ème Année -->
+        <optgroup label="2nd Year">
+            <option value="Advanced Data Structures 02">Advanced Data Structures 02</option>
+            <option value="Computer Architecture">Computer Architecture</option>
+            <option value="DataBases and SQL">DataBases and SQL</option>
+            <option value="Software ingenery 01">Software ingenery 01</option>
+            <option value="Logique mathématiques">Logique mathématiques</option>
+            <option value="advanced project-oriented programming">advanced project-oriented programming</option>
+            <option value="comunication network 01">comunication network 01</option>
+            <option value="operating system">operating system</option>
+            <option value="langages theorique">langages theorique</option>
+            <option value="web development 01">web development 01</option>
+        </optgroup>
+        <!-- 3ème Année -->
+        <optgroup label="3rd Year">
+            <option value="Software ingenery 02">Software ingenery 02</option>
+            <option value="comunication network 02">comunication network 02</option>
+            <option value="advanced DataBases and SQL">advanced DataBases and SQL</option>
+            <option value="development of competing applications">development of competing applications</option>
+            <option value="web development 02">web development 02</option>
+            <option value="Interactive Software Development">Interactive Software Development</option>
+            <option value="Git and GitHub">Git and GitHub</option>
+            <option value="software maintenance">software maintenance</option>
+            <option value="project management">project management</option>
+            <option value="software quality test">software quality test</option>
+        </optgroup>
+    </select>
+    <div class="form-hint">Select a module</div>
+</div>
                     <div class="form-group">
                         <label>
                             <i class="fas fa-paperclip"></i> Course files

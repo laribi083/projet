@@ -149,12 +149,5 @@ public class courcontroller {
         }
     }
     
-    // ⭐ MODIFICATION ICI : Changer le chemin pour éviter le conflit
-    @GetMapping("/teacher-courses")  // Changé de /api/courses à /teacher-courses
-    @ResponseBody
-    public ResponseEntity<List<Course>> getCourses(HttpSession session) {
-        Long teacherId = (Long) session.getAttribute("teacherId");
-        List<Course> courses = courseService.getCoursesByTeacherId(teacherId);
-        return ResponseEntity.ok(courses);
-    }
+ 
 }

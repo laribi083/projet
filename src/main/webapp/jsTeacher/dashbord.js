@@ -1,6 +1,6 @@
 /**
  * dashbord.js - Teacher Dashboard Logic
- * Version complète avec teacherId, teacherName et suppression corrigée
+ * Version complète avec teacherId, teacherName, suppression corrigée et création de quiz
  */
 
 // ========== VARIABLES GLOBALES ==========
@@ -178,7 +178,6 @@ async function submitCourseForm(event) {
     formData.append('description', description);
     formData.append('niveau', niveau);
     
-    // ⭐ Récupérer teacherId et teacherName depuis les champs cachés
     const teacherId = document.getElementById('teacherId')?.value;
     const teacherName = document.getElementById('teacherName')?.value;
     
@@ -252,6 +251,7 @@ async function loadCourses() {
     }
 }
 
+// ⭐ FONCTION CREATE COURSE CARD AVEC BOUTON CREATE QUIZ ⭐
 function createCourseCard(course) {
     const div = document.createElement('div');
     div.className = 'course-card';
@@ -271,6 +271,9 @@ function createCourseCard(course) {
                 <div class="course-actions">
                     <button class="btn-view" onclick="viewCourse(${course.id})">📘 Voir</button>
                     <button class="btn-edit" onclick="editCourse(${course.id})">✏️ Modifier</button>
+                    <button class="btn-quiz" onclick="createQuiz(${course.id}, '${escapeHtml(course.module)}', '${escapeHtml(course.niveau)}')">
+                        <i class="fas fa-question-circle"></i> Create Quiz
+                    </button>
                     <button class="btn-delete" onclick="showDeleteModal(${course.id}, '${escapeHtml(course.title)}')">🗑 Supprimer</button>
                 </div>
             </div>
@@ -313,6 +316,12 @@ function editCourse(courseId) {
     window.location.href = `/teacher/edit-course/${courseId}`;
 }
 
+// ⭐ FONCTION POUR CRÉER UN QUIZ ⭐
+function createQuiz(courseId, courseModule, courseNiveau) {
+    console.log('📝 Création d\'un quiz pour le cours:', { courseId, courseModule, courseNiveau });
+    window.location.href = `/teacher/create-quiz?courseId=${courseId}&courseModule=${courseModule}&courseNiveau=${courseNiveau}`;
+}
+
 // ========== DELETE MODAL ==========
 function showDeleteModal(courseId, courseTitle) {
     courseToDelete = courseId;
@@ -325,7 +334,6 @@ function closeDeleteModal() {
     courseToDelete = null;
 }
 
-// ⭐ CONFIRM DELETE - Version corrigée ⭐
 async function confirmDelete() {
     if (courseToDelete) {
         try {

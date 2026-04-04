@@ -8,6 +8,8 @@
     <!-- CSS Files -->
     <link rel="stylesheet" th:href="@{/cssTracher/dashbord.css}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    
 </head>
 <body>
 
@@ -232,5 +234,44 @@
 
     <!-- JavaScript File -->
     <script th:src="@{/jsTeacher/dashbord.js}"></script>
+    
+    <script>
+        // ⭐ FONCTION POUR CRÉER UN QUIZ ⭐
+        function createQuiz(courseId, courseModule, courseNiveau) {
+            window.location.href = `/teacher/create-quiz?courseId=${courseId}&courseModule=${courseModule}&courseNiveau=${courseNiveau}`;
+        }
+        
+        function viewCourse(courseId) {
+            window.location.href = `/teacher/course/${courseId}`;
+        }
+        
+        function editCourse(courseId) {
+            window.location.href = `/teacher/edit-course/${courseId}`;
+        }
+        
+        function showDeleteModal(courseId, courseTitle) {
+            if (typeof window.showDeleteModal === 'function') {
+                window.showDeleteModal(courseId, courseTitle);
+            }
+        }
+        
+        function closeDeleteModal() {
+            if (typeof window.closeDeleteModal === 'function') {
+                window.closeDeleteModal();
+            }
+        }
+        
+        function confirmDelete() {
+            if (typeof window.confirmDelete === 'function') {
+                window.confirmDelete();
+            }
+        }
+        
+        function logout() {
+            if (confirm('Voulez-vous vraiment vous déconnecter ?')) {
+                window.location.href = '/logout';
+            }
+        }
+    </script>
 </body>
 </html>

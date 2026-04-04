@@ -8,6 +8,7 @@ com\votredomaine\modelememoire\controller\TeacherController.class
 com\votredomaine\modelememoire\repository\ForgetPasswordRepository.class
 com\votredomaine\modelememoire\config\DatabaseConfig.class
 com\votredomaine\modelememoire\util\PasswordUtils.class
+com\votredomaine\modelememoire\Application$1.class
 com\votredomaine\modelememoire\service\TeacherService.class
 com\votredomaine\modelememoire\controller\CourseController.class
 com\votredomaine\modelememoire\controller\HomeController.class

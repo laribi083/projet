@@ -10,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import jakarta.servlet.http.HttpSession;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
@@ -18,7 +19,7 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/teacher")
-@CrossOrigin("*")
+//@CrossOrigin("*")
 public class TeacherController {
     
     @Autowired
@@ -27,6 +28,8 @@ public class TeacherController {
     @Autowired
     private Courseservice courseService;
    
+    // ========== GESTION DES ENSEIGNANTS ==========
+    
     @PostMapping("/register")
     public ResponseEntity<?> registerTeacher(@RequestBody Map<String, String> request) {
         try {
@@ -123,7 +126,7 @@ public class TeacherController {
     // ========== GESTION DES COURS ==========
     
     /**
-     * Créer un nouveau cours
+     * ⭐ CRÉER UN NOUVEAU COURS - CORRIGÉ AVEC SESSION
      * Endpoint: POST /teacher/api/courses
      */
     @PostMapping("/api/courses")
@@ -131,43 +134,68 @@ public class TeacherController {
             @RequestParam("title") String title,
             @RequestParam("description") String description,
             @RequestParam("niveau") String niveau,
-            @RequestParam(value = "files", required = false) MultipartFile[] files) {
+            @RequestParam(value = "files", required = false) MultipartFile[] files,
+            HttpSession session) {
         
         Map<String, Object> response = new HashMap<>();
         
         try {
+            // Récupérer les informations de l'enseignant depuis la session
+            Long teacherId = (Long) session.getAttribute("teacherId");
+            String teacherName = (String) session.getAttribute("teacherName");
+            
+            System.out.println("📝 Création d'un nouveau cours...");
+            System.out.println("   TeacherId: " + teacherId);
+            System.out.println("   TeacherName: " + teacherName);
+            System.out.println("   Titre: " + title);
+            System.out.println("   Module: " + niveau);
+            
+            // Valeurs par défaut si null
+            if (teacherName == null) {
+                teacherName = "Professeur";
+            }
+            
             Course course = new Course();
             course.setTitle(title);
             course.setDescription(description);
             course.setNiveau(extractNiveauLevel(niveau));
             course.setModule(niveau);
+            course.setTeacherId(teacherId);
+            course.setTeacherName(teacherName);
             course.setStatus("ACTIVE");
             course.setCreatedAt(LocalDateTime.now());
             course.setUpdatedAt(LocalDateTime.now());
             
             Course savedCourse = courseService.save(course);
             
+            // Traitement des fichiers si nécessaire
+            if (files != null && files.length > 0) {
+                // Logique de sauvegarde des fichiers à ajouter si besoin
+                System.out.println("   Fichiers reçus: " + files.length);
+            }
+            
             response.put("success", true);
             response.put("course", savedCourse);
+            response.put("courseId", savedCourse.getId());
             response.put("message", "Cours créé avec succès");
             
-            System.out.println("✅ COURS CRÉÉ: " + title + " pour le module " + niveau);
+            System.out.println("✅ COURS CRÉÉ: " + title + " par " + teacherName + " (ID: " + savedCourse.getId() + ")");
             
             return ResponseEntity.ok(response);
             
         } catch (Exception e) {
             e.printStackTrace();
             response.put("success", false);
-            response.put("message", e.getMessage());
+            response.put("message", "Erreur: " + e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
         }
     }
     
     /**
-     * Récupérer tous les cours - ⭐ CHANGER LE CHEMIN POUR ÉVITER LE CONFLIT
-     * Endpoint: GET /teacher/my-courses
+     * Récupérer tous les cours (GET)
+     * Endpoint: GET /teacher/courses
      */
-    @GetMapping("/my-courses")
+    @GetMapping("/courses")
     public ResponseEntity<List<Course>> getTeacherCourses(
             @RequestParam(value = "teacherId", required = false) Long teacherId) {
         
@@ -175,34 +203,58 @@ public class TeacherController {
         
         if (teacherId != null) {
             courses = courseService.findByTeacherId(teacherId);
+            System.out.println("📚 Cours pour teacherId=" + teacherId + ": " + courses.size());
         } else {
             courses = courseService.findAll();
+            System.out.println("📚 Tous les cours: " + courses.size());
         }
         
         return ResponseEntity.ok(courses);
     }
-    
-    /**
-     * Supprimer un cours
-     * Endpoint: DELETE /teacher/delete-course/{courseId}
-     */
+
     @DeleteMapping("/delete-course/{courseId}")
-    public ResponseEntity<Map<String, Object>> deleteCourse(@PathVariable Long courseId) {
-        Map<String, Object> response = new HashMap<>();
-        try {
-            courseService.deleteCourse(courseId);
-            response.put("success", true);
-            response.put("message", "Cours supprimé avec succès");
-            return ResponseEntity.ok(response);
-        } catch (Exception e) {
+public ResponseEntity<Map<String, Object>> deleteCourse(@PathVariable Long courseId, HttpSession session) {
+    Map<String, Object> response = new HashMap<>();
+    try {
+        Long teacherId = (Long) session.getAttribute("teacherId");
+        
+        if (teacherId == null) {
             response.put("success", false);
-            response.put("message", e.getMessage());
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+            response.put("message", "Session expirée");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
         }
+        
+        Course course = courseService.getCourseById(courseId);
+        
+        if (course == null) {
+            response.put("success", false);
+            response.put("message", "Cours non trouvé");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+        }
+        
+        // Vérifier que l'enseignant est le propriétaire
+        if (course.getTeacherId() == null || !course.getTeacherId().equals(teacherId)) {
+            response.put("success", false);
+            response.put("message", "Accès non autorisé");
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
+        }
+        
+        courseService.deleteCourse(courseId);
+        response.put("success", true);
+        response.put("message", "Cours supprimé avec succès");
+        System.out.println("🗑 Cours supprimé ID: " + courseId + " par teacherId: " + teacherId);
+        return ResponseEntity.ok(response);
+        
+    } catch (Exception e) {
+        e.printStackTrace();
+        response.put("success", false);
+        response.put("message", e.getMessage());
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
     }
-    
+}
     /**
      * Récupérer un cours par son ID
+     * Endpoint: GET /teacher/course/{courseId}
      */
     @GetMapping("/course/{courseId}")
     public ResponseEntity<Course> getCourseById(@PathVariable Long courseId) {
@@ -215,26 +267,33 @@ public class TeacherController {
     
     /**
      * Récupérer les cours par niveau
+     * Endpoint: GET /teacher/courses/niveau/{niveau}
      */
     @GetMapping("/courses/niveau/{niveau}")
     public ResponseEntity<List<Course>> getCoursesByNiveau(@PathVariable String niveau) {
         List<Course> courses = courseService.findByNiveau(niveau);
+        System.out.println("📚 Cours pour niveau " + niveau + ": " + courses.size());
         return ResponseEntity.ok(courses);
     }
     
     // ========== MÉTHODES UTILITAIRES ==========
     
+    /**
+     * Extrait le niveau réel (1year, 2year, 3year) à partir du nom du module
+     */
     private String extractNiveauLevel(String moduleValue) {
+        // Modules de 1ère année
         String[] firstYearModules = {
             "Algebra 01", "Algebra 02", "Analysis 01", "Analysis 02",
             "Advanced Data Structures 01", "Information Coding & Representation",
-            "Component & Representation of Information", "Introduction to  project-oriented programming",
+            "Component & Representation of Information", "Introduction to project-oriented programming",
             "Machine Structure", "Electricity & Electronics"
         };
         
+        // Modules de 2ème année
         String[] secondYearModules = {
             "Advanced Data Structures 02", "Computer Architecture", "DataBases and SQL",
-            "Softwere ingenery 01", "Logique mathématiques", "advanced project-oriented programming",
+            "Software ingenery 01", "Logique mathématiques", "advanced project-oriented programming",
             "comunication network 01", "operating system", "langages theorique", "web development 01"
         };
         

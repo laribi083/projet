@@ -1,10 +1,13 @@
-// dashbord.js - Teacher Dashboard Logic
+/**
+ * dashbord.js - Teacher Dashboard Logic
+ * Version complète avec teacherId, teacherName et suppression corrigée
+ */
 
-// Global variables
+// ========== VARIABLES GLOBALES ==========
 let courseToDelete = null;
 let selectedFiles = [];
 
-// ==================== MODAL MANAGEMENT ====================
+// ========== MODAL MANAGEMENT ==========
 function openAddCourseModal() {
     console.log('Opening modal...');
     const modal = document.getElementById('addCourseModal');
@@ -39,7 +42,7 @@ function resetCourseForm() {
     if (fileInput) fileInput.value = '';
 }
 
-// File upload handling - Sans limite de taille
+// ========== FILE UPLOAD ==========
 function setupFileUpload() {
     const fileInput = document.getElementById('filesInput');
     const dropArea = document.getElementById('fileUploadArea');
@@ -96,19 +99,16 @@ function formatFileSize(bytes) {
     return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
 }
 
-function getFileIcon(fileName, fileType) {
+function getFileIcon(fileName) {
     const extension = fileName.split('.').pop().toLowerCase();
-    
-    if (['jpg', 'jpeg', 'png', 'gif', 'bmp', 'svg', 'webp'].includes(extension)) return 'fa-file-image';
+    if (['jpg', 'jpeg', 'png', 'gif', 'svg'].includes(extension)) return 'fa-file-image';
     if (extension === 'pdf') return 'fa-file-pdf';
     if (['doc', 'docx'].includes(extension)) return 'fa-file-word';
-    if (['xls', 'xlsx', 'csv'].includes(extension)) return 'fa-file-excel';
+    if (['xls', 'xlsx'].includes(extension)) return 'fa-file-excel';
     if (['ppt', 'pptx'].includes(extension)) return 'fa-file-powerpoint';
-    if (['mp4', 'avi', 'mov', 'wmv', 'flv', 'mkv', 'webm'].includes(extension)) return 'fa-file-video';
-    if (['mp3', 'wav', 'ogg', 'flac', 'aac', 'm4a'].includes(extension)) return 'fa-file-audio';
-    if (['zip', 'rar', '7z', 'tar', 'gz'].includes(extension)) return 'fa-file-archive';
-    if (['html', 'css', 'js', 'java', 'py', 'cpp', 'c', 'php', 'xml', 'json'].includes(extension)) return 'fa-file-code';
-    if (['txt', 'md', 'rtf'].includes(extension)) return 'fa-file-alt';
+    if (['mp4', 'avi', 'mov'].includes(extension)) return 'fa-file-video';
+    if (['mp3', 'wav'].includes(extension)) return 'fa-file-audio';
+    if (['zip', 'rar'].includes(extension)) return 'fa-file-archive';
     return 'fa-file';
 }
 
@@ -125,33 +125,20 @@ function updateFileList() {
     const totalSizeFormatted = formatFileSize(totalSize);
     
     const header = `
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; padding: 5px; background: #f9fafb; border-radius: 8px;">
-            <span style="font-size: 0.8rem; font-weight: 600; color: #4b5563;">
-                <i class="fas fa-files"></i> ${selectedFiles.length} fichier(s)
-            </span>
-            <span style="font-size: 0.75rem; color: #6b7280;">
-                Taille totale: ${totalSizeFormatted}
-            </span>
+        <div class="file-stats">
+            <span>📁 ${selectedFiles.length} fichier(s)</span>
+            <span>💾 ${totalSizeFormatted}</span>
         </div>
     `;
     
-    const filesList = selectedFiles.map((file, index) => {
-        const fileIcon = getFileIcon(file.name, file.type);
-        const fileSize = formatFileSize(file.size);
-        
-        return `
-            <div class="file-item">
-                <div>
-                    <i class="fas ${fileIcon}"></i>
-                    <span title="${escapeHtml(file.name)}">${escapeHtml(file.name.length > 40 ? file.name.substring(0, 37) + '...' : file.name)}</span>
-                    <small style="color:#6b7280; margin-left:8px;">(${fileSize})</small>
-                </div>
-                <button type="button" class="remove-file" onclick="removeFile(${index})" title="Supprimer">
-                    <i class="fas fa-trash-alt"></i>
-                </button>
-            </div>
-        `;
-    }).join('');
+    const filesList = selectedFiles.map((file, index) => `
+        <div class="file-item">
+            <i class="fas ${getFileIcon(file.name)}"></i>
+            <span>${escapeHtml(file.name)}</span>
+            <small>(${formatFileSize(file.size)})</small>
+            <button onclick="removeFile(${index})" class="remove-file">🗑</button>
+        </div>
+    `).join('');
     
     fileListDiv.innerHTML = header + filesList;
 }
@@ -167,7 +154,7 @@ function removeFile(index) {
     }
 }
 
-// ⭐ SUBMIT COURSE FORM - CORRIGÉ
+// ========== COURSE SUBMISSION ==========
 async function submitCourseForm(event) {
     event.preventDefault();
     
@@ -186,23 +173,25 @@ async function submitCourseForm(event) {
         return;
     }
     
-    console.log('📤 Envoi du cours:', { title, description, niveau });
-    
     const formData = new FormData();
     formData.append('title', title);
     formData.append('description', description);
     formData.append('niveau', niveau);
     
+    // ⭐ Récupérer teacherId et teacherName depuis les champs cachés
+    const teacherId = document.getElementById('teacherId')?.value;
+    const teacherName = document.getElementById('teacherName')?.value;
+    
+    if (teacherId) formData.append('teacherId', teacherId);
+    if (teacherName) formData.append('teacherName', teacherName);
+    
     selectedFiles.forEach(file => {
         formData.append('files', file);
     });
     
-    if (selectedFiles.length > 0) {
-        showNotification(`Téléchargement de ${selectedFiles.length} fichier(s)...`, 'info');
-    }
+    console.log('📤 Envoi du cours:', { title, niveau, teacherId, teacherName });
     
     try {
-        // ✅ POST vers /teacher/api/courses
         const response = await fetch('/teacher/api/courses', {
             method: 'POST',
             body: formData
@@ -216,21 +205,20 @@ async function submitCourseForm(event) {
             await loadCourses();
             await loadStats();
         } else {
-            throw new Error(data.message || 'Erreur lors de la création');
+            throw new Error(data.message);
         }
     } catch (error) {
         console.error('Error:', error);
-        showNotification(`Erreur: ${error.message}`, 'error');
+        showNotification('Erreur: ' + error.message, 'error');
     } finally {
         submitBtn.disabled = false;
         submitBtn.innerHTML = '<i class="fas fa-save"></i> Créer';
     }
 }
 
-// ⭐ LOAD COURSES - CORRIGÉ (utilise /teacher/my-courses)
+// ========== COURSE MANAGEMENT ==========
 async function loadCourses() {
     try {
-        // ✅ GET vers /teacher/my-courses (pas /teacher/teacher-courses)
         const response = await fetch('/teacher/my-courses');
         if (!response.ok) throw new Error('Failed to fetch courses');
         
@@ -256,25 +244,11 @@ async function loadCourses() {
         
         coursesGrid.innerHTML = '';
         courses.forEach(course => {
-            const courseCard = createCourseCard(course);
-            coursesGrid.appendChild(courseCard);
+            coursesGrid.appendChild(createCourseCard(course));
         });
     } catch (error) {
         console.error('Error loading courses:', error);
         showNotification('Erreur lors du chargement des cours', 'error');
-        
-        const coursesGrid = document.getElementById('coursesGrid');
-        if (coursesGrid) {
-            coursesGrid.innerHTML = `
-                <div class="empty-state">
-                    <i class="fas fa-exclamation-triangle"></i>
-                    <p>Erreur de chargement des cours</p>
-                    <button class="btn-primary" onclick="loadCourses()">
-                        Réessayer
-                    </button>
-                </div>
-            `;
-        }
     }
 }
 
@@ -305,10 +279,8 @@ function createCourseCard(course) {
     return div;
 }
 
-// ⭐ LOAD STATS - CORRIGÉ
 async function loadStats() {
     try {
-        // ✅ GET vers /teacher/my-courses
         const response = await fetch('/teacher/my-courses');
         if (!response.ok) throw new Error('Failed to fetch stats');
         
@@ -341,6 +313,7 @@ function editCourse(courseId) {
     window.location.href = `/teacher/edit-course/${courseId}`;
 }
 
+// ========== DELETE MODAL ==========
 function showDeleteModal(courseId, courseTitle) {
     courseToDelete = courseId;
     document.getElementById('courseNameToDelete').textContent = courseTitle;
@@ -352,11 +325,17 @@ function closeDeleteModal() {
     courseToDelete = null;
 }
 
+// ⭐ CONFIRM DELETE - Version corrigée ⭐
 async function confirmDelete() {
     if (courseToDelete) {
         try {
+            console.log('🗑 Suppression du cours ID:', courseToDelete);
+            
             const response = await fetch(`/teacher/delete-course/${courseToDelete}`, {
-                method: 'DELETE'
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
             });
             
             if (response.ok) {
@@ -370,15 +349,16 @@ async function confirmDelete() {
                     throw new Error(data.message || 'Delete failed');
                 }
             } else {
-                throw new Error('Delete failed');
+                throw new Error('Erreur HTTP: ' + response.status);
             }
         } catch (error) {
             console.error('Error:', error);
-            showNotification('Erreur lors de la suppression', 'error');
+            showNotification('Erreur lors de la suppression: ' + error.message, 'error');
         }
     }
 }
 
+// ========== UTILITIES ==========
 function showNotification(message, type) {
     const existingNotifications = document.querySelectorAll('.notification');
     existingNotifications.forEach(notification => notification.remove());
@@ -386,15 +366,10 @@ function showNotification(message, type) {
     const notification = document.createElement('div');
     notification.className = `notification notification-${type}`;
     const icon = type === 'success' ? 'fa-check-circle' : (type === 'error' ? 'fa-exclamation-circle' : 'fa-info-circle');
-    notification.innerHTML = `
-        <i class="fas ${icon}"></i>
-        <span>${message}</span>
-    `;
+    notification.innerHTML = `<i class="fas ${icon}"></i> ${message}`;
     document.body.appendChild(notification);
     
-    setTimeout(() => {
-        notification.remove();
-    }, 3000);
+    setTimeout(() => notification.remove(), 3000);
 }
 
 function escapeHtml(text) {
@@ -410,7 +385,7 @@ function logout() {
     }
 }
 
-// Initialize everything when DOM is loaded
+// ========== INITIALIZATION ==========
 document.addEventListener('DOMContentLoaded', function() {
     console.log('DOM loaded, initializing...');
     
@@ -423,36 +398,23 @@ document.addEventListener('DOMContentLoaded', function() {
     const cancelModalBtn = document.getElementById('cancelModalBtn');
     
     if (openBtn) {
-        openBtn.addEventListener('click', function(e) {
+        openBtn.addEventListener('click', (e) => {
             e.preventDefault();
             openAddCourseModal();
         });
     }
     
-    if (closeModalBtn) {
-        closeModalBtn.addEventListener('click', closeAddCourseModal);
-    }
-    
-    if (cancelModalBtn) {
-        cancelModalBtn.addEventListener('click', closeAddCourseModal);
-    }
+    if (closeModalBtn) closeModalBtn.addEventListener('click', closeAddCourseModal);
+    if (cancelModalBtn) cancelModalBtn.addEventListener('click', closeAddCourseModal);
     
     const courseForm = document.getElementById('courseForm');
-    if (courseForm) {
-        courseForm.addEventListener('submit', submitCourseForm);
-    }
+    if (courseForm) courseForm.addEventListener('submit', submitCourseForm);
     
-    window.addEventListener('click', function(event) {
+    window.addEventListener('click', (event) => {
         const addModal = document.getElementById('addCourseModal');
         const deleteModal = document.getElementById('deleteModal');
-        
-        if (event.target === addModal) {
-            closeAddCourseModal();
-        }
-        
-        if (event.target === deleteModal) {
-            closeDeleteModal();
-        }
+        if (event.target === addModal) closeAddCourseModal();
+        if (event.target === deleteModal) closeDeleteModal();
     });
     
     console.log('Initialization complete');

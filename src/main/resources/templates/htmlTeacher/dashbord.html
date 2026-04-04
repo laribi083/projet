@@ -5,11 +5,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Teacher Dashboard - Brainlearning</title>
     
-    <!-- CSS Files with Thymeleaf links -->
+    <!-- CSS Files -->
     <link rel="stylesheet" th:href="@{/cssTracher/dashbord.css}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
+
+    <!-- ⭐ CHAMPS CACHÉS POUR L'ENSEIGNANT ⭐ -->
+    <input type="hidden" id="teacherId" th:value="${teacherId}" />
+    <input type="hidden" id="teacherName" th:value="${teacherName}" />
 
     <!-- Sidebar -->
     <div class="sidebar">
@@ -122,7 +126,7 @@
             </div>
             
             <div class="modal-body">
-                <form id="courseForm" th:action="@{/teacher/add-course}" method="post" enctype="multipart/form-data">
+                <form id="courseForm" enctype="multipart/form-data">
                     <div class="form-group">
                         <label>
                             <i class="fas fa-heading"></i> Course Title
@@ -147,72 +151,69 @@
                         <div class="form-hint">Provide a detailed description.</div>
                     </div>
 
-                  <div class="form-group">
-    <label>
-        <i class="fas fa-graduation-cap"></i> Module
-    </label>
-    <select id="courseLevel" name="niveau" required>
-        <option value="">Select module</option>
-        <!-- 1ère Année - Les valeurs doivent être les NOMS des modules -->
-        <optgroup label="1st Year">
-            <option value="Algebra 01">Algebra 01</option>
-            <option value="Algebra 02">Algebra 02</option>
-            <option value="Analysis 01">Analysis 01</option>
-            <option value="Analysis 02">Analysis 02</option>
-            <option value="Advanced Data Structures 01">Advanced Data Structures 01</option>
-            <option value="Information Coding & Representation">Information Coding & Representation</option>
-            <option value="Component & Representation of Information">Component & Representation of Information</option>
-            <option value="Introduction to project-oriented programming">Introduction to project-oriented programming</option>
-            <option value="Machine Structure">Machine Structure</option>
-            <option value="Electricity & Electronics">Electricity & Electronics</option>
-        </optgroup>
-        <!-- 2ème Année -->
-        <optgroup label="2nd Year">
-            <option value="Advanced Data Structures 02">Advanced Data Structures 02</option>
-            <option value="Computer Architecture">Computer Architecture</option>
-            <option value="DataBases and SQL">DataBases and SQL</option>
-            <option value="Software ingenery 01">Software ingenery 01</option>
-            <option value="Logique mathématiques">Logique mathématiques</option>
-            <option value="advanced project-oriented programming">advanced project-oriented programming</option>
-            <option value="comunication network 01">comunication network 01</option>
-            <option value="operating system">operating system</option>
-            <option value="langages theorique">langages theorique</option>
-            <option value="web development 01">web development 01</option>
-        </optgroup>
-        <!-- 3ème Année -->
-        <optgroup label="3rd Year">
-            <option value="Software ingenery 02">Software ingenery 02</option>
-            <option value="comunication network 02">comunication network 02</option>
-            <option value="advanced DataBases and SQL">advanced DataBases and SQL</option>
-            <option value="development of competing applications">development of competing applications</option>
-            <option value="web development 02">web development 02</option>
-            <option value="Interactive Software Development">Interactive Software Development</option>
-            <option value="Git and GitHub">Git and GitHub</option>
-            <option value="software maintenance">software maintenance</option>
-            <option value="project management">project management</option>
-            <option value="software quality test">software quality test</option>
-        </optgroup>
-    </select>
-    <div class="form-hint">Select a module</div>
-</div>
+                    <div class="form-group">
+                        <label>
+                            <i class="fas fa-graduation-cap"></i> Module
+                        </label>
+                        <select id="courseLevel" name="niveau" required>
+                            <option value="">Select module</option>
+                            <optgroup label="1st Year">
+                                <option value="Algebra 01">Algebra 01</option>
+                                <option value="Algebra 02">Algebra 02</option>
+                                <option value="Analysis 01">Analysis 01</option>
+                                <option value="Analysis 02">Analysis 02</option>
+                                <option value="Advanced Data Structures 01">Advanced Data Structures 01</option>
+                                <option value="Information Coding & Representation">Information Coding & Representation</option>
+                                <option value="Component & Representation of Information">Component & Representation of Information</option>
+                                <option value="Introduction to project-oriented programming">Introduction to project-oriented programming</option>
+                                <option value="Machine Structure">Machine Structure</option>
+                                <option value="Electricity & Electronics">Electricity & Electronics</option>
+                            </optgroup>
+                            <optgroup label="2nd Year">
+                                <option value="Advanced Data Structures 02">Advanced Data Structures 02</option>
+                                <option value="Computer Architecture">Computer Architecture</option>
+                                <option value="DataBases and SQL">DataBases and SQL</option>
+                                <option value="Software ingenery 01">Software ingenery 01</option>
+                                <option value="Logique mathématiques">Logique mathématiques</option>
+                                <option value="advanced project-oriented programming">advanced project-oriented programming</option>
+                                <option value="comunication network 01">comunication network 01</option>
+                                <option value="operating system">operating system</option>
+                                <option value="langages theorique">langages theorique</option>
+                                <option value="web development 01">web development 01</option>
+                            </optgroup>
+                            <optgroup label="3rd Year">
+                                <option value="Software ingenery 02">Software ingenery 02</option>
+                                <option value="comunication network 02">comunication network 02</option>
+                                <option value="advanced DataBases and SQL">advanced DataBases and SQL</option>
+                                <option value="development of competing applications">development of competing applications</option>
+                                <option value="web development 02">web development 02</option>
+                                <option value="Interactive Software Development">Interactive Software Development</option>
+                                <option value="Git and GitHub">Git and GitHub</option>
+                                <option value="software maintenance">software maintenance</option>
+                                <option value="project management">project management</option>
+                                <option value="software quality test">software quality test</option>
+                            </optgroup>
+                        </select>
+                        <div class="form-hint">Select a module</div>
+                    </div>
+
                     <div class="form-group">
                         <label>
                             <i class="fas fa-paperclip"></i> Course files
                         </label>
-                       <div class="file-upload-area" id="fileUploadArea">
-    <input type="file" 
-           id="filesInput" 
-           name="files" 
-           multiple 
-           accept=".pdf,.doc,.docx,.ppt,.pptx,.txt,.zip,.jpg,.jpeg,.png,.mp4,.mp3"
-           style="display: none;">
-    <div class="file-upload-content">
-        <i class="fas fa-cloud-upload-alt upload-icon"></i>
-        <p>Click to upload files</p>
-        <p class="file-hint">All file types accepted - No size limit</p>
-    </div>
-</div>
-                        
+                        <div class="file-upload-area" id="fileUploadArea">
+                            <input type="file" 
+                                   id="filesInput" 
+                                   name="files" 
+                                   multiple 
+                                   accept=".pdf,.doc,.docx,.ppt,.pptx,.txt,.zip,.jpg,.jpeg,.png,.mp4,.mp3"
+                                   style="display: none;">
+                            <div class="file-upload-content">
+                                <i class="fas fa-cloud-upload-alt upload-icon"></i>
+                                <p>Click to upload files</p>
+                                <p class="file-hint">All file types accepted - No size limit</p>
+                            </div>
+                        </div>
                         <div id="fileList" class="file-list"></div>
                     </div>
 
@@ -229,7 +230,7 @@
         </div>
     </div>
 
-    <!-- JavaScript File with Thymeleaf link -->
+    <!-- JavaScript File -->
     <script th:src="@{/jsTeacher/dashbord.js}"></script>
 </body>
 </html>

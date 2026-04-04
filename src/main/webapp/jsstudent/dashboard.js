@@ -1,250 +1,457 @@
-// Configuration de l'API
-const API_BASE_URL = 'http://localhost:8082/api';
-const ETUDIANT_ID = 1; // ID de Sarah (créé dans DataLoader)
+// dashbord.js - Teacher Dashboard Logic
 
-// Chargement des données au chargement de la page
-document.addEventListener('DOMContentLoaded', function() {
-    loadDashboardData();
-});
+// Global variables
+let courseToDelete = null;
+let selectedFiles = [];
 
-// Fonction principale pour charger toutes les données
-async function loadDashboardData() {
-    try {
-        await Promise.all([
-            loadStatistiques(),
-            loadActionsRapides(),
-            loadCoursRecents()
-        ]);
-    } catch (error) {
-        console.error('Erreur lors du chargement des données:', error);
-        showErrorMessage('Impossible de charger les données. Veuillez rafraîchir la page.');
+// ==================== MODAL MANAGEMENT ====================
+function openAddCourseModal() {
+    console.log('Opening modal...');
+    const modal = document.getElementById('addCourseModal');
+    if (modal) {
+        modal.classList.add('active');
+        document.body.style.overflow = 'hidden';
+        resetCourseForm();
+        console.log('Modal opened');
+    } else {
+        console.error('Modal not found!');
     }
 }
 
-// Chargement des statistiques
-async function loadStatistiques() {
-    try {
-        const response = await fetch(`${API_BASE_URL}/dashboard/${ETUDIANT_ID}/statistiques`);
-        if (!response.ok) throw new Error('Erreur réseau');
-        
-        const stats = await response.json();
-        
-        document.getElementById('coursActifs').textContent = stats.coursActifs || 6;
-        document.getElementById('quizCompletes').textContent = stats.quizCompletes || 24;
-        document.getElementById('moyenne').textContent = (stats.moyenne || 15.8).toFixed(1) + '/20';
-        document.getElementById('heuresEtude').textContent = (stats.heuresEtude || 142) + 'h';
-    } catch (error) {
-        console.error('Erreur chargement statistiques:', error);
-        // Utiliser les valeurs par défaut en cas d'erreur
-        setDefaultStats();
+function closeAddCourseModal() {
+    console.log('Closing modal...');
+    const modal = document.getElementById('addCourseModal');
+    if (modal) {
+        modal.classList.remove('active');
+        document.body.style.overflow = 'auto';
+        resetCourseForm();
     }
 }
 
-// Valeurs par défaut pour les statistiques
-function setDefaultStats() {
-    document.getElementById('coursActifs').textContent = '6';
-    document.getElementById('quizCompletes').textContent = '24';
-    document.getElementById('moyenne').textContent = '15.8/20';
-    document.getElementById('heuresEtude').textContent = '142h';
-}
-
-// Chargement des actions rapides
-async function loadActionsRapides() {
-    try {
-        const response = await fetch(`${API_BASE_URL}/dashboard/${ETUDIANT_ID}/actions-rapides`);
-        if (!response.ok) throw new Error('Erreur réseau');
-        
-        const actions = await response.json();
-        
-        document.getElementById('coursCompletes').textContent = actions.coursCompletes || 0;
-        document.getElementById('quizDisponibles').textContent = actions.quizDisponibles || 0;
-        document.getElementById('evaluationsDisponibles').textContent = actions.evaluationsDisponibles || 3;
-        document.getElementById('questionsDisponibles').textContent = actions.questionsDisponibles || 5;
-    } catch (error) {
-        console.error('Erreur chargement actions rapides:', error);
-        // Utiliser les valeurs par défaut
-        setDefaultActions();
+function resetCourseForm() {
+    const form = document.getElementById('courseForm');
+    if (form) {
+        form.reset();
     }
+    selectedFiles = [];
+    updateFileList();
+    const fileInput = document.getElementById('filesInput');
+    if (fileInput) fileInput.value = '';
 }
 
-// Valeurs par défaut pour les actions rapides
-function setDefaultActions() {
-    document.getElementById('coursCompletes').textContent = '2';
-    document.getElementById('quizDisponibles').textContent = '5';
-    document.getElementById('evaluationsDisponibles').textContent = '3';
-    document.getElementById('questionsDisponibles').textContent = '5';
-}
-
-// Chargement des cours récents
-async function loadCoursRecents() {
-    try {
-        const response = await fetch(`${API_BASE_URL}/dashboard/${ETUDIANT_ID}/cours`);
-        if (!response.ok) throw new Error('Erreur réseau');
-        
-        const cours = await response.json();
-        displayCourses(cours);
-    } catch (error) {
-        console.error('Erreur chargement cours:', error);
-        // Utiliser des données par défaut
-        displayDefaultCourses();
-    }
-}
-
-// Affichage des cours
-function displayCourses(cours) {
-    const container = document.getElementById('coursesContainer');
-    if (!container) return;
+// File upload handling
+function setupFileUpload() {
+    const fileInput = document.getElementById('filesInput');
+    const dropArea = document.getElementById('fileUploadArea');
     
-    if (!cours || cours.length === 0) {
-        displayDefaultCourses();
+    if (fileInput) {
+        fileInput.addEventListener('change', function(e) {
+            const files = Array.from(e.target.files);
+            selectedFiles = [...selectedFiles, ...files];
+            updateFileList();
+        });
+    }
+    
+    if (dropArea) {
+        dropArea.addEventListener('click', () => {
+            if (fileInput) fileInput.click();
+        });
+        
+        dropArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            dropArea.style.borderColor = '#667eea';
+            dropArea.style.background = '#f3f4f6';
+            dropArea.classList.add('dragover');
+        });
+        
+        dropArea.addEventListener('dragleave', (e) => {
+            e.preventDefault();
+            dropArea.style.borderColor = '#d1d5db';
+            dropArea.style.background = '#f9fafb';
+            dropArea.classList.remove('dragover');
+        });
+        
+        dropArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropArea.style.borderColor = '#d1d5db';
+            dropArea.style.background = '#f9fafb';
+            dropArea.classList.remove('dragover');
+            const files = Array.from(e.dataTransfer.files);
+            selectedFiles = [...selectedFiles, ...files];
+            updateFileList();
+            if (fileInput) {
+                const dataTransfer = new DataTransfer();
+                selectedFiles.forEach(file => dataTransfer.items.add(file));
+                fileInput.files = dataTransfer.files;
+            }
+        });
+    }
+}
+
+function formatFileSize(bytes) {
+    if (bytes === 0) return '0 Bytes';
+    const k = 1024;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+}
+
+function getFileIcon(fileName, fileType) {
+    const extension = fileName.split('.').pop().toLowerCase();
+    
+    if (['jpg', 'jpeg', 'png', 'gif', 'bmp', 'svg', 'webp'].includes(extension)) return 'fa-file-image';
+    if (extension === 'pdf') return 'fa-file-pdf';
+    if (['doc', 'docx'].includes(extension)) return 'fa-file-word';
+    if (['xls', 'xlsx', 'csv'].includes(extension)) return 'fa-file-excel';
+    if (['ppt', 'pptx'].includes(extension)) return 'fa-file-powerpoint';
+    if (['mp4', 'avi', 'mov', 'wmv', 'flv', 'mkv', 'webm'].includes(extension)) return 'fa-file-video';
+    if (['mp3', 'wav', 'ogg', 'flac', 'aac', 'm4a'].includes(extension)) return 'fa-file-audio';
+    if (['zip', 'rar', '7z', 'tar', 'gz'].includes(extension)) return 'fa-file-archive';
+    if (['html', 'css', 'js', 'java', 'py', 'cpp', 'c', 'php', 'xml', 'json'].includes(extension)) return 'fa-file-code';
+    if (['txt', 'md', 'rtf'].includes(extension)) return 'fa-file-alt';
+    return 'fa-file';
+}
+
+function updateFileList() {
+    const fileListDiv = document.getElementById('fileList');
+    if (!fileListDiv) return;
+    
+    if (selectedFiles.length === 0) {
+        fileListDiv.innerHTML = '';
         return;
     }
     
-    container.innerHTML = cours.slice(0, 4).map(course => `
-        <div class="course-card">
-            <div class="course-info">
-                <h4>${course.titre || 'Cours sans titre'}</h4>
-                <p>${course.professeur || 'Professeur'}</p>
-                <span class="progress">${course.completionPercentage || 0}% complété</span>
-            </div>
-            <span class="course-category">${course.categorie || 'Général'}</span>
+    const totalSize = selectedFiles.reduce((sum, file) => sum + file.size, 0);
+    const totalSizeFormatted = formatFileSize(totalSize);
+    
+    const header = `
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; padding: 5px; background: #f9fafb; border-radius: 8px;">
+            <span style="font-size: 0.8rem; font-weight: 600; color: #4b5563;">
+                <i class="fas fa-files"></i> ${selectedFiles.length} fichier(s)
+            </span>
+            <span style="font-size: 0.75rem; color: #6b7280;">
+                Taille totale: ${totalSizeFormatted}
+            </span>
         </div>
-    `).join('');
-}
-
-// Données par défaut pour les cours
-function displayDefaultCourses() {
-    const container = document.getElementById('coursesContainer');
-    if (!container) return;
-    
-    const defaultCourses = [
-        { titre: 'Mathématiques Avancées', professeur: 'Dr. Dupont', completion: 75, categorie: 'Mathématiques' },
-        { titre: 'Programmation Java', professeur: 'Dr. Martin', completion: 100, categorie: 'Informatique' },
-        { titre: 'Bases de Données', professeur: 'Dr. Bernard', completion: 45, categorie: 'Informatique' },
-        { titre: 'Anglais Technique', professeur: 'Ms. Johnson', completion: 60, categorie: 'Langues' }
-    ];
-    
-    container.innerHTML = defaultCourses.map(course => `
-        <div class="course-card">
-            <div class="course-info">
-                <h4>${course.titre}</h4>
-                <p>${course.professeur}</p>
-                <span class="progress">${course.completion}% complété</span>
-            </div>
-            <span class="course-category">${course.categorie}</span>
-        </div>
-    `).join('');
-}
-
-// Affichage des messages d'erreur
-function showErrorMessage(message) {
-    // Vous pouvez implémenter une notification toast ici
-    console.error(message);
-    
-    // Créer une notification simple
-    const notification = document.createElement('div');
-    notification.style.cssText = `
-        position: fixed;
-        top: 20px;
-        right: 20px;
-        background-color: var(--danger-color);
-        color: white;
-        padding: 1rem;
-        border-radius: 8px;
-        box-shadow: var(--shadow-lg);
-        z-index: 1000;
-        animation: slideIn 0.3s ease;
     `;
-    notification.textContent = message;
     
+    const filesList = selectedFiles.map((file, index) => {
+        const fileIcon = getFileIcon(file.name, file.type);
+        const fileSize = formatFileSize(file.size);
+        
+        return `
+            <div class="file-item">
+                <div>
+                    <i class="fas ${fileIcon}"></i>
+                    <span title="${escapeHtml(file.name)}">${escapeHtml(file.name.length > 40 ? file.name.substring(0, 37) + '...' : file.name)}</span>
+                    <small style="color:#6b7280; margin-left:8px;">(${fileSize})</small>
+                </div>
+                <button type="button" class="remove-file" onclick="removeFile(${index})" title="Supprimer">
+                    <i class="fas fa-trash-alt"></i>
+                </button>
+            </div>
+        `;
+    }).join('');
+    
+    fileListDiv.innerHTML = header + filesList;
+}
+
+function removeFile(index) {
+    selectedFiles.splice(index, 1);
+    updateFileList();
+    const fileInput = document.getElementById('filesInput');
+    if (fileInput) {
+        const dataTransfer = new DataTransfer();
+        selectedFiles.forEach(file => dataTransfer.items.add(file));
+        fileInput.files = dataTransfer.files;
+    }
+}
+
+// ⭐ SUBMIT COURSE FORM
+async function submitCourseForm(event) {
+    event.preventDefault();
+    
+    const submitBtn = document.getElementById('submitBtn');
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Création...';
+    
+    const title = document.getElementById('courseTitle').value.trim();
+    const description = document.getElementById('courseDescription').value.trim();
+    const niveau = document.getElementById('courseLevel').value;
+    
+    if (!title || !description || !niveau) {
+        showNotification('Veuillez remplir tous les champs obligatoires', 'error');
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = '<i class="fas fa-save"></i> Créer';
+        return;
+    }
+    
+    const formData = new FormData();
+    formData.append('title', title);
+    formData.append('description', description);
+    formData.append('niveau', niveau);
+    
+    selectedFiles.forEach(file => {
+        formData.append('files', file);
+    });
+    
+    try {
+        const response = await fetch('/teacher/api/courses', {
+            method: 'POST',
+            body: formData
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            showNotification('Cours créé avec succès!', 'success');
+            closeAddCourseModal();
+            await loadCourses();
+            await loadStats();
+        } else {
+            throw new Error(data.message || 'Erreur lors de la création');
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        showNotification(`Erreur: ${error.message}`, 'error');
+    } finally {
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = '<i class="fas fa-save"></i> Créer';
+    }
+}
+
+// ⭐ LOAD COURSES
+async function loadCourses() {
+    try {
+        const response = await fetch('/teacher/my-courses');
+        if (!response.ok) throw new Error('Failed to fetch courses');
+        
+        const courses = await response.json();
+        const coursesGrid = document.getElementById('coursesGrid');
+        
+        console.log('📚 Cours chargés:', courses.length);
+        
+        if (!coursesGrid) return;
+        
+        if (courses.length === 0) {
+            coursesGrid.innerHTML = `
+                <div class="empty-state">
+                    <i class="fas fa-book-open"></i>
+                    <p>You have not yet created a course</p>
+                    <button class="btn-primary" onclick="openAddCourseModal()">
+                        Create your first course
+                    </button>
+                </div>
+            `;
+            return;
+        }
+        
+        coursesGrid.innerHTML = '';
+        courses.forEach(course => {
+            const courseCard = createCourseCard(course);
+            coursesGrid.appendChild(courseCard);
+        });
+    } catch (error) {
+        console.error('Error loading courses:', error);
+        showNotification('Erreur lors du chargement des cours', 'error');
+        
+        const coursesGrid = document.getElementById('coursesGrid');
+        if (coursesGrid) {
+            coursesGrid.innerHTML = `
+                <div class="empty-state">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <p>Erreur de chargement des cours</p>
+                    <button class="btn-primary" onclick="loadCourses()">
+                        Réessayer
+                    </button>
+                </div>
+            `;
+        }
+    }
+}
+
+function createCourseCard(course) {
+    const div = document.createElement('div');
+    div.className = 'course-card';
+    div.innerHTML = `
+        <div class="course-image">
+            📘
+            <span class="course-badge">${course.status === 'ACTIVE' ? 'Actif' : 'Brouillon'}</span>
+        </div>
+        <div class="course-content">
+            <h3 class="course-title">${escapeHtml(course.title)}</h3>
+            <p class="course-description">${escapeHtml(course.description ? course.description.substring(0, 100) : '')}${course.description && course.description.length > 100 ? '...' : ''}</p>
+            <div class="course-meta">
+                <div class="course-stats">
+                    <span>📖 ${course.totalQuizzes || 0} quiz</span>
+                    <span>👥 ${course.totalStudents || 0} étudiants</span>
+                </div>
+                <div class="course-actions">
+                    <button class="btn-view" onclick="viewCourse(${course.id})">📘 Voir</button>
+                    <button class="btn-edit" onclick="editCourse(${course.id})">✏️ Modifier</button>
+                    <button class="btn-delete" onclick="showDeleteModal(${course.id}, '${escapeHtml(course.title)}')">🗑 Supprimer</button>
+                </div>
+            </div>
+        </div>
+    `;
+    return div;
+}
+
+// ⭐ EDITE COURSE - Redirige vers la page d'édition
+function editCourse(courseId) {
+    console.log('✏️ Modification du cours ID:', courseId);
+    window.location.href = `/teacher/edit-course/${courseId}`;
+}
+
+// ⭐ VIEW COURSE
+function viewCourse(courseId) {
+    window.location.href = `/teacher/course/${courseId}`;
+}
+
+// ⭐ LOAD STATS
+async function loadStats() {
+    try {
+        const response = await fetch('/teacher/my-courses');
+        if (!response.ok) throw new Error('Failed to fetch stats');
+        
+        const courses = await response.json();
+        
+        document.getElementById('totalCourses').textContent = courses.length;
+        
+        let totalQuizzes = 0;
+        let totalStudents = 0;
+        courses.forEach(course => {
+            totalQuizzes += course.totalQuizzes || 0;
+            totalStudents += course.totalStudents || 0;
+        });
+        
+        document.getElementById('totalQuizzes').textContent = totalQuizzes;
+        document.getElementById('totalStudents').textContent = totalStudents;
+    } catch (error) {
+        console.error('Error loading stats:', error);
+        document.getElementById('totalCourses').textContent = '0';
+        document.getElementById('totalQuizzes').textContent = '0';
+        document.getElementById('totalStudents').textContent = '0';
+    }
+}
+
+// ⭐ SHOW DELETE MODAL
+function showDeleteModal(courseId, courseTitle) {
+    courseToDelete = courseId;
+    document.getElementById('courseNameToDelete').textContent = courseTitle;
+    document.getElementById('deleteModal').style.display = 'flex';
+}
+
+function closeDeleteModal() {
+    document.getElementById('deleteModal').style.display = 'none';
+    courseToDelete = null;
+}
+
+// ⭐ CONFIRM DELETE - Version corrigée
+async function confirmDelete() {
+    if (courseToDelete) {
+        try {
+            console.log('🗑 Suppression du cours ID:', courseToDelete);
+            
+            const response = await fetch(`/teacher/delete-course/${courseToDelete}`, {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+            
+            const data = await response.json();
+            
+            if (data.success) {
+                showNotification('Cours supprimé avec succès', 'success');
+                closeDeleteModal();
+                await loadCourses();
+                await loadStats();
+            } else {
+                throw new Error(data.message || 'Delete failed');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            showNotification('Erreur lors de la suppression: ' + error.message, 'error');
+        }
+    }
+}
+
+function showNotification(message, type) {
+    const existingNotifications = document.querySelectorAll('.notification');
+    existingNotifications.forEach(notification => notification.remove());
+    
+    const notification = document.createElement('div');
+    notification.className = `notification notification-${type}`;
+    const icon = type === 'success' ? 'fa-check-circle' : (type === 'error' ? 'fa-exclamation-circle' : 'fa-info-circle');
+    notification.innerHTML = `
+        <i class="fas ${icon}"></i>
+        <span>${message}</span>
+    `;
     document.body.appendChild(notification);
     
     setTimeout(() => {
         notification.remove();
-    }, 5000);
+    }, 3000);
 }
 
-// Animation pour les notifications
-const style = document.createElement('style');
-style.textContent = `
-    @keyframes slideIn {
-        from {
-            transform: translateX(100%);
-            opacity: 0;
-        }
-        to {
-            transform: translateX(0);
-            opacity: 1;
-        }
+function escapeHtml(text) {
+    if (!text) return '';
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
+
+function logout() {
+    if (confirm('Voulez-vous vraiment vous déconnecter ?')) {
+        window.location.href = '/logout';
     }
-`;
-document.head.appendChild(style);
+}
 
-// Gestionnaire pour le bouton de déconnexion
-document.querySelector('.logout-btn')?.addEventListener('click', function(e) {
-    e.preventDefault();
-    window.location.href = 'index.html';
-});
-
-// Gestionnaire pour la recherche
-document.querySelector('.search-box input')?.addEventListener('input', function(e) {
-    const searchTerm = e.target.value.toLowerCase();
-    filterCourses(searchTerm);
-});
-
-// Filtrage des cours
-function filterCourses(term) {
-    const courseCards = document.querySelectorAll('.course-card');
+// Initialize everything when DOM is loaded
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('DOM loaded, initializing...');
     
-    courseCards.forEach(card => {
-        const title = card.querySelector('h4')?.textContent.toLowerCase() || '';
-        const category = card.querySelector('.course-category')?.textContent.toLowerCase() || '';
+    loadCourses();
+    loadStats();
+    setupFileUpload();
+    
+    const openBtn = document.getElementById('openNewCourseBtn');
+    const closeModalBtn = document.getElementById('closeModalBtn');
+    const cancelModalBtn = document.getElementById('cancelModalBtn');
+    
+    if (openBtn) {
+        openBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            openAddCourseModal();
+        });
+    }
+    
+    if (closeModalBtn) {
+        closeModalBtn.addEventListener('click', closeAddCourseModal);
+    }
+    
+    if (cancelModalBtn) {
+        cancelModalBtn.addEventListener('click', closeAddCourseModal);
+    }
+    
+    const courseForm = document.getElementById('courseForm');
+    if (courseForm) {
+        courseForm.addEventListener('submit', submitCourseForm);
+    }
+    
+    window.addEventListener('click', function(event) {
+        const addModal = document.getElementById('addCourseModal');
+        const deleteModal = document.getElementById('deleteModal');
         
-        if (title.includes(term) || category.includes(term)) {
-            card.style.display = 'flex';
-        } else {
-            card.style.display = 'none';
+        if (event.target === addModal) {
+            closeAddCourseModal();
+        }
+        
+        if (event.target === deleteModal) {
+            closeDeleteModal();
         }
     });
-}
-
-// Rafraîchissement périodique des données (toutes les 5 minutes)
-setInterval(loadDashboardData, 300000);
-
-// Gestionnaire pour le menu mobile (si nécessaire)
-function toggleMobileMenu() {
-    document.querySelector('.sidebar')?.classList.toggle('active');
-}
-
-// Ajouter un bouton de menu mobile
-const mobileMenuBtn = document.createElement('button');
-mobileMenuBtn.className = 'mobile-menu-btn';
-mobileMenuBtn.innerHTML = '<i class="fas fa-bars"></i>';
-mobileMenuBtn.style.cssText = `
-    position: fixed;
-    bottom: 20px;
-    right: 20px;
-    background-color: var(--primary-color);
-    color: white;
-    border: none;
-    width: 50px;
-    height: 50px;
-    border-radius: 50%;
-    display: none;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.2rem;
-    cursor: pointer;
-    box-shadow: var(--shadow-lg);
-    z-index: 1001;
-`;
-
-mobileMenuBtn.addEventListener('click', toggleMobileMenu);
-document.body.appendChild(mobileMenuBtn);
-
-// Afficher le bouton seulement sur mobile
-const mediaQuery = window.matchMedia('(max-width: 768px)');
-mediaQuery.addListener(e => {
-    mobileMenuBtn.style.display = e.matches ? 'flex' : 'none';
+    
+    console.log('Initialization complete');
 });
-mobileMenuBtn.style.display = mediaQuery.matches ? 'flex' : 'none';

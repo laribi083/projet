@@ -51,6 +51,7 @@
                     <i class="fas fa-arrow-left"></i> Back to Receive Courses
                 </a>
                 
+                <!-- En-tête du cours -->
                 <div class="course-header">
                     <h1 th:text="${course.title}">Course Title</h1>
                     <div class="course-meta">
@@ -66,6 +67,7 @@
                     </div>
                 </div>
                 
+                <!-- Section Description -->
                 <div class="course-section">
                     <h2><i class="fas fa-align-left"></i> Description</h2>
                     <div class="description-content" th:text="${course.description}">
@@ -79,6 +81,18 @@
                     </div>
                 </div>
                 
+                <!-- Section Contenu du cours -->
+                <div class="course-section" th:if="${course.content != null and !course.content.isEmpty()}">
+                    <h2><i class="fas fa-file-alt"></i> Course Content</h2>
+                    <div class="course-content-body" th:utext="${course.content}"></div>
+                </div>
+                
+                <div class="course-section" th:unless="${course.content != null and !course.content.isEmpty()}">
+                    <h2><i class="fas fa-file-alt"></i> Course Content</h2>
+                    <p class="description-content">No content available for this course yet.</p>
+                </div>
+                
+                <!-- Section Resources -->
                 <div class="course-section" th:if="${course.fileNames != null and !course.fileNames.isEmpty()}">
                     <h2><i class="fas fa-paperclip"></i> Resources</h2>
                     <ul class="files-list">

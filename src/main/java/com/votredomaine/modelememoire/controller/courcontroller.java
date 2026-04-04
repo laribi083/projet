@@ -11,9 +11,8 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import jakarta.servlet.http.HttpSession;
-import java.util.HashMap;
+import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Map;
 
 @Controller
 @RequestMapping("/teacher")
@@ -22,6 +21,9 @@ public class courcontroller {
     @Autowired
     private Courseservice courseService;
     
+    /**
+     * Affiche le tableau de bord de l'enseignant
+     */
     @GetMapping("/dashboard")
     public String dashboard(HttpSession session, Model model) {
         Long teacherId = (Long) session.getAttribute("teacherId");
@@ -43,12 +45,18 @@ public class courcontroller {
         return "htmlTeacher/dashbord";
     }
     
+    /**
+     * Affiche le formulaire d'ajout de cours
+     */
     @GetMapping("/add-course")
     public String showAddCourseForm(Model model) {
         model.addAttribute("course", new Course());
         return "htmlTeacher/addcourse";
     }
     
+    /**
+     * Crée un nouveau cours
+     */
     @PostMapping("/add-course")
     public String createCourse(@ModelAttribute Course course,
                                @RequestParam(value = "files", required = false) List<MultipartFile> files,
@@ -84,19 +92,35 @@ public class courcontroller {
         return "redirect:/teacher/dashboard";
     }
     
+    /**
+     * Affiche le formulaire d'édition d'un cours
+     */
     @GetMapping("/edit-course/{id}")
     public String showEditCourseForm(@PathVariable Long id, Model model, HttpSession session) {
-        Course course = courseService.getCourseById(id);
         Long teacherId = (Long) session.getAttribute("teacherId");
         
-        if (course == null || !course.getTeacherId().equals(teacherId)) {
-            return "redirect:/teacher/dashboard";
+        if (teacherId == null) {
+            return "redirect:/login";
+        }
+        
+        Course course = courseService.getCourseById(id);
+        
+        if (course == null) {
+            return "redirect:/teacher/dashboard?error=Course not found";
+        }
+        
+        Long courseTeacherId = course.getTeacherId();
+        if (courseTeacherId == null || !courseTeacherId.equals(teacherId)) {
+            return "redirect:/teacher/dashboard?error=Access denied";
         }
         
         model.addAttribute("course", course);
         return "htmlTeacher/editcourse";
     }
     
+    /**
+     * Met à jour un cours existant
+     */
     @PostMapping("/update-course/{id}")
     public String updateCourse(@PathVariable Long id,
                                @ModelAttribute Course course,
@@ -105,15 +129,35 @@ public class courcontroller {
                                RedirectAttributes redirectAttributes) {
         try {
             Long teacherId = (Long) session.getAttribute("teacherId");
+            
+            if (teacherId == null) {
+                redirectAttributes.addFlashAttribute("error", "Session expired");
+                return "redirect:/login";
+            }
+            
             Course existingCourse = courseService.getCourseById(id);
             
-            if (existingCourse == null || !existingCourse.getTeacherId().equals(teacherId)) {
+            if (existingCourse == null) {
                 redirectAttributes.addFlashAttribute("error", "Course not found");
                 return "redirect:/teacher/dashboard";
             }
             
-            courseService.updateCourse(id, course, newFiles);
+            Long courseTeacherId = existingCourse.getTeacherId();
+            if (courseTeacherId == null || !courseTeacherId.equals(teacherId)) {
+                redirectAttributes.addFlashAttribute("error", "Access denied");
+                return "redirect:/teacher/dashboard";
+            }
+            
+            // Mettre à jour les champs
+            existingCourse.setTitle(course.getTitle());
+            existingCourse.setDescription(course.getDescription());
+            existingCourse.setModule(course.getModule());
+            existingCourse.setNiveau(course.getNiveau());
+            existingCourse.setUpdatedAt(LocalDateTime.now());
+            
+            courseService.updateCourse(id, existingCourse, newFiles);
             redirectAttributes.addFlashAttribute("success", "Course updated successfully!");
+            
         } catch (Exception e) {
             e.printStackTrace();
             redirectAttributes.addFlashAttribute("error", "Error updating course: " + e.getMessage());
@@ -122,32 +166,21 @@ public class courcontroller {
         return "redirect:/teacher/dashboard";
     }
     
-    @DeleteMapping("/delete-course/{id}")
-    @ResponseBody
-    public ResponseEntity<Map<String, Object>> deleteCourse(@PathVariable Long id, HttpSession session) {
-        Map<String, Object> response = new HashMap<>();
-        
-        try {
-            Long teacherId = (Long) session.getAttribute("teacherId");
-            Course course = courseService.getCourseById(id);
-            
-            if (course == null || !course.getTeacherId().equals(teacherId)) {
-                response.put("success", false);
-                response.put("message", "Course not found");
-                return ResponseEntity.badRequest().body(response);
-            }
-            
-            courseService.deleteCourse(id);
-            response.put("success", true);
-            response.put("message", "Course deleted successfully");
-            return ResponseEntity.ok(response);
-        } catch (Exception e) {
-            e.printStackTrace();
-            response.put("success", false);
-            response.put("message", e.getMessage());
-            return ResponseEntity.badRequest().body(response);
-        }
-    }
     
- 
+    
+    /**
+     * Récupère la liste des cours de l'enseignant connecté (API)
+     */
+    @GetMapping("/my-courses")
+    @ResponseBody
+    public ResponseEntity<List<Course>> getCourses(HttpSession session) {
+        Long teacherId = (Long) session.getAttribute("teacherId");
+        
+        if (teacherId == null) {
+            return ResponseEntity.badRequest().build();
+        }
+        
+        List<Course> courses = courseService.getCoursesByTeacherId(teacherId);
+        return ResponseEntity.ok(courses);
+    }
 }

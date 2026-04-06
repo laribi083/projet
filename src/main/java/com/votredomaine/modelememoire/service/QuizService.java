@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -19,8 +20,14 @@ public class QuizService {
     @Autowired
     private QuestionRepository questionRepository;
     
+    /**
+     * Crée un nouveau quiz avec ses questions
+     */
     @Transactional
     public Quiz createQuiz(Quiz quiz, List<Question> questions) {
+        quiz.setCreatedAt(LocalDateTime.now());
+        quiz.setTotalQuestions(questions.size());
+        
         Quiz savedQuiz = quizRepository.save(quiz);
         
         for (Question question : questions) {
@@ -28,27 +35,66 @@ public class QuizService {
             questionRepository.save(question);
         }
         
-        savedQuiz.setTotalQuestions(questions.size());
-        return quizRepository.save(savedQuiz);
+        return savedQuiz;
     }
     
+    /**
+     * Récupère tous les quiz d'un enseignant
+     */
     public List<Quiz> getQuizzesByTeacher(Long teacherId) {
         return quizRepository.findByTeacherId(teacherId);
     }
     
+    /**
+     * Récupère les quiz d'un cours (uniquement actifs)
+     */
     public List<Quiz> getQuizzesByCourse(Long courseId) {
-        return quizRepository.findByCourseId(courseId);
+        return quizRepository.findByCourseIdAndStatus(courseId, "ACTIVE");
     }
     
-    public List<Quiz> getQuizzesByModule(String module, String niveau) {
-        return quizRepository.findByCourseModuleAndCourseNiveau(module, niveau);
+    /**
+     * Récupère tous les quiz actifs
+     */
+    public List<Quiz> getAllActiveQuizzes() {
+        return quizRepository.findByStatus("ACTIVE");
     }
     
+    /**
+     * Récupère un quiz par son ID
+     */
     public Quiz getQuizById(Long id) {
         return quizRepository.findById(id).orElse(null);
     }
     
+    /**
+     * Récupère les questions d'un quiz
+     */
+    public List<Question> getQuestionsByQuizId(Long quizId) {
+        return questionRepository.findByQuizId(quizId);
+    }
+    
+    /**
+     * Supprime un quiz et ses questions
+     */
+    @Transactional
     public void deleteQuiz(Long id) {
+        questionRepository.deleteByQuizId(id);
         quizRepository.deleteById(id);
+    }
+    
+    /**
+     * ⭐ Compte le nombre de quiz dans un cours
+     */
+    public long countQuizzesByCourse(Long courseId) {
+        return quizRepository.countByCourseId(courseId);
+    }
+    
+    /**
+     * Met à jour un quiz existant
+     */
+    @Transactional
+    public Quiz updateQuiz(Quiz quiz) {
+        quiz.setUpdatedAt(LocalDateTime.now());
+        return quizRepository.save(quiz);
     }
 }

@@ -1,119 +1,154 @@
+// jsTeacher/quiz.js
+
 let questionCount = 0;
 let questions = [];
 
+$(document).ready(function() {
+    addQuestion(); // Ajouter une première question par défaut
+    
+    $('#quizForm').on('submit', function(e) {
+        e.preventDefault();
+        saveQuiz();
+    });
+});
+
 function addQuestion() {
     questionCount++;
-    const container = document.getElementById('questionsContainer');
-    const questionDiv = document.createElement('div');
-    questionDiv.className = 'question-card';
-    questionDiv.id = `question-${questionCount}`;
-    questionDiv.innerHTML = `
-        <div class="question-header">
-            <span class="question-number">Question ${questionCount}</span>
-            <button type="button" class="btn-remove-question" onclick="removeQuestion(${questionCount})">
-                <i class="fas fa-trash"></i>
-            </button>
-        </div>
-        <div class="form-group">
-            <input type="text" class="question-text" placeholder="Enter your question" required>
-        </div>
-        <div class="options-container">
-            <div class="option-item">
-                <input type="radio" name="correct-${questionCount}" value="0">
-                <input type="text" class="option-text" placeholder="Option 1" required>
+    const questionHtml = `
+        <div class="question-card" data-index="${questionCount}">
+            <div class="question-header">
+                <h3>Question ${questionCount}</h3>
+                <button type="button" class="btn-remove" onclick="removeQuestion(this)">✕</button>
             </div>
-            <div class="option-item">
-                <input type="radio" name="correct-${questionCount}" value="1">
-                <input type="text" class="option-text" placeholder="Option 2" required>
+            
+            <div class="form-group">
+                <label>Question Text</label>
+                <input type="text" class="question-text" placeholder="Enter your question...">
             </div>
-            <div class="option-item">
-                <input type="radio" name="correct-${questionCount}" value="2">
-                <input type="text" class="option-text" placeholder="Option 3" required>
+            
+            <div class="options-container">
+                <div class="option-row">
+                    <span class="option-letter">A.</span>
+                    <input type="text" class="option-input" placeholder="Option A">
+                </div>
+                <div class="option-row">
+                    <span class="option-letter">B.</span>
+                    <input type="text" class="option-input" placeholder="Option B">
+                </div>
+                <div class="option-row">
+                    <span class="option-letter">C.</span>
+                    <input type="text" class="option-input" placeholder="Option C">
+                </div>
+                <div class="option-row">
+                    <span class="option-letter">D.</span>
+                    <input type="text" class="option-input" placeholder="Option D">
+                </div>
             </div>
-            <div class="option-item">
-                <input type="radio" name="correct-${questionCount}" value="3">
-                <input type="text" class="option-text" placeholder="Option 4" required>
+            
+            <div class="form-group">
+                <label>Correct Answer</label>
+                <select class="correct-answer">
+                    <option value="0">A</option>
+                    <option value="1">B</option>
+                    <option value="2">C</option>
+                    <option value="3">D</option>
+                </select>
             </div>
         </div>
     `;
-    container.appendChild(questionDiv);
-}
-
-function removeQuestion(id) {
-    const element = document.getElementById(`question-${id}`);
-    if (element) element.remove();
-}
-
-function collectQuestions() {
-    const questionCards = document.querySelectorAll('.question-card');
-    const questions = [];
     
-    questionCards.forEach((card, index) => {
-        const questionText = card.querySelector('.question-text').value;
-        const options = Array.from(card.querySelectorAll('.option-text')).map(opt => opt.value);
-        const correctAnswer = card.querySelector(`input[type="radio"]:checked`);
+    $('#questionsContainer').append(questionHtml);
+}
+
+function removeQuestion(button) {
+    $(button).closest('.question-card').remove();
+    updateQuestionNumbers();
+}
+
+function updateQuestionNumbers() {
+    $('.question-card').each(function(index) {
+        $(this).attr('data-index', index + 1);
+        $(this).find('h3').text(`Question ${index + 1}`);
+    });
+    questionCount = $('.question-card').length;
+}
+
+function saveQuiz() {
+    const title = $('#quizTitle').val();
+    const description = $('#quizDescription').val();
+    const durationMinutes = $('#durationMinutes').val();
+    const passingScore = $('#passingScore').val();
+    const courseId = $('#courseId').val();
+    const courseModule = $('#courseModule').val();
+    const courseNiveau = $('#courseNiveau').val();
+    
+    if (!title) {
+        alert('Veuillez entrer un titre pour le quiz');
+        return;
+    }
+    
+    // Collecter les questions
+    const questionsData = [];
+    $('.question-card').each(function() {
+        const questionText = $(this).find('.question-text').val();
+        const options = [
+            $(this).find('.option-input').eq(0).val(),
+            $(this).find('.option-input').eq(1).val(),
+            $(this).find('.option-input').eq(2).val(),
+            $(this).find('.option-input').eq(3).val()
+        ];
+        const correctAnswer = parseInt($(this).find('.correct-answer').val());
         
-        if (questionText && options.every(opt => opt)) {
-            questions.push({
+        if (questionText && options[0] && options[1] && options[2] && options[3]) {
+            questionsData.push({
                 text: questionText,
                 options: options,
-                correctAnswer: correctAnswer ? parseInt(correctAnswer.value) : 0,
-                points: 1
+                correctAnswer: correctAnswer
             });
         }
     });
     
-    return questions;
-}
-
-document.getElementById('quizForm').addEventListener('submit', async (e) => {
-    e.preventDefault();
-    
-    const title = document.getElementById('quizTitle').value;
-    const description = document.getElementById('quizDescription').value;
-    const durationMinutes = document.getElementById('durationMinutes').value;
-    const passingScore = document.getElementById('passingScore').value;
-    const courseId = document.getElementById('courseId').value;
-    const courseModule = document.getElementById('courseModule').value;
-    const courseNiveau = document.getElementById('courseNiveau').value;
-    const questions = collectQuestions();
-    
-    if (!title || questions.length === 0) {
-        alert('Please fill in quiz title and at least one question');
+    if (questionsData.length === 0) {
+        alert('Veuillez ajouter au moins une question complète');
         return;
     }
     
-    const formData = new FormData();
-    formData.append('title', title);
-    formData.append('description', description);
-    formData.append('courseId', courseId);
-    formData.append('courseModule', courseModule);
-    formData.append('courseNiveau', courseNiveau);
-    formData.append('durationMinutes', durationMinutes);
-    formData.append('passingScore', passingScore);
-    formData.append('questions', JSON.stringify(questions));
+    // Afficher un loader
+    $('.btn-submit').prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> Création...');
     
-    try {
-        const response = await fetch('/teacher/api/quizzes', {
-            method: 'POST',
-            body: formData
-        });
-        
-        const result = await response.json();
-        if (result.success) {
-            window.location.href = `/teacher/course/${courseId}/quizzes`;
-        } else {
-            alert(result.message);
+    // Envoyer au serveur
+    $.ajax({
+        url: '/quiz/api/create',
+        type: 'POST',
+        data: {
+            title: title,
+            description: description,
+            courseId: courseId,
+            courseModule: courseModule,
+            courseNiveau: courseNiveau,
+            durationMinutes: durationMinutes,
+            passingScore: passingScore,
+            questionsData: JSON.stringify(questionsData)
+        },
+        success: function(response) {
+            if (response.success) {
+                alert('Quiz créé avec succès !');
+                window.location.href = '/teacher/dashboard';
+            } else {
+                alert('Erreur: ' + response.message);
+            }
+        },
+        error: function(xhr) {
+            alert('Erreur lors de la création du quiz');
+        },
+        complete: function() {
+            $('.btn-submit').prop('disabled', false).html('Create Quiz');
         }
-    } catch (error) {
-        console.error('Error:', error);
-        alert('Error creating quiz');
-    }
-});
-
-function cancelQuiz() {
-    window.history.back();
+    });
 }
 
-// Add first question by default
-addQuestion();
+function cancelQuiz() {
+    if (confirm('Annuler la création du quiz ?')) {
+        window.location.href = '/teacher/dashboard';
+    }
+}

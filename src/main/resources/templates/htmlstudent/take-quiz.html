@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${quiz.title} + ' - Take Quiz'">Take Quiz</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" th:href="@{/cssstudent/take-quiz.css}">
+</head>
+<body>
+    <div class="quiz-container">
+        <div class="timer" id="timer">00:00</div>
+        
+        <div class="quiz-header">
+            <h1 class="quiz-title" th:text="${quiz.title}">Quiz Title</h1>
+            <p th:text="${quiz.description}">Description</p>
+            <div class="quiz-meta">
+                <span><i class="fas fa-clock"></i> <span th:text="${quiz.durationMinutes}">30</span> minutes</span>
+                <span><i class="fas fa-question-circle"></i> <span th:text="${totalQuestions}">0</span> questions</span>
+                <span><i class="fas fa-trophy"></i> Passing score: <span th:text="${quiz.passingScore}">60</span>%</span>
+            </div>
+        </div>
+        
+        <div class="progress-bar">
+            <div class="progress-fill" id="progressFill" style="width: 0%"></div>
+        </div>
+        
+        <form id="quizForm">
+            <input type="hidden" name="quizId" th:value="${quiz.id}">
+            
+            <div th:each="question, stat : ${questions}" class="question-card" data-qid="${question.id}">
+                <div class="question-number">Question <span th:text="${stat.count}"></span>/<span th:text="${totalQuestions}"></span></div>
+                <div class="question-text" th:text="${question.text}">Question text</div>
+                
+                <div class="options">
+                    <div th:each="opt, idx : ${question.options}" class="option" 
+                         data-qindex="${stat.index}" data-optindex="${idx.index}"
+                         onclick="selectOption(this)">
+                        <span class="option-letter" th:text="${'ABCD'.charAt(idx.index)} + '.'"></span>
+                        <span class="option-text" th:text="${opt}">Option text</span>
+                        <input type="radio" name="q_${stat.index}" th:value="${idx.index}" style="display: none;">
+                    </div>
+                </div>
+            </div>
+            
+            <div class="submit-section">
+                <button type="button" class="btn-submit" onclick="submitQuiz()">
+                    <i class="fas fa-check-circle"></i> Submit Quiz
+                </button>
+            </div>
+        </form>
+    </div>
+    
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script th:inline="javascript">
+        /*<![CDATA[*/
+        window.quizData = {
+            quizId: /*[[${quiz.id}]]*/ null,
+            durationMinutes: /*[[${quiz.durationMinutes}]]*/ 30,
+            totalQuestions: /*[[${totalQuestions}]]*/ 0
+        };
+        /*]]>*/
+    </script>
+    <script th:src="@{/jsstudent/take-quiz.js}"></script>
+</body>
+</html>

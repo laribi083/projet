@@ -1,0 +1,314 @@
+/* ============================================
+   COURSE VIEWER STYLES
+   ============================================ */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: #f5f7fa;
+    min-height: 100vh;
+}
+
+/* ============================================
+   CONTAINER
+   ============================================ */
+
+.viewer-container {
+    max-width: 1000px;
+    margin: 30px auto;
+    background: white;
+    border-radius: 20px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    overflow: hidden;
+    animation: fadeIn 0.3s ease-out;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* ============================================
+   HEADER
+   ============================================ */
+
+.viewer-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 20px 30px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 15px;
+}
+
+.viewer-header h1 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin: 0;
+}
+
+.btn-back {
+    background: rgba(255,255,255,0.2);
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 8px;
+    cursor: pointer;
+    text-decoration: none;
+    font-size: 0.9rem;
+    transition: all 0.3s ease;
+}
+
+.btn-back:hover {
+    background: rgba(255,255,255,0.3);
+    transform: translateX(-2px);
+}
+
+/* ============================================
+   TOOLBAR
+   ============================================ */
+
+.toolbar {
+    padding: 15px 30px;
+    background: #f8f9fa;
+    border-bottom: 1px solid #e0e0e0;
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.toolbar-btn {
+    background: #667eea;
+    color: white;
+    border: none;
+    padding: 8px 18px;
+    border-radius: 8px;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.toolbar-btn:hover {
+    background: #5a67d8;
+    transform: translateY(-2px);
+}
+
+.toolbar-btn:active {
+    transform: translateY(0);
+}
+
+/* ============================================
+   CONTENT
+   ============================================ */
+
+.viewer-content {
+    padding: 35px;
+    line-height: 1.7;
+    min-height: 500px;
+    font-size: 1rem;
+    color: #333;
+}
+
+/* Styles pour le texte */
+.viewer-content h1,
+.viewer-content h2,
+.viewer-content h3 {
+    margin-top: 1.5em;
+    margin-bottom: 0.5em;
+    color: #2c3e50;
+}
+
+.viewer-content h1 { font-size: 1.8rem; }
+.viewer-content h2 { font-size: 1.5rem; }
+.viewer-content h3 { font-size: 1.3rem; }
+
+.viewer-content p {
+    margin-bottom: 1em;
+}
+
+/* Styles pour les blocs de code */
+.viewer-content pre {
+    background: #2d2d2d;
+    color: #f8f8f2;
+    padding: 20px;
+    border-radius: 12px;
+    overflow-x: auto;
+    font-family: 'Fira Code', 'Courier New', monospace;
+    font-size: 0.85rem;
+    line-height: 1.5;
+    margin: 1.5em 0;
+}
+
+.viewer-content code {
+    background: #f4f4f4;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-family: monospace;
+    font-size: 0.9em;
+}
+
+/* Styles pour les listes */
+.viewer-content ul,
+.viewer-content ol {
+    margin: 1em 0;
+    padding-left: 2em;
+}
+
+.viewer-content li {
+    margin: 0.5em 0;
+}
+
+/* Styles pour les tableaux */
+.viewer-content table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 1.5em 0;
+}
+
+.viewer-content th,
+.viewer-content td {
+    border: 1px solid #ddd;
+    padding: 10px;
+    text-align: left;
+}
+
+.viewer-content th {
+    background: #667eea;
+    color: white;
+}
+
+/* Styles pour les images */
+.viewer-content img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 8px;
+    margin: 1em 0;
+}
+
+/* ============================================
+   MESSAGES D'ERREUR
+   ============================================ */
+
+.error {
+    color: #dc3545;
+    padding: 20px;
+    text-align: center;
+    background: #f8d7da;
+    border-radius: 10px;
+    border-left: 4px solid #dc3545;
+}
+
+.info {
+    color: #856404;
+    padding: 20px;
+    text-align: center;
+    background: #fff3cd;
+    border-radius: 10px;
+    border-left: 4px solid #ffc107;
+}
+
+.success {
+    color: #155724;
+    padding: 20px;
+    text-align: center;
+    background: #d4edda;
+    border-radius: 10px;
+    border-left: 4px solid #28a745;
+}
+
+/* ============================================
+   RESPONSIVE
+   ============================================ */
+
+@media (max-width: 768px) {
+    .viewer-container {
+        margin: 10px;
+        border-radius: 15px;
+    }
+    
+    .viewer-header {
+        flex-direction: column;
+        text-align: center;
+        padding: 20px;
+    }
+    
+    .viewer-header h1 {
+        font-size: 1.2rem;
+    }
+    
+    .toolbar {
+        justify-content: center;
+        padding: 12px 20px;
+    }
+    
+    .toolbar-btn {
+        padding: 6px 12px;
+        font-size: 0.75rem;
+    }
+    
+    .viewer-content {
+        padding: 20px;
+        font-size: 0.9rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .toolbar {
+        gap: 8px;
+    }
+    
+    .toolbar-btn {
+        padding: 5px 10px;
+        font-size: 0.7rem;
+    }
+    
+    .viewer-content pre {
+        font-size: 0.7rem;
+        padding: 10px;
+    }
+}
+
+/* ============================================
+   IMPRESSION
+   ============================================ */
+
+@media print {
+    .viewer-header,
+    .toolbar,
+    .btn-back {
+        display: none;
+    }
+    
+    .viewer-container {
+        margin: 0;
+        box-shadow: none;
+    }
+    
+    .viewer-content {
+        padding: 0;
+    }
+    
+    .viewer-content pre {
+        background: #f4f4f4;
+        color: #333;
+        border: 1px solid #ddd;
+    }
+}

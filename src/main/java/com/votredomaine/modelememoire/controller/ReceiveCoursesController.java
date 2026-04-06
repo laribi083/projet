@@ -1,29 +1,30 @@
-
 package com.votredomaine.modelememoire.controller;
 
 import com.votredomaine.modelememoire.model.Course;
 import com.votredomaine.modelememoire.service.Courseservice;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 
 import jakarta.servlet.http.HttpSession;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Controller
-@RequestMapping("/receive-courses")
 public class ReceiveCoursesController {
     
     @Autowired
     private Courseservice courseService;
     
-    @GetMapping
+    @GetMapping("/receive-courses")
     public String showReceiveCourses(HttpSession session, Model model) {
         String userName = (String) session.getAttribute("userName");
         String niveau = (String) session.getAttribute("niveau");
@@ -32,15 +33,17 @@ public class ReceiveCoursesController {
             return "redirect:/login";
         }
         
-        List<Course> allCourses = courseService.getAllActiveCourses();
+        List<Course> allCourses = courseService.findAll();
+        List<Course> activeCourses = allCourses.stream()
+            .filter(c -> "ACTIVE".equals(c.getStatus()))
+            .collect(Collectors.toList());
         
-    
-        long totalCourses = allCourses.size();
-        long total1stYear = allCourses.stream().filter(c -> "1year".equals(c.getNiveau())).count();
-        long total2ndYear = allCourses.stream().filter(c -> "2year".equals(c.getNiveau())).count();
-        long total3rdYear = allCourses.stream().filter(c -> "3year".equals(c.getNiveau())).count();
+        long totalCourses = activeCourses.size();
+        long total1stYear = activeCourses.stream().filter(c -> "1year".equals(c.getNiveau())).count();
+        long total2ndYear = activeCourses.stream().filter(c -> "2year".equals(c.getNiveau())).count();
+        long total3rdYear = activeCourses.stream().filter(c -> "3year".equals(c.getNiveau())).count();
         
-        List<String> modules = allCourses.stream()
+        List<String> modules = activeCourses.stream()
             .map(Course::getModule)
             .filter(module -> module != null && !module.isEmpty())
             .distinct()
@@ -58,50 +61,107 @@ public class ReceiveCoursesController {
         return "htmlstudent/receive-courses";
     }
     
-    @GetMapping("/api/all")
+    @GetMapping("/receive-courses/api/all")
     @ResponseBody
-    public ResponseEntity<List<Course>> getAllCourses(@RequestParam(required = false) String niveau,
-                                                       @RequestParam(required = false) String module,
-                                                       @RequestParam(required = false) String search) {
-        List<Course> courses = courseService.getAllActiveCourses();
-        
-        // Filtrer par niveau
-        if (niveau != null && !niveau.equals("all")) {
-            courses = courses.stream()
-                .filter(c -> niveau.equals(c.getNiveau()))
-                .collect(Collectors.toList());
-        }
-        
-        // Filtrer par module
-        if (module != null && !module.equals("all")) {
-            courses = courses.stream()
-                .filter(c -> module.equals(c.getModule()))
-                .collect(Collectors.toList());
-        }
-        
-        // Filtrer par recherche
-        if (search != null && !search.isEmpty()) {
-            String searchLower = search.toLowerCase();
-            courses = courses.stream()
-                .filter(c -> c.getTitle().toLowerCase().contains(searchLower) ||
-                             c.getDescription().toLowerCase().contains(searchLower) ||
-                             (c.getTeacherName() != null && c.getTeacherName().toLowerCase().contains(searchLower)))
-                .collect(Collectors.toList());
-        }
-        
-        return ResponseEntity.ok(courses);
+    public ResponseEntity<List<Course>> getAllCourses() {
+        List<Course> allCourses = courseService.findAll();
+        List<Course> activeCourses = allCourses.stream()
+            .filter(c -> "ACTIVE".equals(c.getStatus()))
+            .collect(Collectors.toList());
+        return ResponseEntity.ok(activeCourses);
     }
     
-    @GetMapping("/api/modules")
+    @GetMapping("/receive-courses/api/modules")
     @ResponseBody
     public ResponseEntity<List<String>> getAllModules() {
-        List<Course> courses = courseService.getAllActiveCourses();
+        List<Course> courses = courseService.findAll();
         List<String> modules = courses.stream()
+            .filter(c -> "ACTIVE".equals(c.getStatus()))
             .map(Course::getModule)
             .filter(module -> module != null && !module.isEmpty())
             .distinct()
             .sorted()
             .collect(Collectors.toList());
         return ResponseEntity.ok(modules);
+    }
+    
+    // ⭐ ENDPOINT POUR TÉLÉCHARGER UN FICHIER ⭐
+    @GetMapping("/course/{courseId}/download")
+    public ResponseEntity<Resource> downloadCourse(@PathVariable Long courseId) {
+        try {
+            Course course = courseService.getCourseById(courseId);
+            if (course == null) {
+                return ResponseEntity.notFound().build();
+            }
+            
+            // Récupérer le premier fichier
+            String filePath = course.getFirstFilePath();
+            if (filePath == null || filePath.isEmpty()) {
+                // Essayer avec filePath simple
+                filePath = course.getFilePath();
+            }
+            
+            if (filePath == null || filePath.isEmpty()) {
+                return ResponseEntity.notFound().build();
+            }
+            
+            Path path = Paths.get(filePath);
+            Resource resource = new UrlResource(path.toUri());
+            
+            if (resource.exists() && resource.isReadable()) {
+                String fileName = course.getFirstFileName();
+                if (fileName == null) fileName = course.getFileName();
+                if (fileName == null) fileName = "course_" + courseId;
+                
+                return ResponseEntity.ok()
+                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + fileName + "\"")
+                    .contentType(MediaType.APPLICATION_OCTET_STREAM)
+                    .body(resource);
+            } else {
+                System.err.println("Fichier non trouvé: " + filePath);
+                return ResponseEntity.notFound().build();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.internalServerError().build();
+        }
+    }
+    
+    // ⭐ ENDPOINT POUR VOIR LE CONTENU EN LIGNE ⭐
+    @GetMapping("/course/{courseId}/view")
+    public String viewCourseOnline(@PathVariable Long courseId, Model model) {
+        Course course = courseService.getCourseById(courseId);
+        if (course == null) {
+            return "redirect:/receive-courses";
+        }
+        
+        String content = "";
+        try {
+            if (course.getHtmlContent() != null && !course.getHtmlContent().isEmpty()) {
+                content = course.getHtmlContent();
+            } else if (course.getFirstFilePath() != null) {
+                Path filePath = Paths.get(course.getFirstFilePath());
+                if (java.nio.file.Files.exists(filePath)) {
+                    String fileName = course.getFirstFileName();
+                    if (fileName != null && fileName.endsWith(".pdf")) {
+                        // Pour les PDF, rediriger vers le téléchargement
+                        return "redirect:/course/" + courseId + "/download";
+                    } else {
+                        content = "<pre style='white-space: pre-wrap; font-family: monospace; background: #f4f4f4; padding: 15px; border-radius: 8px;'>" + 
+                                  java.nio.file.Files.readString(filePath) + "</pre>";
+                    }
+                } else {
+                    content = "<div class='error'>Fichier non trouvé</div>";
+                }
+            } else {
+                content = "<div class='info'>Aucun contenu disponible pour ce cours.</div>";
+            }
+        } catch (Exception e) {
+            content = "<div class='error'>Erreur de lecture: " + e.getMessage() + "</div>";
+        }
+        
+        model.addAttribute("course", course);
+        model.addAttribute("content", content);
+        return "htmlstudent/course-viewer";
     }
 }

@@ -1,4 +1,3 @@
-
 package com.votredomaine.modelememoire.service;
 
 import com.votredomaine.modelememoire.model.Course;
@@ -14,6 +13,7 @@ import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -32,6 +32,10 @@ public class Courseservice {
     
     public Course getCourseById(Long id) {
         return courseRepository.findById(id).orElse(null);
+    }
+    
+    public Optional<Course> findCourseById(Long id) {
+        return courseRepository.findById(id);
     }
     
     public List<Course> getCoursesByNiveau(String niveau) {
@@ -74,6 +78,18 @@ public class Courseservice {
             
             course.setFilePaths(filePaths);
             course.setFileNames(fileNames);
+            
+            if (!filePaths.isEmpty()) {
+                course.setFilePath(filePaths.get(0));
+                course.setFileName(fileNames.get(0));
+                
+                String fileName = fileNames.get(0);
+                if (fileName.endsWith(".pdf")) course.setFileType("PDF");
+                else if (fileName.endsWith(".html") || fileName.endsWith(".htm")) course.setFileType("HTML");
+                else if (fileName.endsWith(".txt")) course.setFileType("TEXT");
+                else if (fileName.endsWith(".mp4")) course.setFileType("VIDEO");
+                else course.setFileType("DOCUMENT");
+            }
         }
         
         return courseRepository.save(course);
@@ -136,49 +152,32 @@ public class Courseservice {
         return courseRepository.countByTeacherId(teacherId);
     }
     
-    // ========== MÉTHODES POUR LE CONTROLLER ==========
-    
-    /**
-     * Trouve tous les cours d'un enseignant par son ID
-     */
     public List<Course> findByTeacherId(Long teacherId) {
         return courseRepository.findByTeacherId(teacherId);
     }
     
-    /**
-     * Trouve tous les cours par niveau (1year, 2year, 3year)
-     */
     public List<Course> findByNiveau(String niveau) {
         return courseRepository.findByNiveau(niveau);
     }
     
-    /**
-     * Trouve tous les cours par niveau et statut
-     */
     public List<Course> findByNiveauAndStatus(String niveau, String status) {
         return courseRepository.findByNiveauAndStatus(niveau, status);
     }
     
-    /**
-     * ⭐ CORRIGÉ : Trouve tous les cours par module et niveau
-     */
     public List<Course> findByModuleAndNiveau(String module, String niveau) {
-        // Si module est null ou vide, retourner tous les cours du niveau
-        if (module == null || module.trim().isEmpty()) {
+        if (module == null || module.trim().isEmpty() || module.equals("all")) {
             return courseRepository.findByNiveau(niveau);
         }
-        // Sinon, filtrer par module et niveau
         return courseRepository.findByModuleAndNiveau(module, niveau);
     }
     
-    
     public List<Course> findByModuleAndNiveauAndStatus(String module, String niveau, String status) {
+        if (module == null || module.trim().isEmpty() || module.equals("all")) {
+            return courseRepository.findByNiveauAndStatus(niveau, status);
+        }
         return courseRepository.findByModuleAndNiveauAndStatus(module, niveau, status);
     }
     
-    /**
-     * Sauvegarde un cours
-     */
     public Course save(Course course) {
         if (course.getCreatedAt() == null) {
             course.setCreatedAt(LocalDateTime.now());
@@ -187,25 +186,100 @@ public class Courseservice {
         return courseRepository.save(course);
     }
     
-    /**
-     * Met à jour un cours
-     */
     public Course update(Course course) {
         course.setUpdatedAt(LocalDateTime.now());
         return courseRepository.save(course);
     }
     
-    /**
-     * Récupère tous les cours
-     */
     public List<Course> findAll() {
         return courseRepository.findAll();
     }
     
-    /**
-     * Trouve les cours par statut
-     */
     public List<Course> findByStatus(String status) {
         return courseRepository.findByStatus(status);
+    }
+    
+    // ========== NOUVELLES MÉTHODES ==========
+    
+    public List<Course> getAllCoursesForReceive() {
+        return courseRepository.findAllActiveCoursesOrderByDate();
+    }
+    
+    public String readCourseContent(Long courseId) throws IOException {
+        Course course = courseRepository.findById(courseId).orElse(null);
+        if (course == null) {
+            throw new IOException("Course not found");
+        }
+        
+        if (course.getHtmlContent() != null && !course.getHtmlContent().isEmpty()) {
+            return course.getHtmlContent();
+        }
+        
+        if (course.getFilePaths() != null && !course.getFilePaths().isEmpty()) {
+            Path filePath = Paths.get(course.getFilePaths().get(0));
+            if (Files.exists(filePath)) {
+                String content = Files.readString(filePath);
+                String fileName = course.getFileNames().get(0);
+                
+                if (fileName.endsWith(".html") || fileName.endsWith(".htm")) {
+                    return content;
+                } else if (fileName.endsWith(".txt") || fileName.endsWith(".md")) {
+                    return "<pre style='white-space: pre-wrap; font-family: monospace;'>" + 
+                           escapeHtml(content) + "</pre>";
+                } else {
+                    return generateDownloadMessage(course);
+                }
+            } else {
+                return "<div class='error-message'>❌ Fichier non trouvé sur le serveur</div>";
+            }
+        }
+        
+        return "<div class='info-message'>📄 Aucun contenu disponible pour ce cours.</div>";
+    }
+    
+    public boolean hasContent(Long courseId) {
+        Course course = courseRepository.findById(courseId).orElse(null);
+        if (course == null) return false;
+        
+        return (course.getHtmlContent() != null && !course.getHtmlContent().isEmpty()) ||
+               (course.getFilePaths() != null && !course.getFilePaths().isEmpty());
+    }
+    
+    public List<Course> searchCourses(String status, String niveau, String module, String search) {
+        return courseRepository.searchCourses(status, niveau, module, search);
+    }
+    
+    public List<Course> findByModule(String module) {
+        return courseRepository.findByModule(module);
+    }
+    
+    public List<Course> findByTeacherName(String teacherName) {
+        return courseRepository.findByTeacherNameContainingIgnoreCase(teacherName);
+    }
+    
+    // ========== MÉTHODES UTILITAIRES PRIVÉES CORRIGÉES ==========
+    
+    private String generateDownloadMessage(Course course) {
+        String fileName = course.getFileNames() != null && !course.getFileNames().isEmpty() 
+                          ? course.getFileNames().get(0) : "fichier";
+        long courseId = course.getId();
+        return "<div class='download-message' style='text-align: center; padding: 40px;'>" +
+               "<div style='font-size: 4rem;'>📄</div>" +
+               "<h3>" + fileName + "</h3>" +
+               "<p>Ce fichier n'est pas affichable directement dans le navigateur.</p>" +
+               "<button onclick=\"window.location.href='/course/" + courseId + "/download'\" " +
+               "style='background: #667eea; color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; margin-top: 20px;'>" +
+               "⬇️ Télécharger le fichier" +
+               "</button>" +
+               "</div>";
+    }
+    
+    private String escapeHtml(String text) {
+        if (text == null) return "";
+        return text.replace("&", "&amp;")
+                   .replace("<", "&lt;")
+                   .replace(">", "&gt;")
+                   .replace("\"", "&quot;")
+                   .replace("'", "&#39;");
     }
 }

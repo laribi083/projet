@@ -21,7 +21,7 @@ public class studentcoursecontroller {
     // ========== PAGES HTML ==========
     
     /**
-     * ⭐ PAGE RECEIVE COURSES - Affiche tous les cours disponibles
+     * PAGE RECEIVE COURSES - Affiche tous les cours disponibles
      */
     @GetMapping("/receive-courses")
     public String receiveCourses(Model model, HttpSession session) {
@@ -46,7 +46,7 @@ public class studentcoursecontroller {
     }
     
     /**
-     * ⭐ PAGE DÉTAIL D'UN COURS
+     * PAGE DÉTAIL D'UN COURS
      */
     @GetMapping("/course/{id}")
     public String viewCourse(@PathVariable Long id, Model model, HttpSession session) {
@@ -63,7 +63,7 @@ public class studentcoursecontroller {
     // ========== API REST POUR AJAX ==========
     
     /**
-     * ⭐ API pour récupérer les cours par niveau (utilisée par AJAX)
+     * API pour récupérer les cours par niveau
      */
     @GetMapping("/api/courses/{niveau}")
     @ResponseBody
@@ -74,7 +74,7 @@ public class studentcoursecontroller {
     }
     
     /**
-     * ⭐ API pour récupérer TOUS les cours actifs (utilisée par receive-courses.js)
+     * API pour récupérer TOUS les cours actifs
      */
     @GetMapping("/api/courses")
     @ResponseBody

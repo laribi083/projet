@@ -21,6 +21,9 @@ public class Quiz {
     @Column(name = "course_id")
     private Long courseId;
     
+    @Column(name = "course_title")
+    private String courseTitle;
+    
     @Column(name = "course_module")
     private String courseModule;
     
@@ -47,14 +50,20 @@ public class Quiz {
     @Column(name = "created_at")
     private LocalDateTime createdAt;
     
+    // ⭐ AJOUTER CE CHAMP
+    @Column(name = "updated_at")
+    private LocalDateTime updatedAt;
+    
     @OneToMany(mappedBy = "quiz", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Question> questions = new ArrayList<>();
     
     public Quiz() {
         this.createdAt = LocalDateTime.now();
+        this.updatedAt = LocalDateTime.now();  // ⭐ Initialiser aussi updatedAt
     }
     
-    // Getters et Setters
+    // ========== GETTERS ET SETTERS ==========
+    
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
     
@@ -66,6 +75,9 @@ public class Quiz {
     
     public Long getCourseId() { return courseId; }
     public void setCourseId(Long courseId) { this.courseId = courseId; }
+    
+    public String getCourseTitle() { return courseTitle; }
+    public void setCourseTitle(String courseTitle) { this.courseTitle = courseTitle; }
     
     public String getCourseModule() { return courseModule; }
     public void setCourseModule(String courseModule) { this.courseModule = courseModule; }
@@ -93,6 +105,10 @@ public class Quiz {
     
     public LocalDateTime getCreatedAt() { return createdAt; }
     public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
+    
+    // ⭐ GETTER ET SETTER POUR updatedAt
+    public LocalDateTime getUpdatedAt() { return updatedAt; }
+    public void setUpdatedAt(LocalDateTime updatedAt) { this.updatedAt = updatedAt; }
     
     public List<Question> getQuestions() { return questions; }
     public void setQuestions(List<Question> questions) { this.questions = questions; }

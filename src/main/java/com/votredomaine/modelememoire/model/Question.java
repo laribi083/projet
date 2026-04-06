@@ -12,7 +12,7 @@ public class Question {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     
-    @Column(nullable = false)
+    @Column(nullable = false, columnDefinition = "TEXT")
     private String text;
     
     @ElementCollection
@@ -21,16 +21,16 @@ public class Question {
     private List<String> options = new ArrayList<>();
     
     @Column(name = "correct_answer")
-    private Integer correctAnswer; // index 0-3
+    private Integer correctAnswer; // 0=A, 1=B, 2=C, 3=D
     
-    @Column(name = "points")
     private Integer points = 1;
     
     @ManyToOne
     @JoinColumn(name = "quiz_id")
     private Quiz quiz;
     
-    // Getters et Setters
+    // ========== GETTERS ET SETTERS ==========
+    
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
     

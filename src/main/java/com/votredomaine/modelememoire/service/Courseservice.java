@@ -257,6 +257,13 @@ public class Courseservice {
         return courseRepository.findByTeacherNameContainingIgnoreCase(teacherName);
     }
     
+    public void incrementDownloadCount(Long courseId) {
+    Course course = courseRepository.findById(courseId).orElse(null);
+    if (course != null) {
+        course.incrementDownloadCount();
+        courseRepository.save(course);
+    }
+}
     // ========== MÉTHODES UTILITAIRES PRIVÉES CORRIGÉES ==========
     
     private String generateDownloadMessage(Course course) {

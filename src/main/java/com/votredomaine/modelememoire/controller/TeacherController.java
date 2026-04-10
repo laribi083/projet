@@ -1,25 +1,35 @@
 package com.votredomaine.modelememoire.controller;
 
 import com.votredomaine.modelememoire.model.Course;
+import com.votredomaine.modelememoire.model.Quiz;
 import com.votredomaine.modelememoire.model.Teacher;
 import com.votredomaine.modelememoire.service.Courseservice;
+import com.votredomaine.modelememoire.service.QuizService;
 import com.votredomaine.modelememoire.service.TeacherService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import jakarta.servlet.http.HttpSession;
+import java.io.File;
+import java.net.URLDecoder;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-@RestController
+@Controller
 @RequestMapping("/teacher")
-//@CrossOrigin("*")
 public class TeacherController {
     
     @Autowired
@@ -27,10 +37,14 @@ public class TeacherController {
     
     @Autowired
     private Courseservice courseService;
+    
+    @Autowired
+    private QuizService quizService;
    
-    // ========== GESTION DES ENSEIGNANTS ==========
+    // ==================== GESTION DES ENSEIGNANTS (API) ====================
     
     @PostMapping("/register")
+    @ResponseBody
     public ResponseEntity<?> registerTeacher(@RequestBody Map<String, String> request) {
         try {
             Teacher teacher = teacherService.registerTeacher(
@@ -59,6 +73,7 @@ public class TeacherController {
     }
     
     @GetMapping("/dashboard/{email}")
+    @ResponseBody
     public ResponseEntity<?> getTeacherDashboard(@PathVariable String email) {
         Optional<Teacher> teacherOpt = teacherService.findByEmail(email);
         
@@ -84,6 +99,7 @@ public class TeacherController {
     }
     
     @GetMapping("/profile/{email}")
+    @ResponseBody
     public ResponseEntity<?> getTeacherProfile(@PathVariable String email) {
         Optional<Teacher> teacherOpt = teacherService.findByEmail(email);
         
@@ -104,11 +120,12 @@ public class TeacherController {
     }
     
     @GetMapping("/all")
+    @ResponseBody
     public ResponseEntity<?> getAllTeachers() {
         try {
             List<Teacher> teachers = teacherService.getAllTeachers();
             
-            if (teachers.isEmpty()) {
+            if (teachers == null || teachers.isEmpty()) {
                 return ResponseEntity.ok(Map.of("message", "Aucun enseignant trouvé", "count", 0));
             }
             
@@ -123,13 +140,10 @@ public class TeacherController {
         }
     }
     
-    // ========== GESTION DES COURS ==========
+    // ==================== GESTION DES COURS (API) ====================
     
-    /**
-     * ⭐ CRÉER UN NOUVEAU COURS - CORRIGÉ AVEC SESSION
-     * Endpoint: POST /teacher/api/courses
-     */
     @PostMapping("/api/courses")
+    @ResponseBody
     public ResponseEntity<Map<String, Object>> createCourse(
             @RequestParam("title") String title,
             @RequestParam("description") String description,
@@ -140,17 +154,15 @@ public class TeacherController {
         Map<String, Object> response = new HashMap<>();
         
         try {
-            // Récupérer les informations de l'enseignant depuis la session
             Long teacherId = (Long) session.getAttribute("teacherId");
             String teacherName = (String) session.getAttribute("teacherName");
             
-            System.out.println("📝 Création d'un nouveau cours...");
-            System.out.println("   TeacherId: " + teacherId);
-            System.out.println("   TeacherName: " + teacherName);
-            System.out.println("   Titre: " + title);
-            System.out.println("   Module: " + niveau);
+            if (teacherId == null) {
+                response.put("success", false);
+                response.put("message", "Session expirée");
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
+            }
             
-            // Valeurs par défaut si null
             if (teacherName == null) {
                 teacherName = "Professeur";
             }
@@ -168,18 +180,10 @@ public class TeacherController {
             
             Course savedCourse = courseService.save(course);
             
-            // Traitement des fichiers si nécessaire
-            if (files != null && files.length > 0) {
-                // Logique de sauvegarde des fichiers à ajouter si besoin
-                System.out.println("   Fichiers reçus: " + files.length);
-            }
-            
             response.put("success", true);
             response.put("course", savedCourse);
             response.put("courseId", savedCourse.getId());
             response.put("message", "Cours créé avec succès");
-            
-            System.out.println("✅ COURS CRÉÉ: " + title + " par " + teacherName + " (ID: " + savedCourse.getId() + ")");
             
             return ResponseEntity.ok(response);
             
@@ -191,73 +195,151 @@ public class TeacherController {
         }
     }
     
-    /**
-     * Récupérer tous les cours (GET)
-     * Endpoint: GET /teacher/courses
-     */
-    @GetMapping("/courses")
-    public ResponseEntity<List<Course>> getTeacherCourses(
-            @RequestParam(value = "teacherId", required = false) Long teacherId) {
+    @GetMapping("/teacher-courses")
+    @ResponseBody
+    public ResponseEntity<List<Course>> getTeacherCourses(HttpSession session) {
+        Long teacherId = (Long) session.getAttribute("teacherId");
+        if (teacherId == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+        List<Course> courses = courseService.getCoursesByTeacherId(teacherId);
+        return ResponseEntity.ok(courses != null ? courses : List.of());
+    }
+    
+    @GetMapping("/my-courses")
+    @ResponseBody
+    public ResponseEntity<List<Course>> getMyCourses(HttpSession session) {
+        Long teacherId = (Long) session.getAttribute("teacherId");
+        if (teacherId == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+        List<Course> courses = courseService.getCoursesByTeacherId(teacherId);
         
-        List<Course> courses;
-        
-        if (teacherId != null) {
-            courses = courseService.findByTeacherId(teacherId);
-            System.out.println("📚 Cours pour teacherId=" + teacherId + ": " + courses.size());
-        } else {
-            courses = courseService.findAll();
-            System.out.println("📚 Tous les cours: " + courses.size());
+        if (courses != null) {
+            for (Course course : courses) {
+                long quizCount = quizService.countQuizzesByCourse(course.getId());
+                course.setQuizCount((int) quizCount);
+            }
         }
         
-        return ResponseEntity.ok(courses);
+        return ResponseEntity.ok(courses != null ? courses : List.of());
     }
-
+    
     @DeleteMapping("/delete-course/{courseId}")
-public ResponseEntity<Map<String, Object>> deleteCourse(@PathVariable Long courseId, HttpSession session) {
-    Map<String, Object> response = new HashMap<>();
-    try {
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> deleteCourse(@PathVariable Long courseId, HttpSession session) {
+        Map<String, Object> response = new HashMap<>();
+        try {
+            Long teacherId = (Long) session.getAttribute("teacherId");
+            
+            if (teacherId == null) {
+                response.put("success", false);
+                response.put("message", "Session expirée");
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
+            }
+            
+            if (courseId == null) {
+                response.put("success", false);
+                response.put("message", "ID du cours manquant");
+                return ResponseEntity.badRequest().body(response);
+            }
+            
+            Course course = courseService.getCourseById(courseId);
+            
+            if (course == null) {
+                response.put("success", false);
+                response.put("message", "Cours non trouvé");
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+            }
+            
+            if (course.getTeacherId() == null || !course.getTeacherId().equals(teacherId)) {
+                response.put("success", false);
+                response.put("message", "Accès non autorisé");
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
+            }
+            
+            List<Quiz> quizzes = quizService.getQuizzesByCourse(courseId);
+            if (quizzes != null && !quizzes.isEmpty()) {
+                for (Quiz quiz : quizzes) {
+                    try {
+                        quizService.deleteQuiz(quiz.getId());
+                    } catch (Exception e) {
+                        System.err.println("Erreur lors de la suppression du quiz " + quiz.getId() + ": " + e.getMessage());
+                    }
+                }
+            }
+            
+            courseService.deleteCourse(courseId);
+            response.put("success", true);
+            response.put("message", "Cours et ses quiz supprimés avec succès");
+            return ResponseEntity.ok(response);
+            
+        } catch (Exception e) {
+            e.printStackTrace();
+            response.put("success", false);
+            response.put("message", e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+        }
+    }
+    
+    // ==================== VISUALISATION DES COURS (PAGES HTML) ====================
+    
+    @GetMapping("/dashboard")
+    public String dashboard(HttpSession session, Model model) {
         Long teacherId = (Long) session.getAttribute("teacherId");
+        String teacherName = (String) session.getAttribute("teacherName");
+        String teacherEmail = (String) session.getAttribute("teacherEmail");
         
         if (teacherId == null) {
-            response.put("success", false);
-            response.put("message", "Session expirée");
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
+            return "redirect:/login";
+        }
+        
+        List<Course> courses = courseService.getCoursesByTeacherId(teacherId);
+        
+        if (courses != null) {
+            for (Course course : courses) {
+                long quizCount = quizService.countQuizzesByCourse(course.getId());
+                course.setQuizCount((int) quizCount);
+            }
+        }
+        
+        model.addAttribute("teacherName", teacherName != null ? teacherName : "Professeur");
+        model.addAttribute("teacherEmail", teacherEmail != null ? teacherEmail : "");
+        model.addAttribute("courses", courses != null ? courses : List.of());
+        
+        return "htmlTeacher/dashbord";
+    }
+    
+    @GetMapping("/view-course/{courseId}")
+    public String viewCourse(@PathVariable Long courseId, Model model, HttpSession session) {
+        Long teacherId = (Long) session.getAttribute("teacherId");
+        if (teacherId == null) {
+            return "redirect:/login";
+        }
+        
+        if (courseId == null) {
+            return "redirect:/teacher/dashboard";
         }
         
         Course course = courseService.getCourseById(courseId);
-        
-        if (course == null) {
-            response.put("success", false);
-            response.put("message", "Cours non trouvé");
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+        if (course == null || course.getTeacherId() == null || !course.getTeacherId().equals(teacherId)) {
+            return "redirect:/teacher/dashboard";
         }
         
-        // Vérifier que l'enseignant est le propriétaire
-        if (course.getTeacherId() == null || !course.getTeacherId().equals(teacherId)) {
-            response.put("success", false);
-            response.put("message", "Accès non autorisé");
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
-        }
+        List<Quiz> quizzes = quizService.getQuizzesByCourse(courseId);
         
-        courseService.deleteCourse(courseId);
-        response.put("success", true);
-        response.put("message", "Cours supprimé avec succès");
-        System.out.println("🗑 Cours supprimé ID: " + courseId + " par teacherId: " + teacherId);
-        return ResponseEntity.ok(response);
+        model.addAttribute("course", course);
+        model.addAttribute("quizzes", quizzes != null ? quizzes : List.of());
         
-    } catch (Exception e) {
-        e.printStackTrace();
-        response.put("success", false);
-        response.put("message", e.getMessage());
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+        return "htmlTeacher/course-view";
     }
-}
-    /**
-     * Récupérer un cours par son ID
-     * Endpoint: GET /teacher/course/{courseId}
-     */
+    
     @GetMapping("/course/{courseId}")
+    @ResponseBody
     public ResponseEntity<Course> getCourseById(@PathVariable Long courseId) {
+        if (courseId == null) {
+            return ResponseEntity.badRequest().build();
+        }
         Course course = courseService.getCourseById(courseId);
         if (course != null) {
             return ResponseEntity.ok(course);
@@ -265,24 +347,191 @@ public ResponseEntity<Map<String, Object>> deleteCourse(@PathVariable Long cours
         return ResponseEntity.notFound().build();
     }
     
-    /**
-     * Récupérer les cours par niveau
-     * Endpoint: GET /teacher/courses/niveau/{niveau}
-     */
-    @GetMapping("/courses/niveau/{niveau}")
-    public ResponseEntity<List<Course>> getCoursesByNiveau(@PathVariable String niveau) {
-        List<Course> courses = courseService.findByNiveau(niveau);
-        System.out.println("📚 Cours pour niveau " + niveau + ": " + courses.size());
-        return ResponseEntity.ok(courses);
+    // ==================== GESTION DES FICHIERS ====================
+    
+    @GetMapping("/preview-pdf")
+    @ResponseBody
+    public ResponseEntity<?> previewPDF(@RequestParam String path, HttpSession session) {
+        try {
+            Long teacherId = (Long) session.getAttribute("teacherId");
+            if (teacherId == null) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+            }
+            
+            if (path == null || path.trim().isEmpty()) {
+                return ResponseEntity.badRequest().build();
+            }
+            
+            String decodedPath = URLDecoder.decode(path, "UTF-8");
+            File file = new File(decodedPath);
+            
+            if (!file.exists()) {
+                return ResponseEntity.notFound().build();
+            }
+            
+            Path filePath = Paths.get(decodedPath);
+            byte[] content = Files.readAllBytes(filePath);
+            String mimeType = Files.probeContentType(filePath);
+            
+            if (mimeType == null) {
+                mimeType = "application/pdf";
+            }
+            
+            return ResponseEntity.ok()
+                    .contentType(MediaType.parseMediaType(mimeType))
+                    .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + file.getName() + "\"")
+                    .body(content);
+                    
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
     }
     
-    // ========== MÉTHODES UTILITAIRES ==========
+    @GetMapping("/download-file")
+    @ResponseBody
+    public ResponseEntity<?> downloadFile(@RequestParam String path, @RequestParam String name, HttpSession session) {
+        try {
+            Long teacherId = (Long) session.getAttribute("teacherId");
+            if (teacherId == null) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+            }
+            
+            if (path == null || path.trim().isEmpty()) {
+                return ResponseEntity.badRequest().build();
+            }
+            
+            String decodedPath = URLDecoder.decode(path, "UTF-8");
+            String decodedName = URLDecoder.decode(name, "UTF-8");
+            File file = new File(decodedPath);
+            
+            if (!file.exists()) {
+                return ResponseEntity.notFound().build();
+            }
+            
+            Path filePath = Paths.get(decodedPath);
+            byte[] content = Files.readAllBytes(filePath);
+            
+            return ResponseEntity.ok()
+                    .contentType(MediaType.APPLICATION_OCTET_STREAM)
+                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + decodedName + "\"")
+                    .body(content);
+                    
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
     
-    /**
-     * Extrait le niveau réel (1year, 2year, 3year) à partir du nom du module
-     */
+    // ==================== GESTION DES QUIZ ====================
+    
+    @GetMapping("/api/quizzes")
+    @ResponseBody
+    public ResponseEntity<List<Quiz>> getTeacherQuizzes(HttpSession session) {
+        Long teacherId = (Long) session.getAttribute("teacherId");
+        if (teacherId == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+        List<Quiz> quizzes = quizService.getQuizzesByTeacher(teacherId);
+        return ResponseEntity.ok(quizzes != null ? quizzes : List.of());
+    }
+    
+    @PostMapping("/api/create-quiz")
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> createQuiz(@RequestBody Map<String, Object> quizData, HttpSession session) {
+        Map<String, Object> response = new HashMap<>();
+        
+        try {
+            Long teacherId = (Long) session.getAttribute("teacherId");
+            String teacherName = (String) session.getAttribute("teacherName");
+            
+            if (teacherId == null) {
+                response.put("success", false);
+                response.put("message", "Session expirée");
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
+            }
+            
+            if (quizData == null || quizData.isEmpty()) {
+                response.put("success", false);
+                response.put("message", "Données du quiz invalides");
+                return ResponseEntity.badRequest().body(response);
+            }
+            
+            Object courseIdObj = quizData.get("courseId");
+            if (courseIdObj == null) {
+                response.put("success", false);
+                response.put("message", "ID du cours manquant");
+                return ResponseEntity.badRequest().body(response);
+            }
+            
+            Long courseId = Long.valueOf(courseIdObj.toString());
+            String title = quizData.get("title") != null ? quizData.get("title").toString() : null;
+            
+            if (title == null || title.trim().isEmpty()) {
+                response.put("success", false);
+                response.put("message", "Le titre du quiz est obligatoire");
+                return ResponseEntity.badRequest().body(response);
+            }
+            
+            String description = quizData.get("description") != null ? quizData.get("description").toString() : "";
+            Integer timeLimit = quizData.get("timeLimit") != null ? Integer.valueOf(quizData.get("timeLimit").toString()) : 30;
+            Integer passingScore = quizData.get("passingScore") != null ? Integer.valueOf(quizData.get("passingScore").toString()) : 70;
+            String courseModule = quizData.get("courseModule") != null ? quizData.get("courseModule").toString() : "";
+            String courseNiveau = quizData.get("courseNiveau") != null ? quizData.get("courseNiveau").toString() : "";
+            
+            Quiz quiz = new Quiz();
+            quiz.setTitle(title);
+            quiz.setDescription(description);
+            quiz.setCourseId(courseId);
+            quiz.setTeacherId(teacherId);
+            quiz.setTeacherName(teacherName != null ? teacherName : "Professeur");
+            quiz.setModule(courseModule);
+            quiz.setNiveau(courseNiveau);
+            quiz.setTimeLimit(timeLimit);
+            quiz.setPassingScore(passingScore);
+            quiz.setStatus("ACTIVE");
+            quiz.setCreatedAt(LocalDateTime.now());
+            quiz.setUpdatedAt(LocalDateTime.now());
+            quiz.setTotalQuestions(0);
+            
+            Quiz savedQuiz = quizService.saveQuiz(quiz);
+            
+            if (savedQuiz == null) {
+                response.put("success", false);
+                response.put("message", "Erreur lors de la sauvegarde du quiz");
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+            }
+            
+            response.put("success", true);
+            response.put("quizId", savedQuiz.getId());
+            response.put("message", "Quiz créé avec succès");
+            return ResponseEntity.ok(response);
+            
+        } catch (Exception e) {
+            e.printStackTrace();
+            response.put("success", false);
+            response.put("message", e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+        }
+    }
+    
+   
+    
+    @GetMapping("/courses/niveau/{niveau}")
+    @ResponseBody
+    public ResponseEntity<List<Course>> getCoursesByNiveau(@PathVariable String niveau) {
+        if (niveau == null || niveau.trim().isEmpty()) {
+            return ResponseEntity.badRequest().build();
+        }
+        List<Course> courses = courseService.findByNiveau(niveau);
+        return ResponseEntity.ok(courses != null ? courses : List.of());
+    }
+    
+    // ==================== METHODES PRIVEES ====================
+    
     private String extractNiveauLevel(String moduleValue) {
-        // Modules de 1ère année
+        if (moduleValue == null) return "3year";
+        
         String[] firstYearModules = {
             "Algebra 01", "Algebra 02", "Analysis 01", "Analysis 02",
             "Advanced Data Structures 01", "Information Coding & Representation",
@@ -290,7 +539,6 @@ public ResponseEntity<Map<String, Object>> deleteCourse(@PathVariable Long cours
             "Machine Structure", "Electricity & Electronics"
         };
         
-        // Modules de 2ème année
         String[] secondYearModules = {
             "Advanced Data Structures 02", "Computer Architecture", "DataBases and SQL",
             "Software ingenery 01", "Logique mathématiques", "advanced project-oriented programming",

@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 import jakarta.servlet.http.HttpSession;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -85,22 +86,25 @@ public class ReceiveCoursesController {
         return ResponseEntity.ok(modules);
     }
     
-    // ⭐ ENDPOINT POUR TÉLÉCHARGER UN FICHIER ⭐
+    // ⭐ ENDPOINT POUR TÉLÉCHARGER UN COURS (MET À JOUR LA DATE)
     @GetMapping("/course/{courseId}/download")
-    public ResponseEntity<Resource> downloadCourse(@PathVariable Long courseId) {
+    public ResponseEntity<Resource> downloadCourse(@PathVariable Long courseId, HttpSession session) {
         try {
+            String userName = (String) session.getAttribute("userName");
             Course course = courseService.getCourseById(courseId);
+            
             if (course == null) {
                 return ResponseEntity.notFound().build();
             }
             
-            // Récupérer le premier fichier
-            String filePath = course.getFirstFilePath();
-            if (filePath == null || filePath.isEmpty()) {
-                // Essayer avec filePath simple
-                filePath = course.getFilePath();
-            }
+            // ⭐ METTRE À JOUR LA DATE DE DERNIER TÉLÉCHARGEMENT
+            course.incrementDownloadCount();
+            courseService.update(course);
             
+            System.out.println("📥 Téléchargement du cours: " + course.getTitle() + " par " + userName + 
+                               " (Téléchargé " + course.getDownloadCount() + " fois)");
+            
+            String filePath = course.getFirstFilePath();
             if (filePath == null || filePath.isEmpty()) {
                 return ResponseEntity.notFound().build();
             }
@@ -110,7 +114,6 @@ public class ReceiveCoursesController {
             
             if (resource.exists() && resource.isReadable()) {
                 String fileName = course.getFirstFileName();
-                if (fileName == null) fileName = course.getFileName();
                 if (fileName == null) fileName = "course_" + courseId;
                 
                 return ResponseEntity.ok()
@@ -118,7 +121,6 @@ public class ReceiveCoursesController {
                     .contentType(MediaType.APPLICATION_OCTET_STREAM)
                     .body(resource);
             } else {
-                System.err.println("Fichier non trouvé: " + filePath);
                 return ResponseEntity.notFound().build();
             }
         } catch (Exception e) {
@@ -127,7 +129,23 @@ public class ReceiveCoursesController {
         }
     }
     
-    // ⭐ ENDPOINT POUR VOIR LE CONTENU EN LIGNE ⭐
+    // ⭐ ENDPOINT POUR RÉCUPÉRER LES COURS RÉCEMMENT TÉLÉCHARGÉS
+    @GetMapping("/api/recent-downloads")
+    @ResponseBody
+    public ResponseEntity<List<Course>> getRecentDownloads(HttpSession session) {
+        String userName = (String) session.getAttribute("userName");
+        List<Course> allCourses = courseService.findAll();
+        
+        List<Course> recentDownloads = allCourses.stream()
+            .filter(c -> c.getLastDownloadedAt() != null)
+            .sorted((a, b) -> b.getLastDownloadedAt().compareTo(a.getLastDownloadedAt()))
+            .limit(5)
+            .collect(Collectors.toList());
+        
+        System.out.println("📚 " + recentDownloads.size() + " cours récemment téléchargés pour " + userName);
+        return ResponseEntity.ok(recentDownloads);
+    }
+    
     @GetMapping("/course/{courseId}/view")
     public String viewCourseOnline(@PathVariable Long courseId, Model model) {
         Course course = courseService.getCourseById(courseId);
@@ -144,20 +162,19 @@ public class ReceiveCoursesController {
                 if (java.nio.file.Files.exists(filePath)) {
                     String fileName = course.getFirstFileName();
                     if (fileName != null && fileName.endsWith(".pdf")) {
-                        // Pour les PDF, rediriger vers le téléchargement
                         return "redirect:/course/" + courseId + "/download";
                     } else {
                         content = "<pre style='white-space: pre-wrap; font-family: monospace; background: #f4f4f4; padding: 15px; border-radius: 8px;'>" + 
                                   java.nio.file.Files.readString(filePath) + "</pre>";
                     }
                 } else {
-                    content = "<div class='error'>Fichier non trouvé</div>";
+                    content = "<div class='error-message'>Fichier non trouvé</div>";
                 }
             } else {
-                content = "<div class='info'>Aucun contenu disponible pour ce cours.</div>";
+                content = "<div class='info-message'>Aucun contenu disponible pour ce cours.</div>";
             }
         } catch (Exception e) {
-            content = "<div class='error'>Erreur de lecture: " + e.getMessage() + "</div>";
+            content = "<div class='error-message'>Erreur de lecture: " + e.getMessage() + "</div>";
         }
         
         model.addAttribute("course", course);

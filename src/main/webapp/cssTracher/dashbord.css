@@ -12,7 +12,7 @@ body {
     min-height: 100vh;
 }
 
-/* Sidebar Styles - Style exactement comme sur la photo */
+/* Sidebar Styles */
 .sidebar {
     width: 280px;
     background: white;
@@ -40,46 +40,44 @@ body {
     font-weight: 700;
 }
 
-/* User Info avec cercle comme sur la photo */
-.user-info-sidebar {
-    padding: 1.5rem;
+/* User Profile Styles */
+.user-profile {
     text-align: center;
+    padding: 20px;
+    margin-bottom: 20px;
     border-bottom: 1px solid #e5e7eb;
     background: white;
 }
 
-.user-avatar-circle {
-    width: 70px;
-    height: 70px;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+.user-avatar {
+    margin-bottom: 12px;
+}
+
+.user-avatar img {
+    width: 80px;
+    height: 80px;
     border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin: 0 auto 0.75rem auto;
-    box-shadow: 0 4px 10px rgba(102, 126, 234, 0.3);
+    object-fit: cover;
+    border: 3px solid #6366f1;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
-.avatar-initials {
-    font-size: 1.5rem;
+.user-profile h3 {
+    color: #1f2937;
+    font-size: 1.1rem;
+    margin: 10px 0 5px 0;
     font-weight: 600;
-    color: white;
-    letter-spacing: 1px;
 }
 
-.user-name {
-    font-size: 1rem;
-    font-weight: 600;
-    margin-bottom: 0.25rem;
-    color: #111827;
-}
-
-.user-role {
-    font-size: 0.75rem;
-    color: #6b7280;
+.user-profile .user-role {
+    color: #6366f1;
+    font-size: 0.85rem;
+    margin: 0;
+    padding: 4px 12px;
+    background: #eef2ff;
+    display: inline-block;
+    border-radius: 20px;
     font-weight: 500;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
 }
 
 /* Navigation Menu */
@@ -334,6 +332,7 @@ body {
 .course-actions {
     display: flex;
     gap: 0.5rem;
+    flex-wrap: wrap;
 }
 
 .course-actions button {
@@ -342,8 +341,12 @@ body {
     border: none;
     border-radius: 8px;
     cursor: pointer;
-    font-size: 0.85rem;
+    font-size: 0.8rem;
     transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.25rem;
 }
 
 .btn-view {
@@ -364,6 +367,15 @@ body {
     background: #fdb787;
 }
 
+.btn-quiz {
+    background: #c6f6d5;
+    color: #22543d;
+}
+
+.btn-quiz:hover {
+    background: #9ae6b4;
+}
+
 .btn-delete {
     background: #fed7d7;
     color: #c53030;
@@ -371,6 +383,21 @@ body {
 
 .btn-delete:hover {
     background: #feb2b2;
+}
+
+/* Loading State */
+.loading {
+    text-align: center;
+    padding: 3rem;
+    background: white;
+    border-radius: 16px;
+    grid-column: 1 / -1;
+}
+
+.loading i {
+    font-size: 2rem;
+    color: #667eea;
+    margin-bottom: 1rem;
 }
 
 /* Delete Modal */
@@ -410,6 +437,35 @@ body {
     gap: 1rem;
     justify-content: flex-end;
     margin-top: 1.5rem;
+}
+
+.btn-cancel {
+    padding: 0.7rem 1.5rem;
+    background: #f3f4f6;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: all 0.2s;
+}
+
+.btn-cancel:hover {
+    background: #e5e7eb;
+}
+
+.btn-confirm {
+    padding: 0.7rem 1.5rem;
+    background: #ef4444;
+    color: white;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: all 0.2s;
+}
+
+.btn-confirm:hover {
+    background: #dc2626;
 }
 
 /* Add Course Modal */
@@ -588,10 +644,21 @@ body {
     overflow-y: auto;
 }
 
+.file-stats {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.75rem;
+    color: #6b7280;
+    margin-bottom: 0.5rem;
+    padding: 0.25rem 0.5rem;
+    background: #f9fafb;
+    border-radius: 8px;
+}
+
 .file-item {
     display: flex;
     align-items: center;
-    justify-content: space-between;
+    gap: 0.5rem;
     background: #f3f4f6;
     padding: 0.5rem 0.75rem;
     border-radius: 8px;
@@ -601,7 +668,17 @@ body {
 
 .file-item i {
     color: #667eea;
-    margin-right: 0.5rem;
+}
+
+.file-item span {
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.file-item small {
+    color: #6b7280;
 }
 
 .remove-file {
@@ -620,20 +697,6 @@ body {
     margin-top: 2rem;
     padding-top: 1rem;
     border-top: 1px solid #e5e7eb;
-}
-
-.btn-cancel {
-    padding: 0.7rem 1.5rem;
-    background: #f3f4f6;
-    border: none;
-    border-radius: 10px;
-    cursor: pointer;
-    font-weight: 500;
-    transition: all 0.2s;
-}
-
-.btn-cancel:hover {
-    background: #e5e7eb;
 }
 
 .btn-submit {
@@ -738,6 +801,77 @@ body {
     }
 }
 
+/* Styles pour le modal de quiz */
+.option-row {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 0.5rem;
+    align-items: center;
+}
+
+.option-row input[type="text"] {
+    flex: 1;
+    padding: 0.5rem;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+}
+
+.remove-option-btn {
+    background: #fee2e2;
+    color: #ef4444;
+    border: none;
+    border-radius: 8px;
+    padding: 0.25rem 0.5rem;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.remove-option-btn:hover {
+    background: #fecaca;
+}
+
+.btn-add-question {
+    background: #10b981;
+    color: white;
+    padding: 0.5rem 1rem;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-add-question:hover {
+    background: #059669;
+    transform: translateY(-1px);
+}
+
+.question-item {
+    transition: all 0.2s;
+}
+
+.question-item:hover {
+    transform: translateX(5px);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+#questionsListContainer {
+    scrollbar-width: thin;
+}
+
+#questionsListContainer::-webkit-scrollbar {
+    width: 6px;
+}
+
+#questionsListContainer::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 3px;
+}
+
+#questionsListContainer::-webkit-scrollbar-thumb {
+    background: #cbd5e0;
+    border-radius: 3px;
+}
+
 /* Responsive */
 @media (max-width: 768px) {
     .sidebar {
@@ -745,10 +879,20 @@ body {
     }
     
     .sidebar .logo span,
-    .user-info-sidebar,
+    .user-profile h3,
+    .user-profile .user-role,
     .nav-link span:not(:first-child),
     .logout-btn-sidebar span {
         display: none;
+    }
+    
+    .user-profile {
+        padding: 10px;
+    }
+    
+    .user-avatar img {
+        width: 50px;
+        height: 50px;
     }
     
     .nav-link i {
@@ -761,5 +905,9 @@ body {
     
     .courses-grid {
         grid-template-columns: 1fr;
+    }
+    
+    .course-actions {
+        flex-direction: column;
     }
 }

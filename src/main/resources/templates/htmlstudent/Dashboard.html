@@ -7,11 +7,9 @@
     <link rel="stylesheet" th:href="@{/cssstudent/dashbord.css}">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    
 </head>
 <body>
     <div class="dashboard">
-       
         <aside class="sidebar">
             <div class="sidebar-header">
                 <h1 class="logo">BrainLearning</h1>
@@ -22,46 +20,42 @@
                     <img th:src="@{'https://ui-avatars.com/api/?name=' + ${session.userName} + '&background=6366f1&color=fff&size=128'}" 
                          alt="User Avatar">
                 </div>
-                <h3 th:text="${session.userName}">Laribi Hadil</h3>
+                <h3 th:text="${session.userName}">Student Name</h3>
                 <p class="user-role">Student</p>
             </div>
             
             <nav class="sidebar-nav">
                 <a href="#" class="nav-item active" id="nav-home">
-                    <i class="fas fa-home"></i>
-                    <span>Home</span>
+                    <i class="fas fa-home"></i> Home
                 </a>
                 <a th:href="@{/niveux}" class="nav-item" id="nav-courses">
-                    <i class="fas fa-book"></i>
-                    <span>My courses</span>
+                    <i class="fas fa-book"></i> My courses
+                </a>
+                <a th:href="@{/receive-courses}" class="nav-item" id="nav-receive-courses">
+                    <i class="fas fa-download"></i> Receive courses
                 </a>
                 <a th:href="@{/quiz.html}" class="nav-item" id="nav-quizzes">
-                    <i class="fas fa-question-circle"></i>
-                    <span>Quizzes</span>
+                    <i class="fas fa-question-circle"></i> Quizzes
                 </a>
                 <a href="#" class="nav-item" id="nav-ratings">
-                    <i class="fas fa-chart-bar"></i>
-                    <span>Ratings</span>
+                    <i class="fas fa-star"></i> Ratings
                 </a>
                 <a href="#" class="nav-item" id="nav-ai">
-                    <i class="fas fa-robot"></i>
-                    <span>AI Assistant</span>
+                    <i class="fas fa-robot"></i> AI Assistant
                 </a>
             </nav>
             
             <div class="sidebar-footer">
                 <a href="/logout" class="logout-btn">
-                    <i class="fas fa-sign-out-alt"></i>
-                    <span>Logout</span>
+                    <i class="fas fa-sign-out-alt"></i> Logout
                 </a>
             </div>
         </aside>
 
-        <!-- Main Content -->
         <main class="main-content">
             <header class="dashboard-header">
                 <div class="header-left">
-                    <h2 th:text="'Hello ' + ${#strings.substringBefore(session.userName, ' ')} + ' !'">Hello Hadil !</h2>
+                    <h2 th:text="'Hello ' + ${#strings.substringBefore(session.userName, ' ')} + ' !'">Hello Student!</h2>
                     <p class="date">Have a great study day!</p>
                 </div>
             </header>
@@ -111,42 +105,31 @@
 
             <!-- Welcome Section -->
             <div class="welcome-section">
-                <h3 th:text="'Welcome to BrainLearning, ' + ${#strings.substringBefore(session.userName, ' ')} + ' !'">Welcome to BrainLearning, Student !</h3>
+                <h3 th:text="'Welcome to BrainLearning, ' + ${#strings.substringBefore(session.userName, ' ')} + ' !'">Welcome to BrainLearning, Student!</h3>
                 <p>What would you like to do today?</p>
             </div>
 
             <!-- Quick Actions Grid -->
             <div class="quick-actions-grid">
                 <div class="quick-action-card" onclick="window.location.href='/student/receive-courses'">
-                    <div class="action-icon" style="background: #4285f4;">
-                        <i class="fas fa-download"></i>
-                    </div>
+                    <div class="action-icon" style="background: #4285f4;"><i class="fas fa-download"></i></div>
                     <h4>Receive Courses</h4>
-                    <p>Access your courses and educational resources</p>
+                    <p>Access your courses</p>
                 </div>
-                
                 <div class="quick-action-card" onclick="window.location.href='/student/quizzes'">
-                    <div class="action-icon" style="background: #0f9d58;">
-                        <i class="fas fa-pencil-alt"></i>
-                    </div>
+                    <div class="action-icon" style="background: #0f9d58;"><i class="fas fa-pencil-alt"></i></div>
                     <h4>Take Quizzes</h4>
-                    <p>Test your knowledge with interactive quizzes</p>
+                    <p>Test your knowledge</p>
                 </div>
-                
                 <div class="quick-action-card" onclick="window.location.href='/student/ratings'">
-                    <div class="action-icon" style="background: #f4b400;">
-                        <i class="fas fa-star"></i>
-                    </div>
+                    <div class="action-icon" style="background: #f4b400;"><i class="fas fa-star"></i></div>
                     <h4>Rate Courses</h4>
-                    <p>Give your feedback about the courses you've taken</p>
+                    <p>Give your feedback</p>
                 </div>
-                
                 <div class="quick-action-card" onclick="openChatbot()">
-                    <div class="action-icon" style="background: #db4437;">
-                        <i class="fas fa-robot"></i>
-                    </div>
+                    <div class="action-icon" style="background: #db4437;"><i class="fas fa-robot"></i></div>
                     <h4>Chatbot IA</h4>
-                    <p>Ask your questions to our intelligent assistant</p>
+                    <p>Ask questions</p>
                 </div>
             </div>
 
@@ -157,40 +140,25 @@
                     <div class="action-item" onclick="window.location.href='/niveux'">
                         <div class="action-content">
                             <i class="fas fa-book"></i>
-                            <div>
-                                <h4>My Courses</h4>
-                                <p><span id="coursCompletes">0</span> courses completed</p>
-                            </div>
+                            <div><h4>My Courses</h4><p><span id="coursCompletes">0</span> courses completed</p></div>
                         </div>
                     </div>
-                    
                     <div class="action-item" onclick="window.location.href='/student/quizzes'">
                         <div class="action-content">
                             <i class="fas fa-question-circle"></i>
-                            <div>
-                                <h4>Quiz & Tests</h4>
-                                <p><span id="quizDisponibles">0</span> quizzes available</p>
-                            </div>
+                            <div><h4>Quiz & Tests</h4><p><span id="quizDisponibles">0</span> quizzes available</p></div>
                         </div>
                     </div>
-                    
                     <div class="action-item" onclick="window.location.href='/student/ratings'">
                         <div class="action-content">
-                            <i class="fas fa-clipboard-check"></i>
-                            <div>
-                                <h4>Évaluations</h4>
-                                <p><span id="evaluationsDisponibles">0</span> reviews available</p>
-                            </div>
+                            <i class="fas fa-star"></i>
+                            <div><h4>Ratings</h4><p><span id="evaluationsDisponibles">0</span> reviews</p></div>
                         </div>
                     </div>
-                    
                     <div class="action-item" onclick="openChatbot()">
                         <div class="action-content">
                             <i class="fas fa-robot"></i>
-                            <div>
-                                <h4>Assistant IA</h4>
-                                <p><span id="questionsDisponibles">0</span> questions</p>
-                            </div>
+                            <div><h4>Assistant IA</h4><p><span id="questionsDisponibles">0</span> questions</p></div>
                         </div>
                     </div>
                 </div>
@@ -199,13 +167,13 @@
             <!-- Recent Courses -->
             <div class="recent-courses">
                 <div class="section-header">
-                    <h3>Recent Courses</h3>
+                    <h3>Recently Downloaded Courses</h3>
                     <a href="/niveux" class="view-all">View All <i class="fas fa-arrow-right"></i></a>
                 </div>
-                <div class="courses-grid" id="coursesContainer">
+                <div class="courses-grid" id="recentCoursesContainer">
                     <div class="loading-spinner">
                         <i class="fas fa-spinner fa-spin"></i>
-                        <p>Loading courses...</p>
+                        <p>Loading your recent downloads...</p>
                     </div>
                 </div>
             </div>
@@ -214,127 +182,98 @@
 
     <script>
         // ========== VARIABLES GLOBALES ==========
-        let allCourses = [];
-        let studentNiveau = null;
+        let recentCourses = [];
 
-        // ========== FONCTIONS PRINCIPALES ==========
-        
-        function loadCourses() {
-            studentNiveau = /*[[${session.niveau}]]*/ '1year';
-            
-            console.log('📚 Chargement des cours pour le niveau:', studentNiveau);
-            
-            fetch(`/student/api/courses/${studentNiveau}`)
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error('Erreur HTTP ' + response.status);
-                    }
-                    return response.json();
-                })
-                .then(courses => {
-                    allCourses = courses.filter(c => c.status === 'ACTIVE');
-                    console.log('✅ Cours chargés:', allCourses.length);
-                    displayCourses(allCourses);
-                    updateStats(allCourses);
-                })
-                .catch(error => {
-                    console.error('❌ Erreur chargement cours:', error);
-                    showErrorCourses();
-                });
-        }
-        
-        function displayCourses(courses) {
-            const container = document.getElementById('coursesContainer');
-            
+        // ========== CHARGER LES COURS RÉCEMMENT TÉLÉCHARGÉS ==========
+        async function loadRecentDownloads() {
+            const container = document.getElementById('recentCoursesContainer');
             if (!container) return;
             
-            if (!courses || courses.length === 0) {
+            container.innerHTML = `
+                <div class="loading-spinner">
+                    <i class="fas fa-spinner fa-spin"></i>
+                    <p>Loading your recent downloads...</p>
+                </div>
+            `;
+            
+            try {
+                const response = await fetch('/api/recent-downloads');
+                if (!response.ok) throw new Error('Failed to fetch recent downloads');
+                
+                const courses = await response.json();
+                recentCourses = courses;
+                displayRecentCourses(courses);
+                updateStats();
+            } catch (error) {
+                console.error('Error loading recent downloads:', error);
                 container.innerHTML = `
                     <div class="empty-state">
-                        <i class="fas fa-book-open"></i>
-                        <p>No courses available for your level yet.</p>
-                        <p class="empty-hint">Check back later for new courses!</p>
+                        <i class="fas fa-download"></i>
+                        <p>No courses downloaded yet</p>
+                        <p class="empty-hint">Download a course to see it here!</p>
                     </div>
                 `;
-                return;
             }
-            
-            // Afficher seulement les 3 cours les plus récents
-            const recentCourses = [...courses].sort((a, b) => {
-                return new Date(b.createdAt) - new Date(a.createdAt);
-            }).slice(0, 3);
-            
-            container.innerHTML = recentCourses.map(course => `
-                <div class="course-card" onclick="viewCourse(${course.id})">
-                    <div class="course-image">
-                        <i class="fas ${getCourseIcon(course.module)}"></i>
-                        <span class="course-badge">${course.status === 'ACTIVE' ? 'Available' : 'Draft'}</span>
-                    </div>
-                    <div class="course-content">
-                        <h3 class="course-title">${escapeHtml(course.title)}</h3>
-                        <p class="course-description">${escapeHtml(course.description ? course.description.substring(0, 100) : '')}${course.description && course.description.length > 100 ? '...' : ''}</p>
-                        <div class="course-meta">
-                            <div class="course-info">
-                                <span><i class="fas fa-chalkboard-user"></i> ${escapeHtml(course.teacherName || 'Professor')}</span>
-                                <span><i class="fas fa-calendar"></i> ${formatDate(course.createdAt)}</span>
-                            </div>
-                            <div class="course-stats">
-                                <span><i class="fas fa-file-alt"></i> ${course.totalQuizzes || 0} quizzes</span>
-                                <span><i class="fas fa-users"></i> ${course.totalStudents || 0} students</span>
-                            </div>
-                        </div>
-                        <button class="btn-view-course" onclick="event.stopPropagation(); viewCourse(${course.id})">
-                            View Course <i class="fas fa-arrow-right"></i>
-                        </button>
-                    </div>
-                </div>
-            `).join('');
         }
         
-        function showErrorCourses() {
-            const container = document.getElementById('coursesContainer');
-            if (container) {
-                container.innerHTML = `
-                    <div class="error-state">
-                        <i class="fas fa-exclamation-circle"></i>
-                        <p>Error loading courses. Please try again later.</p>
-                        <button onclick="loadCourses()" class="btn-retry">
-                            <i class="fas fa-sync-alt"></i> Retry
-                        </button>
+       function displayRecentCourses(courses) {
+    const container = document.getElementById('recentCoursesContainer');
+    
+    if (!container) return;
+    
+    if (!courses || courses.length === 0) {
+        container.innerHTML = `
+            <div class="empty-state">
+                <i class="fas fa-download"></i>
+                <p>No courses downloaded yet</p>
+                <p class="empty-hint">Download a course to see it here!</p>
+            </div>
+        `;
+        return;
+    }
+    
+    container.innerHTML = courses.map(course => `
+        <div class="course-card">
+            <div class="course-image">
+                <i class="fas ${getCourseIcon(course.module)}"></i>
+                <span class="course-badge">Downloaded</span>
+            </div>
+            <div class="course-content">
+                <h3 class="course-title">${escapeHtml(course.title)}</h3>
+                <p class="course-description">${escapeHtml(course.description ? course.description.substring(0, 100) : '')}</p>
+                <div class="course-meta">
+                    <div class="course-info">
+                        <span><i class="fas fa-chalkboard-user"></i> ${escapeHtml(course.teacherName || 'Professor')}</span>
+                        <span><i class="fas fa-calendar"></i> ${formatDate(course.lastDownloadedAt)}</span>
                     </div>
-                `;
-            }
+                    <div class="course-stats">
+                        <span><i class="fas fa-download"></i> Downloaded ${course.downloadCount || 1} time(s)</span>
+                        <span><i class="fas fa-file-alt"></i> ${course.totalQuizzes || 0} quizzes</span>
+                    </div>
+                </div>
+                
+            </div>
+        </div>
+    `).join('');
+}
+        
+        function updateStats() {
+            const activeCount = recentCourses.length;
+            document.getElementById('coursActifs').textContent = activeCount;
+            document.getElementById('coursCompletes').textContent = recentCourses.length;
+            
+            const totalQuizzes = recentCourses.reduce((sum, course) => sum + (course.totalQuizzes || 0), 0);
+            document.getElementById('quizDisponibles').textContent = totalQuizzes;
         }
         
         function getCourseIcon(module) {
             const icons = {
-                'Algebra 01': 'fa-calculator',
-                'Algebra 02': 'fa-calculator',
-                'Analysis 01': 'fa-chart-line',
-                'Analysis 02': 'fa-chart-line',
-                'DataBases and SQL': 'fa-database',
-                'web development 01': 'fa-laptop-code',
+                'Algebra 01': 'fa-calculator', 'Algebra 02': 'fa-calculator',
+                'Analysis 01': 'fa-chart-line', 'Analysis 02': 'fa-chart-line',
+                'DataBases and SQL': 'fa-database', 'web development 01': 'fa-laptop-code',
                 'Git and GitHub': 'fa-code-branch'
             };
             return icons[module] || 'fa-graduation-cap';
-        }
-        
-        function updateStats(courses) {
-            const activeCount = courses.filter(c => c.status === 'ACTIVE').length;
-            document.getElementById('coursActifs').textContent = activeCount;
-            document.getElementById('coursCompletes').textContent = courses.length;
-            
-            const totalQuizzes = courses.reduce((sum, course) => sum + (course.totalQuizzes || 0), 0);
-            document.getElementById('quizDisponibles').textContent = totalQuizzes;
-            
-            // Stats simulées (à remplacer par des vraies données)
-            document.getElementById('quizCompletes').textContent = Math.floor(Math.random() * 20) + 5;
-            document.getElementById('moyenne').textContent = (12 + Math.random() * 8).toFixed(1) + '/20';
-            document.getElementById('heuresEtude').textContent = Math.floor(20 + Math.random() * 100) + 'h';
-        }
-        
-        function viewCourse(courseId) {
-            window.location.href = `/student/course/${courseId}`;
         }
         
         function formatDate(dateString) {
@@ -342,9 +281,11 @@
             try {
                 const date = new Date(dateString);
                 return date.toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', year: 'numeric' });
-            } catch (error) {
-                return 'Recently';
-            }
+            } catch { return 'Recently'; }
+        }
+        
+        function viewCourse(courseId) {
+            window.location.href = `/student/course/${courseId}`;
         }
         
         function escapeHtml(text) {
@@ -354,34 +295,13 @@
             return div.innerHTML;
         }
         
-        function openChatbot() {
-            alert('AI Assistant coming soon!');
-        }
-        
-        function showCourses() {
-            window.location.href = '/niveux';
-        }
+        function openChatbot() { alert('AI Assistant coming soon!'); }
         
         // ========== INITIALISATION ==========
         document.addEventListener('DOMContentLoaded', function() {
             console.log('📚 Dashboard Student initialisé');
-            loadCourses();
+            loadRecentDownloads();
             
-            // Mise à jour du nom utilisateur
-            const userName = /*[[${session.userName}]]*/ null;
-            if(userName && userName !== null) {
-                const prenom = userName.split(' ')[0];
-                const welcomeMessage = document.querySelector('.header-left h2');
-                if(welcomeMessage) {
-                    welcomeMessage.textContent = `Hello ${prenom} !`;
-                }
-                const welcomeSection = document.querySelector('.welcome-section h3');
-                if(welcomeSection) {
-                    welcomeSection.textContent = `Welcome to BrainLearning, ${prenom} !`;
-                }
-            }
-            
-            // Navigation
             const navHome = document.getElementById('nav-home');
             if (navHome) {
                 navHome.addEventListener('click', function(e) {

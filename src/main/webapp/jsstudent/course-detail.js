@@ -5,11 +5,6 @@
 
 // ========== FONCTIONS DE TÉLÉCHARGEMENT ==========
 
-/**
- * Télécharge un fichier du cours
- * @param {number} courseId - L'ID du cours
- * @param {string} fileName - Le nom du fichier à télécharger
- */
 function downloadFile(courseId, fileName) {
     if (!courseId || !fileName) {
         showNotification('Erreur: informations manquantes', 'error');
@@ -18,15 +13,10 @@ function downloadFile(courseId, fileName) {
     
     console.log(`📥 Téléchargement du fichier: ${fileName} (cours ID: ${courseId})`);
     
-    const downloadUrl = `/student/download/${courseId}/${encodeURIComponent(fileName)}`;
+    const downloadUrl = `/course/${courseId}/download`;
     window.location.href = downloadUrl;
 }
 
-/**
- * Télécharge tous les fichiers du cours
- * @param {number} courseId - L'ID du cours
- * @param {Array} fileNames - Liste des noms de fichiers
- */
 function downloadAllFiles(courseId, fileNames) {
     if (!fileNames || fileNames.length === 0) {
         showNotification('Aucun fichier à télécharger', 'info');
@@ -44,11 +34,6 @@ function downloadAllFiles(courseId, fileNames) {
 
 // ========== FONCTIONS DE NOTIFICATION ==========
 
-/**
- * Affiche une notification
- * @param {string} message - Le message à afficher
- * @param {string} type - Le type de notification (success, error, info)
- */
 function showNotification(message, type) {
     const existingNotifications = document.querySelectorAll('.notification');
     existingNotifications.forEach(notification => notification.remove());
@@ -63,14 +48,9 @@ function showNotification(message, type) {
     notification.innerHTML = `<i class="fas ${icon}"></i> ${message}`;
     document.body.appendChild(notification);
     
-    setTimeout(() => {
-        notification.remove();
-    }, 3000);
+    setTimeout(() => notification.remove(), 3000);
 }
 
-/**
- * Ajoute les styles pour les notifications s'ils n'existent pas
- */
 function addNotificationStyles() {
     if (document.querySelector('#notification-styles')) return;
     
@@ -92,80 +72,23 @@ function addNotificationStyles() {
             animation: slideInRight 0.3s ease;
             font-weight: 500;
         }
-        .notification-success {
-            border-left: 4px solid #10b981;
-            color: #065f46;
-            background: #ecfdf5;
-        }
-        .notification-error {
-            border-left: 4px solid #ef4444;
-            color: #991b1b;
-            background: #fef2f2;
-        }
-        .notification-info {
-            border-left: 4px solid #3b82f6;
-            color: #1e40af;
-            background: #eff6ff;
-        }
+        .notification-success { border-left: 4px solid #10b981; color: #065f46; background: #ecfdf5; }
+        .notification-error { border-left: 4px solid #ef4444; color: #991b1b; background: #fef2f2; }
+        .notification-info { border-left: 4px solid #3b82f6; color: #1e40af; background: #eff6ff; }
         @keyframes slideInRight {
-            from {
-                transform: translateX(100%);
-                opacity: 0;
-            }
-            to {
-                transform: translateX(0);
-                opacity: 1;
-            }
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
         }
     `;
     document.head.appendChild(style);
 }
 
-// ========== FONCTIONS DE PARTAGE ==========
-
-/**
- * Copie le lien du cours dans le presse-papier
- * @param {number} courseId - L'ID du cours
- */
-function copyCourseLink(courseId) {
-    const url = `${window.location.origin}/student/course/${courseId}`;
-    
-    navigator.clipboard.writeText(url).then(() => {
-        showNotification('Lien copié dans le presse-papier !', 'success');
-    }).catch(() => {
-        showNotification('Erreur lors de la copie', 'error');
-    });
-}
-
-/**
- * Partage le cours (si l'API de partage est disponible)
- * @param {string} title - Le titre du cours
- * @param {string} url - L'URL du cours
- */
-function shareCourse(title, url) {
-    if (navigator.share) {
-        navigator.share({
-            title: title,
-            text: 'Découvrez ce cours sur BrainLearning !',
-            url: url
-        }).catch(() => {
-            copyCourseLink(url.split('/').pop());
-        });
-    } else {
-        copyCourseLink(url.split('/').pop());
-    }
-}
-
 // ========== INITIALISATION ==========
 
-/**
- * Initialise la page
- */
 function initPage() {
     console.log('📚 Page de détail du cours chargée');
     addNotificationStyles();
     
-    // Ajouter les écouteurs d'événements pour les boutons de téléchargement
     const downloadButtons = document.querySelectorAll('.btn-download');
     downloadButtons.forEach(button => {
         const newButton = button.cloneNode(true);
@@ -181,7 +104,6 @@ function initPage() {
         });
     });
     
-    // Ajouter un bouton pour télécharger tous les fichiers (optionnel)
     const resourcesSection = document.querySelector('.course-section:has(.files-list)');
     if (resourcesSection) {
         const fileItems = document.querySelectorAll('.files-list li');
@@ -194,16 +116,9 @@ function initPage() {
             downloadAllBtn.className = 'btn-download-all';
             downloadAllBtn.innerHTML = '<i class="fas fa-download"></i> Télécharger tous les fichiers';
             downloadAllBtn.style.cssText = `
-                margin-top: 1rem;
-                width: 100%;
-                padding: 0.5rem;
-                background: #10b981;
-                color: white;
-                border: none;
-                border-radius: 8px;
-                cursor: pointer;
-                font-size: 0.85rem;
-                font-weight: 500;
+                margin-top: 1rem; width: 100%; padding: 0.5rem;
+                background: #10b981; color: white; border: none;
+                border-radius: 8px; cursor: pointer; font-size: 0.85rem; font-weight: 500;
             `;
             
             const courseId = document.querySelector('.btn-download')?.getAttribute('data-course-id');
@@ -217,5 +132,4 @@ function initPage() {
     }
 }
 
-// Initialisation au chargement du DOM
 document.addEventListener('DOMContentLoaded', initPage);

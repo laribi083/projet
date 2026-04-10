@@ -32,6 +32,14 @@ public class Course {
     
     private String status;  // "ACTIVE", "INACTIVE"
     
+    // ⭐ NOUVEAU CHAMP POUR LA DATE DU DERNIER TÉLÉCHARGEMENT
+    @Column(name = "last_downloaded_at")
+    private LocalDateTime lastDownloadedAt;
+    
+    // ⭐ NOUVEAU CHAMP POUR LE NOMBRE DE TÉLÉCHARGEMENTS
+    @Column(name = "download_count")
+    private Integer downloadCount = 0;
+    
     // Champs pour les fichiers (support multi-fichiers)
     @ElementCollection
     @CollectionTable(name = "course_file_paths", joinColumns = @JoinColumn(name = "course_id"))
@@ -59,7 +67,6 @@ public class Course {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
     
-    // ⭐ NOUVEAU CHAMP : Nombre de quiz (non stocké en BDD)
     @Transient
     private Integer quizCount = 0;
     
@@ -78,6 +85,7 @@ public class Course {
         this.status = "ACTIVE";
         this.createdAt = LocalDateTime.now();
         this.updatedAt = LocalDateTime.now();
+        this.downloadCount = 0;
     }
     
     // ========== GETTERS ET SETTERS ==========
@@ -108,6 +116,13 @@ public class Course {
     
     public String getStatus() { return status; }
     public void setStatus(String status) { this.status = status; }
+    
+    // ⭐ GETTERS/SETTERS pour les téléchargements
+    public LocalDateTime getLastDownloadedAt() { return lastDownloadedAt; }
+    public void setLastDownloadedAt(LocalDateTime lastDownloadedAt) { this.lastDownloadedAt = lastDownloadedAt; }
+    
+    public Integer getDownloadCount() { return downloadCount != null ? downloadCount : 0; }
+    public void setDownloadCount(Integer downloadCount) { this.downloadCount = downloadCount; }
     
     public List<String> getFilePaths() { return filePaths; }
     public void setFilePaths(List<String> filePaths) { 
@@ -146,7 +161,6 @@ public class Course {
     public LocalDateTime getUpdatedAt() { return updatedAt; }
     public void setUpdatedAt(LocalDateTime updatedAt) { this.updatedAt = updatedAt; }
     
-    // ⭐ GETTER/SETTER POUR QUIZ COUNT
     public Integer getQuizCount() { return quizCount; }
     public void setQuizCount(Integer quizCount) { this.quizCount = quizCount; }
     
@@ -185,6 +199,16 @@ public class Course {
         }
     }
     
+    // ⭐ Incrémenter le compteur de téléchargements
+    public void incrementDownloadCount() {
+        if (this.downloadCount == null) {
+            this.downloadCount = 1;
+        } else {
+            this.downloadCount++;
+        }
+        this.lastDownloadedAt = LocalDateTime.now();
+    }
+    
     @Override
     public String toString() {
         return "Course{" +
@@ -194,6 +218,7 @@ public class Course {
                 ", module='" + module + '\'' +
                 ", teacherName='" + teacherName + '\'' +
                 ", status='" + status + '\'' +
+                ", downloadCount=" + downloadCount +
                 '}';
     }
 }

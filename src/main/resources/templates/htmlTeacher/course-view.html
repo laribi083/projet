@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Course Details - Brainlearning</title>
+    
+    <!-- CSS Files -->
+    <link rel="stylesheet" th:href="@{/cssTracher/dashbord.css}">
+    <link rel="stylesheet" th:href="@{/cssTracher/course-view.css}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+
+    <div class="main-content" style="margin-left: 0;">
+        <div class="course-view-container">
+            <button class="btn-back" onclick="goBack()">
+                <i class="fas fa-arrow-left"></i> Back to Dashboard
+            </button>
+            
+            <!-- Course Header -->
+            <div class="course-header">
+                <h1 th:text="${course.title}">Course Title</h1>
+                <div class="course-meta">
+                    <span><i class="fas fa-chalkboard-teacher"></i> <span th:text="${course.teacherName}">Teacher</span></span>
+                    <span><i class="fas fa-graduation-cap"></i> <span th:text="${course.module}">Module</span></span>
+                    <span><i class="fas fa-calendar"></i> <span th:text="${#temporals.format(course.createdAt, 'dd/MM/yyyy')}">Date</span></span>
+                    <span><i class="fas fa-question-circle"></i> <span th:text="${course.quizCount}">0</span> quizzes</span>
+                    <span><i class="fas fa-download"></i> <span th:text="${course.downloadCount}">0</span> downloads</span>
+                </div>
+            </div>
+            
+            <!-- Description -->
+            <div class="course-description">
+                <h3><i class="fas fa-align-left"></i> Description</h3>
+                <p th:text="${course.description}">Course description</p>
+            </div>
+            
+            <!-- Files Section -->
+            <div class="files-section">
+                <h3><i class="fas fa-paperclip"></i> Course Materials</h3>
+                <div th:if="${course.filePaths != null and !course.filePaths.isEmpty()}">
+                    <div class="file-list">
+                        <div th:each="file, iterStat : ${course.filePaths}" class="file-item">
+                            <div class="file-info">
+                                <i class="fas fa-file-pdf"></i>
+                                <div>
+                                    <strong th:text="${course.fileNames[iterStat.index]}">File name</strong>
+                                    <div class="file-path">
+                                        <span th:text="${#strings.length(file) > 50 ? #strings.substring(file, #strings.length(file)-30) : file}">Path</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div>
+                                <button class="btn-preview" th:onclick="'previewPDF(\'' + ${file} + '\')'">
+                                    <i class="fas fa-eye"></i> Preview
+                                </button>
+                                <button class="btn-download" th:onclick="'downloadFile(\'' + ${file} + '\', \'' + ${course.fileNames[iterStat.index]} + '\')'">
+                                    <i class="fas fa-download"></i> Download
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div th:unless="${course.filePaths != null and !course.filePaths.isEmpty()}" class="empty-state">
+                    <i class="fas fa-folder-open"></i>
+                    <p>No files attached to this course</p>
+                </div>
+            </div>
+            
+            <!-- Quizzes Section -->
+            <div class="quiz-section">
+                <h3><i class="fas fa-question-circle"></i> Course Quizzes</h3>
+                <div th:if="${quizzes != null and !quizzes.isEmpty()}" class="quiz-list">
+                    <div th:each="quiz : ${quizzes}" class="quiz-card">
+                        <div class="quiz-card-content">
+                            <div class="quiz-info">
+                                <strong th:text="${quiz.title}">Quiz Title</strong>
+                                <p class="quiz-description" th:text="${quiz.description}">Description</p>
+                                <div class="quiz-stats">
+                                    <span><i class="fas fa-clock"></i> <span th:text="${quiz.timeLimit}">30</span> min</span>
+                                    <span><i class="fas fa-percent"></i> Passing: <span th:text="${quiz.passingScore}">70</span>%</span>
+                                </div>
+                            </div>
+                            <div>
+                                <button class="btn-view-quiz" th:onclick="'viewQuiz(' + ${quiz.id} + ')'">
+                                    <i class="fas fa-play"></i> View Quiz
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div th:unless="${quizzes != null and !quizzes.isEmpty()}" class="empty-state">
+                    <i class="fas fa-question-circle"></i>
+                    <p>No quizzes created for this course yet</p>
+                    <button class="btn-primary" th:onclick="'createQuizForCourse(' + ${course.id} + ')'">
+                        <i class="fas fa-plus"></i> Create Quiz
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- PDF Modal -->
+    <div id="pdfModal" class="pdf-modal">
+        <div class="pdf-modal-content">
+            <div class="pdf-modal-header">
+                <span><i class="fas fa-file-pdf"></i> PDF Preview</span>
+                <button class="close-pdf-modal" onclick="closePdfModal()">Close</button>
+            </div>
+            <div class="pdf-modal-body">
+                <iframe id="pdfFrame" src=""></iframe>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript Files -->
+    <script th:src="@{/jsTeacher/course-view.js}"></script>
+</body>
+</html>

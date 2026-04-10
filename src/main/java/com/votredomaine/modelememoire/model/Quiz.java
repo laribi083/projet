@@ -21,43 +21,48 @@ public class Quiz {
     @Column(name = "course_id")
     private Long courseId;
     
+    @Column(name = "course_title")
+    private String courseTitle;
+    
+    @Column(name = "course_module")
+    private String courseModule;
+    
+    @Column(name = "course_niveau")
+    private String courseNiveau;
+    
     @Column(name = "teacher_id")
     private Long teacherId;
     
     @Column(name = "teacher_name")
     private String teacherName;
     
-    private String module;
-    private String niveau;
+    @Column(name = "duration_minutes")
+    private Integer durationMinutes = 30;
     
-    @Column(name = "time_limit")
-    private Integer timeLimit = 30;  // Valeur par défaut
+    @Column(name = "total_questions")
+    private Integer totalQuestions = 0;
     
     @Column(name = "passing_score")
-    private Integer passingScore = 70;  // Valeur par défaut
+    private Integer passingScore = 60;
     
     private String status = "ACTIVE";
     
     @Column(name = "created_at")
     private LocalDateTime createdAt;
     
+    // ⭐ AJOUTER CE CHAMP
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
-    
-    @Column(name = "total_questions")
-    private Integer totalQuestions = 0;
     
     @OneToMany(mappedBy = "quiz", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Question> questions = new ArrayList<>();
     
-    // ==================== CONSTRUCTEURS ====================
-    
     public Quiz() {
         this.createdAt = LocalDateTime.now();
-        this.updatedAt = LocalDateTime.now();
+        this.updatedAt = LocalDateTime.now();  // ⭐ Initialiser aussi updatedAt
     }
     
-    // ==================== GETTERS ET SETTERS ====================
+    // ========== GETTERS ET SETTERS ==========
     
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
@@ -71,20 +76,26 @@ public class Quiz {
     public Long getCourseId() { return courseId; }
     public void setCourseId(Long courseId) { this.courseId = courseId; }
     
+    public String getCourseTitle() { return courseTitle; }
+    public void setCourseTitle(String courseTitle) { this.courseTitle = courseTitle; }
+    
+    public String getCourseModule() { return courseModule; }
+    public void setCourseModule(String courseModule) { this.courseModule = courseModule; }
+    
+    public String getCourseNiveau() { return courseNiveau; }
+    public void setCourseNiveau(String courseNiveau) { this.courseNiveau = courseNiveau; }
+    
     public Long getTeacherId() { return teacherId; }
     public void setTeacherId(Long teacherId) { this.teacherId = teacherId; }
     
     public String getTeacherName() { return teacherName; }
     public void setTeacherName(String teacherName) { this.teacherName = teacherName; }
     
-    public String getModule() { return module; }
-    public void setModule(String module) { this.module = module; }
+    public Integer getDurationMinutes() { return durationMinutes; }
+    public void setDurationMinutes(Integer durationMinutes) { this.durationMinutes = durationMinutes; }
     
-    public String getNiveau() { return niveau; }
-    public void setNiveau(String niveau) { this.niveau = niveau; }
-    
-    public Integer getTimeLimit() { return timeLimit; }
-    public void setTimeLimit(Integer timeLimit) { this.timeLimit = timeLimit; }
+    public Integer getTotalQuestions() { return totalQuestions; }
+    public void setTotalQuestions(Integer totalQuestions) { this.totalQuestions = totalQuestions; }
     
     public Integer getPassingScore() { return passingScore; }
     public void setPassingScore(Integer passingScore) { this.passingScore = passingScore; }
@@ -95,26 +106,10 @@ public class Quiz {
     public LocalDateTime getCreatedAt() { return createdAt; }
     public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
     
+    // ⭐ GETTER ET SETTER POUR updatedAt
     public LocalDateTime getUpdatedAt() { return updatedAt; }
     public void setUpdatedAt(LocalDateTime updatedAt) { this.updatedAt = updatedAt; }
     
-    public Integer getTotalQuestions() { return totalQuestions; }
-    public void setTotalQuestions(Integer totalQuestions) { this.totalQuestions = totalQuestions; }
-    
     public List<Question> getQuestions() { return questions; }
     public void setQuestions(List<Question> questions) { this.questions = questions; }
-    
-    // ==================== MÉTHODES UTILITAIRES ====================
-    
-    @PreUpdate
-    protected void onUpdate() {
-        this.updatedAt = LocalDateTime.now();
-    }
-    
-    public void incrementTotalQuestions() {
-        if (this.totalQuestions == null) {
-            this.totalQuestions = 0;
-        }
-        this.totalQuestions++;
-    }
 }

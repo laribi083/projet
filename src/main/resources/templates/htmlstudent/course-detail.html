@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title th:text="${course.title} + ' - BrainLearning'">Course Details - BrainLearning</title>
     
+    <!-- CSS Files -->
     <link rel="stylesheet" th:href="@{/cssstudent/dashbord.css}">
     <link rel="stylesheet" th:href="@{/cssstudent/course-detail.css}">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -12,6 +13,7 @@
 </head>
 <body>
     <div class="dashboard">
+        <!-- Sidebar -->
         <aside class="sidebar">
             <div class="sidebar-header">
                 <h1 class="logo">BrainLearning</h1>
@@ -25,21 +27,31 @@
                 <p class="user-role">Student</p>
             </div>
             <nav class="sidebar-nav">
-                <a th:href="@{/student/dashboard}" class="nav-item"><i class="fas fa-home"></i> Home</a>
-                <a th:href="@{/niveux}" class="nav-item"><i class="fas fa-book"></i> My courses</a>
-                <a th:href="@{/student/receive-courses}" class="nav-item active"><i class="fas fa-download"></i> Receive Courses</a>
+                <a th:href="@{/student/dashboard}" class="nav-item">
+                    <i class="fas fa-home"></i> Home
+                </a>
+                <a th:href="@{/niveux}" class="nav-item">
+                    <i class="fas fa-book"></i> My courses
+                </a>
+                <a th:href="@{/student/receive-courses}" class="nav-item active">
+                    <i class="fas fa-download"></i> Receive Courses
+                </a>
             </nav>
             <div class="sidebar-footer">
-                <a href="/logout" class="logout-btn"><i class="fas fa-sign-out-alt"></i> Logout</a>
+                <a href="/logout" class="logout-btn">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </a>
             </div>
         </aside>
 
+        <!-- Main Content -->
         <main class="main-content">
             <div class="course-detail-container">
                 <a th:href="@{/student/receive-courses}" class="back-button">
                     <i class="fas fa-arrow-left"></i> Back to Receive Courses
                 </a>
                 
+                <!-- En-tête du cours -->
                 <div class="course-header">
                     <h1 th:text="${course.title}">Course Title</h1>
                     <div class="course-meta">
@@ -49,13 +61,18 @@
                         <span class="meta-badge">
                             <i class="fas fa-graduation-cap"></i> <span th:text="${course.niveau}">Level</span>
                         </span>
-                        <!-- ⭐ totalHours supprimé car inexistant dans le modèle -->
+                        <span class="meta-badge">
+                            <i class="fas fa-clock"></i> <span th:text="${course.totalHours}">0</span> hours
+                        </span>
                     </div>
                 </div>
                 
+                <!-- Section Description -->
                 <div class="course-section">
                     <h2><i class="fas fa-align-left"></i> Description</h2>
-                    <div class="description-content" th:text="${course.description}"></div>
+                    <div class="description-content" th:text="${course.description}">
+                        Course description here...
+                    </div>
                     <div class="teacher-info">
                         <i class="fas fa-chalkboard-user"></i>
                         <strong>Professor:</strong> <span th:text="${course.teacherName}">Teacher Name</span>
@@ -64,6 +81,7 @@
                     </div>
                 </div>
                 
+                <!-- Section Contenu du cours -->
                 <div class="course-section" th:if="${course.content != null and !course.content.isEmpty()}">
                     <h2><i class="fas fa-file-alt"></i> Course Content</h2>
                     <div class="course-content-body" th:utext="${course.content}"></div>
@@ -74,15 +92,16 @@
                     <p class="description-content">No content available for this course yet.</p>
                 </div>
                 
+                <!-- Section Resources -->
                 <div class="course-section" th:if="${course.fileNames != null and !course.fileNames.isEmpty()}">
                     <h2><i class="fas fa-paperclip"></i> Resources</h2>
                     <ul class="files-list">
                         <li th:each="fileName : ${course.fileNames}">
                             <i class="fas fa-file-alt"></i>
                             <span th:text="${fileName}">file.pdf</span>
-                            <a th:href="@{/course/{courseId}/download(courseId=${course.id})}" class="btn-download">
+                            <button class="btn-download" th:data-course-id="${course.id}" th:data-file-name="${fileName}">
                                 <i class="fas fa-download"></i> Download
-                            </a>
+                            </button>
                         </li>
                     </ul>
                 </div>
@@ -95,6 +114,7 @@
         </main>
     </div>
     
+    <!-- JavaScript File -->
     <script th:src="@{/jsstudent/course-detail.js}"></script>
 </body>
 </html>

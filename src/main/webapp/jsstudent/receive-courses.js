@@ -1,4 +1,4 @@
-
+// receive-courses.js - Version finale simplifiée
 
 console.log("📚 receive-courses.js chargé");
 
@@ -153,7 +153,9 @@ function renderCourses(courses) {
                         <a href="/course/${course.id}/download" class="btn-download">
                             <i class="fas fa-download"></i> Download
                         </a>
-                       
+                        <a href="/course/${course.id}/download" class="btn-view">
+                            <i class="fas fa-eye"></i> View Online
+                        </a>
                     </div>
                 </div>
             </div>

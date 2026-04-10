@@ -20,21 +20,9 @@ public class studentcoursecontroller {
     
     // ========== PAGES HTML ==========
     
-   /* @GetMapping("/dashboard")
-    public String dashboard(Model model, HttpSession session) {
-        String userName = (String) session.getAttribute("userName");
-        String niveau = (String) session.getAttribute("niveau");
-        
-        if (userName == null) {
-            return "redirect:/login";
-        }
-        
-        model.addAttribute("userName", userName);
-        model.addAttribute("niveau", niveau);
-        
-        return "htmlstudent/Dashboard";
-    } */
-    
+    /**
+     * PAGE RECEIVE COURSES - Affiche tous les cours disponibles
+     */
     @GetMapping("/receive-courses")
     public String receiveCourses(Model model, HttpSession session) {
         String userName = (String) session.getAttribute("userName");
@@ -44,7 +32,10 @@ public class studentcoursecontroller {
             return "redirect:/login";
         }
         
+        // Récupérer tous les cours actifs
         List<Course> allCourses = courseService.getAllActiveCourses();
+        
+        System.out.println("📚 [ReceiveCourses] Affichage de " + allCourses.size() + " cours");
         
         model.addAttribute("courses", allCourses);
         model.addAttribute("totalCourses", allCourses.size());
@@ -54,6 +45,9 @@ public class studentcoursecontroller {
         return "htmlstudent/receive-courses";
     }
     
+    /**
+     * PAGE DÉTAIL D'UN COURS
+     */
     @GetMapping("/course/{id}")
     public String viewCourse(@PathVariable Long id, Model model, HttpSession session) {
         Course course = courseService.getCourseById(id);
@@ -68,20 +62,31 @@ public class studentcoursecontroller {
     
     // ========== API REST POUR AJAX ==========
     
+    /**
+     * API pour récupérer les cours par niveau
+     */
     @GetMapping("/api/courses/{niveau}")
     @ResponseBody
     public ResponseEntity<List<Course>> getCoursesByNiveau(@PathVariable String niveau) {
         List<Course> courses = courseService.getCoursesByNiveau(niveau);
+        System.out.println("📚 API /student/api/courses/" + niveau + " - " + courses.size() + " cours");
         return ResponseEntity.ok(courses);
     }
     
+    /**
+     * API pour récupérer TOUS les cours actifs
+     */
     @GetMapping("/api/courses")
     @ResponseBody
     public ResponseEntity<List<Course>> getAllCourses() {
         List<Course> courses = courseService.getAllActiveCourses();
+        System.out.println("📚 API /student/api/courses - " + courses.size() + " cours");
         return ResponseEntity.ok(courses);
     }
     
+    /**
+     * API pour récupérer tous les cours (alias)
+     */
     @GetMapping("/api/courses/all")
     @ResponseBody
     public ResponseEntity<List<Course>> getAllCoursesAlias() {

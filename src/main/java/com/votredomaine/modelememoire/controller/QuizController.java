@@ -1,9 +1,9 @@
 package com.votredomaine.modelememoire.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.votredomaine.modelememoire.model.Question;
 import com.votredomaine.modelememoire.model.Quiz;
+import com.votredomaine.modelememoire.model.QuizResult;
 import com.votredomaine.modelememoire.service.QuizService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -16,6 +16,7 @@ import java.time.LocalDateTime;
 import java.util.*;
 
 @Controller
+@RequestMapping("/quiz")
 public class QuizController {
     
     @Autowired
@@ -25,52 +26,24 @@ public class QuizController {
     
     // ========== PARTIE TEACHER ==========
     
-    @GetMapping("/teacher/create-quiz")
-    public String showCreateQuizFormTeacher(@RequestParam Long courseId, 
-                                             @RequestParam String courseModule, 
-                                             @RequestParam String courseNiveau,
-                                             Model model) {
+    /**
+     * Affiche le formulaire de création de quiz
+     */
+    @GetMapping("/create")
+    public String showCreateQuizForm(@RequestParam Long courseId, 
+                                      @RequestParam String courseModule, 
+                                      @RequestParam String courseNiveau,
+                                      Model model) {
         model.addAttribute("courseId", courseId);
         model.addAttribute("courseModule", courseModule);
         model.addAttribute("courseNiveau", courseNiveau);
         return "htmlTeacher/create-quiz";
     }
     
-    @GetMapping("/teacher/course/{courseId}/quizzes")
-    public String getCourseQuizzes(@PathVariable Long courseId, Model model, HttpSession session) {
-        Long teacherId = (Long) session.getAttribute("teacherId");
-        if (teacherId == null) {
-            return "redirect:/login";
-        }
-        List<Quiz> quizzes = quizService.getQuizzesByCourse(courseId);
-        model.addAttribute("quizzes", quizzes);
-        model.addAttribute("courseId", courseId);
-        return "htmlTeacher/quiz-list";
-    }
-    
-    @GetMapping("/teacher/quiz/{quizId}/questions")
-    public String getQuizQuestions(@PathVariable Long quizId, Model model, HttpSession session) {
-        Long teacherId = (Long) session.getAttribute("teacherId");
-        if (teacherId == null) {
-            return "redirect:/login";
-        }
-        
-        Quiz quiz = quizService.getQuizById(quizId);
-        if (quiz == null || !quiz.getTeacherId().equals(teacherId)) {
-            return "redirect:/teacher/dashboard";
-        }
-        
-        List<Question> questions = quizService.getQuestionsByQuizId(quizId);
-        model.addAttribute("quiz", quiz);
-        model.addAttribute("questions", questions);
-        return "htmlTeacher/quiz-questions";
-    }
-    
-    // ========== API QUIZ ==========
-    
-    // ⚠️ Attention: Cette méthode a le même mapping que dans TeacherController
-    // Si vous avez déjà cette méthode dans TeacherController, commentez-la ici
-    @PostMapping("/teacher/api/quizzes/create")
+    /**
+     * API: Créer un quiz (appel AJAX)
+     */
+    @PostMapping("/api/create")
     @ResponseBody
     public ResponseEntity<Map<String, Object>> createQuiz(
             @RequestParam("title") String title,
@@ -80,7 +53,7 @@ public class QuizController {
             @RequestParam("courseNiveau") String courseNiveau,
             @RequestParam("durationMinutes") Integer durationMinutes,
             @RequestParam("passingScore") Integer passingScore,
-            @RequestParam(value = "questionsData", required = false) String questionsData,
+            @RequestParam("questionsData") String questionsData,
             HttpSession session) {
         
         Map<String, Object> response = new HashMap<>();
@@ -95,61 +68,35 @@ public class QuizController {
                 return ResponseEntity.ok(response);
             }
             
-            // Validation des champs obligatoires
-            if (title == null || title.trim().isEmpty()) {
-                response.put("success", false);
-                response.put("message", "Le titre du quiz est obligatoire");
-                return ResponseEntity.ok(response);
-            }
-            
-            if (courseId == null) {
-                response.put("success", false);
-                response.put("message", "ID du cours manquant");
-                return ResponseEntity.ok(response);
-            }
-            
+            // Créer le quiz
             Quiz quiz = new Quiz();
             quiz.setTitle(title);
-            quiz.setDescription(description != null ? description : "");
+            quiz.setDescription(description);
             quiz.setCourseId(courseId);
+            quiz.setCourseModule(courseModule);
+            quiz.setCourseNiveau(courseNiveau);
             quiz.setTeacherId(teacherId);
-            quiz.setTeacherName(teacherName != null ? teacherName : "Professeur");
-            quiz.setModule(courseModule != null ? courseModule : "");
-            quiz.setNiveau(courseNiveau != null ? courseNiveau : "");
-            quiz.setTimeLimit(durationMinutes != null ? durationMinutes : 30);
-            quiz.setPassingScore(passingScore != null ? passingScore : 70);
+            quiz.setTeacherName(teacherName);
+            quiz.setDurationMinutes(durationMinutes);
+            quiz.setPassingScore(passingScore);
             quiz.setStatus("ACTIVE");
             quiz.setCreatedAt(LocalDateTime.now());
             quiz.setUpdatedAt(LocalDateTime.now());
-            quiz.setTotalQuestions(0);
+            
+            // Parser les questions du JSON
+            List<Map<String, Object>> questionsList = objectMapper.readValue(
+                questionsData, 
+                new com.fasterxml.jackson.core.type.TypeReference<List<Map<String, Object>>>() {}
+            );
             
             List<Question> questions = new ArrayList<>();
-            if (questionsData != null && !questionsData.trim().isEmpty()) {
-                try {
-                    List<Map<String, Object>> questionsList = objectMapper.readValue(
-                        questionsData, 
-                        new TypeReference<List<Map<String, Object>>>() {}
-                    );
-                    
-                    int order = 1;
-                    for (Map<String, Object> qData : questionsList) {
-                        Question question = new Question();
-                        
-                        String questionText = (String) qData.get("text");
-                        if (questionText == null) {
-                            questionText = (String) qData.get("questionText");
-                        }
-                        question.setQuestionText(questionText != null ? questionText : "Question sans texte");
-                        
-                        Object pointsObj = qData.get("points");
-                        question.setPoints(pointsObj != null ? Integer.valueOf(pointsObj.toString()) : 1);
-                        
-                        question.setOrderNumber(order++);
-                        questions.add(question);
-                    }
-                } catch (Exception e) {
-                    System.err.println("Erreur lors du parsing des questions: " + e.getMessage());
-                }
+            for (Map<String, Object> qData : questionsList) {
+                Question question = new Question();
+                question.setText((String) qData.get("text"));
+                question.setOptions((List<String>) qData.get("options"));
+                question.setCorrectAnswer((Integer) qData.get("correctAnswer"));
+                question.setPoints(1);
+                questions.add(question);
             }
             
             Quiz savedQuiz = quizService.createQuiz(quiz, questions);
@@ -157,7 +104,6 @@ public class QuizController {
             response.put("success", true);
             response.put("message", "Quiz créé avec succès !");
             response.put("quizId", savedQuiz.getId());
-            response.put("totalQuestions", savedQuiz.getTotalQuestions());
             
         } catch (Exception e) {
             e.printStackTrace();
@@ -168,172 +114,59 @@ public class QuizController {
         return ResponseEntity.ok(response);
     }
     
-    @GetMapping("/teacher/api/quizzes/{quizId}")
-    @ResponseBody
-    public ResponseEntity<Quiz> getQuizById(@PathVariable Long quizId, HttpSession session) {
-        Long teacherId = (Long) session.getAttribute("teacherId");
-        if (teacherId == null) {
-            return ResponseEntity.status(401).build();
-        }
-        
-        Quiz quiz = quizService.getQuizById(quizId);
-        if (quiz == null || !quiz.getTeacherId().equals(teacherId)) {
-            return ResponseEntity.status(404).build();
-        }
-        
-        return ResponseEntity.ok(quiz);
+    /**
+     * Affiche la liste des quiz d'un cours (pour Teacher)
+     */
+    @GetMapping("/course/{courseId}/list")
+    public String getCourseQuizzes(@PathVariable Long courseId, Model model, HttpSession session) {
+        List<Quiz> quizzes = quizService.getQuizzesByCourse(courseId);
+        model.addAttribute("quizzes", quizzes);
+        model.addAttribute("courseId", courseId);
+        return "htmlTeacher/quiz-list";
     }
     
-    @GetMapping("/teacher/api/quizzes/{quizId}/questions")
-    @ResponseBody
-    public ResponseEntity<List<Question>> getQuizQuestionsApi(@PathVariable Long quizId, HttpSession session) {
-        Long teacherId = (Long) session.getAttribute("teacherId");
-        if (teacherId == null) {
-            return ResponseEntity.status(401).build();
-        }
-        
-        Quiz quiz = quizService.getQuizById(quizId);
-        if (quiz == null || !quiz.getTeacherId().equals(teacherId)) {
-            return ResponseEntity.status(404).build();
-        }
-        
-        List<Question> questions = quizService.getQuestionsByQuizId(quizId);
-        return ResponseEntity.ok(questions);
-    }
-    
-    @PostMapping("/teacher/api/quizzes/{quizId}/questions")
-    @ResponseBody
-    public ResponseEntity<Map<String, Object>> addQuestionToQuiz(
-            @PathVariable Long quizId,
-            @RequestBody Map<String, Object> questionData,
-            HttpSession session) {
-        
-        Map<String, Object> response = new HashMap<>();
-        
-        try {
-            Long teacherId = (Long) session.getAttribute("teacherId");
-            if (teacherId == null) {
-                response.put("success", false);
-                response.put("message", "Session expirée");
-                return ResponseEntity.status(401).body(response);
-            }
-            
-            Quiz quiz = quizService.getQuizById(quizId);
-            if (quiz == null || !quiz.getTeacherId().equals(teacherId)) {
-                response.put("success", false);
-                response.put("message", "Quiz non trouvé");
-                return ResponseEntity.status(404).body(response);
-            }
-            
-            String questionText = (String) questionData.get("questionText");
-            if (questionText == null || questionText.trim().isEmpty()) {
-                response.put("success", false);
-                response.put("message", "Le texte de la question est obligatoire");
-                return ResponseEntity.badRequest().body(response);
-            }
-            
-            Question question = new Question();
-            question.setQuestionText(questionText);
-            question.setPoints(questionData.get("points") != null ? Integer.valueOf(questionData.get("points").toString()) : 10);
-            question.setQuestionType(questionData.get("questionType") != null ? questionData.get("questionType").toString() : "SINGLE_CHOICE");
-            question.setOrderNumber(questionData.get("orderNumber") != null ? Integer.valueOf(questionData.get("orderNumber").toString()) : 1);
-            
-            // Récupérer les options
-            @SuppressWarnings("unchecked")
-            List<String> options = (List<String>) questionData.get("options");
-            if (options != null) {
-                question.setOptions(options);
-            }
-            
-            // Récupérer la bonne réponse
-            Object correctAnswerObj = questionData.get("correctAnswer");
-            if (correctAnswerObj != null) {
-                question.setCorrectAnswer(Integer.valueOf(correctAnswerObj.toString()));
-            }
-            
-            Question savedQuestion = quizService.addQuestionToQuiz(quizId, question);
-            
-            response.put("success", true);
-            response.put("message", "Question ajoutée avec succès");
-            response.put("questionId", savedQuestion.getId());
-            
-        } catch (Exception e) {
-            e.printStackTrace();
-            response.put("success", false);
-            response.put("message", e.getMessage());
-            return ResponseEntity.status(500).body(response);
-        }
-        
-        return ResponseEntity.ok(response);
-    }
-    
-    @DeleteMapping("/teacher/api/quizzes/{quizId}")
+    /**
+     * Supprimer un quiz (API)
+     */
+    @DeleteMapping("/api/delete/{quizId}")
     @ResponseBody
     public ResponseEntity<Map<String, Object>> deleteQuiz(@PathVariable Long quizId, HttpSession session) {
         Map<String, Object> response = new HashMap<>();
         
         try {
             Long teacherId = (Long) session.getAttribute("teacherId");
-            if (teacherId == null) {
-                response.put("success", false);
-                response.put("message", "Session expirée");
-                return ResponseEntity.status(401).body(response);
-            }
-            
             Quiz quiz = quizService.getQuizById(quizId);
-            if (quiz == null || !quiz.getTeacherId().equals(teacherId)) {
+            
+            if (quiz == null) {
                 response.put("success", false);
                 response.put("message", "Quiz non trouvé");
-                return ResponseEntity.status(404).body(response);
+                return ResponseEntity.ok(response);
+            }
+            
+            if (!quiz.getTeacherId().equals(teacherId)) {
+                response.put("success", false);
+                response.put("message", "Accès non autorisé");
+                return ResponseEntity.ok(response);
             }
             
             quizService.deleteQuiz(quizId);
             response.put("success", true);
             response.put("message", "Quiz supprimé avec succès");
-            return ResponseEntity.ok(response);
             
         } catch (Exception e) {
             response.put("success", false);
             response.put("message", e.getMessage());
-            return ResponseEntity.status(500).body(response);
         }
-    }
-    
-    @DeleteMapping("/teacher/api/quizzes/{quizId}/questions/{questionId}")
-    @ResponseBody
-    public ResponseEntity<Map<String, Object>> deleteQuestion(@PathVariable Long quizId, @PathVariable Long questionId, HttpSession session) {
-        Map<String, Object> response = new HashMap<>();
         
-        try {
-            Long teacherId = (Long) session.getAttribute("teacherId");
-            if (teacherId == null) {
-                response.put("success", false);
-                response.put("message", "Session expirée");
-                return ResponseEntity.status(401).body(response);
-            }
-            
-            Quiz quiz = quizService.getQuizById(quizId);
-            if (quiz == null || !quiz.getTeacherId().equals(teacherId)) {
-                response.put("success", false);
-                response.put("message", "Quiz non trouvé");
-                return ResponseEntity.status(404).body(response);
-            }
-            
-            quizService.deleteQuestion(questionId);
-            response.put("success", true);
-            response.put("message", "Question supprimée avec succès");
-            return ResponseEntity.ok(response);
-            
-        } catch (Exception e) {
-            response.put("success", false);
-            response.put("message", e.getMessage());
-            return ResponseEntity.status(500).body(response);
-        }
+        return ResponseEntity.ok(response);
     }
     
     // ========== PARTIE STUDENT ==========
     
-    @GetMapping("/quiz/take/{quizId}")
+    /**
+     * Affiche la page pour passer un quiz
+     */
+    @GetMapping("/take/{quizId}")
     public String takeQuiz(@PathVariable Long quizId, Model model, HttpSession session) {
         String userName = (String) session.getAttribute("userName");
         if (userName == null) {
@@ -354,7 +187,10 @@ public class QuizController {
         return "htmlstudent/take-quiz";
     }
     
-    @PostMapping("/quiz/submit/{quizId}")
+    /**
+     * Soumettre les réponses d'un quiz
+     */
+    @PostMapping("/submit/{quizId}")
     @ResponseBody
     public ResponseEntity<Map<String, Object>> submitQuiz(
             @PathVariable Long quizId,
@@ -379,7 +215,6 @@ public class QuizController {
             }
             
             List<Question> questions = quizService.getQuestionsByQuizId(quizId);
-            @SuppressWarnings("unchecked")
             List<Integer> userAnswers = (List<Integer>) submission.get("answers");
             
             int score = 0;
@@ -387,28 +222,24 @@ public class QuizController {
             
             for (int i = 0; i < questions.size(); i++) {
                 Question q = questions.get(i);
-                int points = q.getPoints() != null ? q.getPoints() : 1;
-                totalPoints += points;
+                totalPoints += q.getPoints();
                 
                 if (userAnswers != null && i < userAnswers.size() && 
-                    userAnswers.get(i) != null) {
-                    Integer correctAnswer = q.getCorrectAnswer();
-                    if (correctAnswer != null && userAnswers.get(i).equals(correctAnswer)) {
-                        score += points;
-                    }
+                    userAnswers.get(i) != null && 
+                    userAnswers.get(i).equals(q.getCorrectAnswer())) {
+                    score += q.getPoints();
                 }
             }
             
             int percentage = totalPoints > 0 ? (score * 100) / totalPoints : 0;
-            Integer passingScore = quiz.getPassingScore() != null ? quiz.getPassingScore() : 70;
-            boolean passed = percentage >= passingScore;
+            boolean passed = percentage >= quiz.getPassingScore();
             
             response.put("success", true);
             response.put("score", score);
             response.put("totalPoints", totalPoints);
             response.put("percentage", percentage);
             response.put("passed", passed);
-            response.put("passingScore", passingScore);
+            response.put("passingScore", quiz.getPassingScore());
             
         } catch (Exception e) {
             e.printStackTrace();
@@ -419,15 +250,38 @@ public class QuizController {
         return ResponseEntity.ok(response);
     }
     
-    @GetMapping("/quiz/result/{quizId}")
+    /**
+     * Affiche le résultat d'un quiz
+     */
+    @GetMapping("/result/{quizId}")
     public String showResult(@PathVariable Long quizId, Model model, HttpSession session) {
-        String userName = (String) session.getAttribute("userName");
-        if (userName == null) {
+        Quiz quiz = quizService.getQuizById(quizId);
+        model.addAttribute("quiz", quiz);
+        return "htmlstudent/quiz-result";
+    }
+    
+    /**
+     * Prévisualiser un quiz (pour Teacher)
+     */
+    @GetMapping("/preview/{quizId}")
+    public String previewQuiz(@PathVariable Long quizId, Model model, HttpSession session) {
+        Long teacherId = (Long) session.getAttribute("teacherId");
+        if (teacherId == null) {
             return "redirect:/login";
         }
         
         Quiz quiz = quizService.getQuizById(quizId);
+        if (quiz == null) {
+            return "redirect:/teacher/dashboard";
+        }
+        
+        List<Question> questions = quizService.getQuestionsByQuizId(quizId);
+        
         model.addAttribute("quiz", quiz);
-        return "htmlstudent/quiz-result";
+        model.addAttribute("questions", questions);
+        model.addAttribute("totalQuestions", questions.size());
+        model.addAttribute("preview", true);
+        
+        return "htmlstudent/take-quiz";
     }
 }

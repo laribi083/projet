@@ -1,0 +1,264 @@
+/* module.css - Styles pour les pages de cours */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    line-height: 1.6;
+    color: #333;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+    padding: 20px;
+}
+
+/* Header et bouton retour */
+header {
+    margin-bottom: 30px;
+}
+
+.back-button {
+    color: white;
+    text-decoration: none;
+    font-size: 1.1rem;
+    padding: 10px 20px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 25px;
+    transition: all 0.3s ease;
+    display: inline-block;
+}
+
+.back-button:hover {
+    background: rgba(255, 255, 255, 0.3);
+    transform: translateX(-5px);
+}
+
+/* Sections */
+section {
+    background: white;
+    border-radius: 20px;
+    padding: 25px;
+    margin-bottom: 25px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+}
+
+/* En-tête du cours */
+.course-header h1 {
+    color: #4a5568;
+    font-size: 2rem;
+    margin-bottom: 15px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.course-meta {
+    display: flex;
+    gap: 25px;
+    flex-wrap: wrap;
+    margin-bottom: 20px;
+    padding: 15px;
+    background: #f7fafc;
+    border-radius: 15px;
+}
+
+.course-meta span {
+    font-size: 0.95rem;
+    color: #4a5568;
+}
+
+/* Barre de progression */
+.progress-bar {
+    width: 100%;
+    height: 10px;
+    background: #e2e8f0;
+    border-radius: 5px;
+    overflow: hidden;
+    margin: 15px 0;
+}
+
+.progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #48bb78, #38a169);
+    border-radius: 5px;
+    transition: width 0.3s ease;
+}
+
+/* Titres */
+h2 {
+    color: #2d3748;
+    margin-bottom: 20px;
+    font-size: 1.5rem;
+    border-left: 4px solid #667eea;
+    padding-left: 15px;
+}
+
+h3 {
+    color: #4a5568;
+    margin-bottom: 10px;
+    font-size: 1.2rem;
+}
+
+/* Liste des chapitres */
+.chapters-list {
+    list-style: none;
+}
+
+.chapters-list li {
+    background: #f7fafc;
+    margin-bottom: 15px;
+    padding: 20px;
+    border-radius: 15px;
+    transition: all 0.3s ease;
+    border: 1px solid #e2e8f0;
+}
+
+.chapters-list li:hover {
+    transform: translateX(5px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.chapters-list p {
+    color: #718096;
+    font-size: 0.9rem;
+    margin-bottom: 12px;
+}
+
+/* Boutons */
+button, .btn {
+    padding: 8px 20px;
+    margin-right: 10px;
+    margin-top: 5px;
+    border: none;
+    border-radius: 25px;
+    cursor: pointer;
+    font-size: 0.85rem;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    display: inline-block;
+}
+
+.btn-download {
+    background: #48bb78;
+    color: white;
+}
+
+.btn-download:hover {
+    background: #38a169;
+    transform: translateY(-2px);
+}
+
+.btn-view {
+    background: #4299e1;
+    color: white;
+}
+
+.btn-view:hover {
+    background: #3182ce;
+    transform: translateY(-2px);
+}
+
+.btn-quiz, .btn-evaluation {
+    background: #ed8936;
+    color: white;
+}
+
+.btn-quiz:hover, .btn-evaluation:hover {
+    background: #dd6b20;
+    transform: translateY(-2px);
+}
+
+.btn-project {
+    background: #9f7aea;
+    color: white;
+}
+
+.btn-project:hover {
+    background: #805ad5;
+    transform: translateY(-2px);
+}
+
+/* Statistiques */
+.stats {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    list-style: none;
+}
+
+.stats li {
+    background: #f7fafc;
+    padding: 15px 25px;
+    border-radius: 15px;
+    font-weight: 500;
+    color: #4a5568;
+    border: 1px solid #e2e8f0;
+}
+
+/* Informations instructeur */
+.instructor-info {
+    padding: 15px;
+    background: #f7fafc;
+    border-radius: 15px;
+}
+
+.instructor-info p {
+    margin-bottom: 10px;
+}
+
+/* Séparateur */
+hr {
+    border: none;
+    height: 2px;
+    background: linear-gradient(90deg, #667eea, #764ba2);
+    margin: 20px 0;
+}
+
+/* Badges */
+.badge {
+    display: inline-block;
+    padding: 4px 12px;
+    background: #e2e8f0;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    color: #4a5568;
+    margin-right: 10px;
+}
+
+.badge-success {
+    background: #c6f6d5;
+    color: #22543d;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    body {
+        padding: 10px;
+    }
+    
+    section {
+        padding: 15px;
+    }
+    
+    .course-header h1 {
+        font-size: 1.5rem;
+    }
+    
+    .course-meta {
+        flex-direction: column;
+        gap: 10px;
+    }
+    
+    button, .btn {
+        margin-bottom: 8px;
+    }
+    
+    .stats li {
+        width: 100%;
+        text-align: center;
+    }
+}

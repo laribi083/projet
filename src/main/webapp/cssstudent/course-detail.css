@@ -1,0 +1,265 @@
+/**
+ * course-detail.css
+ * Styles pour la page de détail d'un cours
+ */
+
+/* ========== CONTENEUR PRINCIPAL ========== */
+.course-detail-container {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 2rem;
+}
+
+/* ========== EN-TÊTE DU COURS ========== */
+.course-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 2rem;
+    border-radius: 16px;
+    margin-bottom: 2rem;
+}
+
+.course-header h1 {
+    margin: 0 0 0.5rem 0;
+    font-size: 1.8rem;
+}
+
+/* Métadonnées */
+.course-meta {
+    display: flex;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+    margin-top: 1rem;
+}
+
+.meta-badge {
+    background: rgba(255, 255, 255, 0.2);
+    padding: 0.3rem 0.8rem;
+    border-radius: 20px;
+    font-size: 0.85rem;
+}
+
+/* ========== SECTIONS GÉNÉRALES ========== */
+.course-section {
+    background: white;
+    border-radius: 16px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.course-section h2 {
+    color: #2d3748;
+    margin-bottom: 1rem;
+    font-size: 1.3rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.description-content {
+    color: #4a5568;
+    line-height: 1.6;
+}
+
+/* ========== CONTENU DU COURS (HTML RICHE) ========== */
+.course-content-body {
+    line-height: 1.8;
+    color: #334155;
+    font-size: 1rem;
+}
+
+.course-content-body h1, 
+.course-content-body h2, 
+.course-content-body h3 {
+    color: #1e293b;
+    margin-top: 1.5rem;
+    margin-bottom: 1rem;
+}
+
+.course-content-body h1 { font-size: 1.8rem; }
+.course-content-body h2 { font-size: 1.5rem; }
+.course-content-body h3 { font-size: 1.2rem; }
+
+.course-content-body p {
+    margin-bottom: 1rem;
+}
+
+.course-content-body ul, 
+.course-content-body ol {
+    margin-bottom: 1rem;
+    padding-left: 2rem;
+}
+
+.course-content-body li {
+    margin-bottom: 0.5rem;
+}
+
+.course-content-body pre {
+    background: #f1f5f9;
+    padding: 1rem;
+    border-radius: 8px;
+    overflow-x: auto;
+    font-family: monospace;
+    margin-bottom: 1rem;
+}
+
+.course-content-body code {
+    background: #f1f5f9;
+    padding: 0.2rem 0.4rem;
+    border-radius: 4px;
+    font-family: monospace;
+    font-size: 0.9em;
+}
+
+.course-content-body img {
+    max-width: 100%;
+    border-radius: 8px;
+    margin: 1rem 0;
+}
+
+.course-content-body blockquote {
+    border-left: 4px solid #667eea;
+    padding-left: 1rem;
+    margin: 1rem 0;
+    color: #475569;
+    font-style: italic;
+}
+
+.course-content-body table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 1rem;
+}
+
+.course-content-body th,
+.course-content-body td {
+    border: 1px solid #e2e8f0;
+    padding: 0.5rem;
+    text-align: left;
+}
+
+.course-content-body th {
+    background: #f1f5f9;
+    font-weight: 600;
+}
+
+.course-content-body .video-container {
+    position: relative;
+    padding-bottom: 56.25%;
+    height: 0;
+    overflow: hidden;
+    margin-bottom: 1rem;
+}
+
+.course-content-body .video-container iframe {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border-radius: 8px;
+}
+
+/* ========== INFORMATIONS ENSEIGNANT ========== */
+.teacher-info {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid #e2e8f0;
+}
+
+/* ========== LISTE DES FICHIERS ========== */
+.files-list {
+    list-style: none;
+    padding: 0;
+}
+
+.files-list li {
+    padding: 0.75rem;
+    border-bottom: 1px solid #e2e8f0;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.files-list li:last-child {
+    border-bottom: none;
+}
+
+.btn-download {
+    background: #667eea;
+    color: white;
+    border: none;
+    padding: 0.3rem 0.8rem;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.8rem;
+    margin-left: auto;
+    transition: all 0.3s;
+}
+
+.btn-download:hover {
+    background: #5a67d8;
+    transform: translateY(-1px);
+}
+
+/* ========== BOUTON RETOUR ========== */
+.back-button {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: #667eea;
+    text-decoration: none;
+    margin-bottom: 1rem;
+    transition: all 0.3s;
+}
+
+.back-button:hover {
+    transform: translateX(-3px);
+}
+
+/* ========== RESPONSIVE ========== */
+@media (max-width: 768px) {
+    .course-detail-container {
+        padding: 1rem;
+    }
+    
+    .course-header {
+        padding: 1.5rem;
+    }
+    
+    .course-header h1 {
+        font-size: 1.4rem;
+    }
+    
+    .course-meta {
+        gap: 0.8rem;
+    }
+    
+    .meta-badge {
+        font-size: 0.7rem;
+    }
+    
+    .course-section {
+        padding: 1rem;
+    }
+    
+    .files-list li {
+        flex-wrap: wrap;
+    }
+    
+    .btn-download {
+        margin-left: 0;
+        width: 100%;
+        text-align: center;
+    }
+    
+    .teacher-info {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+    }
+}

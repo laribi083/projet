@@ -15,9 +15,15 @@
             <h2>LOG IN</h2>
             <div class="subtitle">To Continue</div>
 
-            <form id="loginForm" th:action="@{/login}" method="post">
+            <!-- Message d'erreur -->
+            <div th:if="${param.error}" class="message" style="color: red;">
+                Email ou mot de passe incorrect
+            </div>
+            <div th:if="${error}" class="message" style="color: red;" th:text="${error}"></div>
+
+            <form th:action="@{/login}" method="post">
                 <div class="input-group">
-                    <input type="text" id="username" name="username" placeholder="Username" required>
+                    <input type="email" id="email" name="email" placeholder="Email" required>
                 </div>
 
                 <div class="input-group">
@@ -27,15 +33,13 @@
                     </div>
                 </div>
 
-                <button type="submit">LOG IN</button>
+                <button type="submit" class="btn-login">LOG IN</button>
             </form>
 
-            <div class="message" id="message"></div>
             <div class="login-link">
                 Don't have an account? <a th:href="@{/create}">Sign up</a>
             </div>
         </div>
     </div>
-    <script th:src="@{/js/login.js}"></script>
 </body>
 </html>

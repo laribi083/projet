@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Algebra 01 - BrainLearning</title>
+    <link rel="stylesheet" th:href="@{/cssstudent/modulecss.css}">
+</head>
+<body>
+<header>
+    <a th:href="@{/niveux/1st-year}" class="back-link">← Back to courses</a>
+</header>
+
+<section class="course-header">
+    <h1>Algebra 01</h1>
+    <div class="course-meta">
+        <span class="instructor">👨‍🏫 Instructor: Prof. Ahmed Benali</span>
+        <span class="duration">⏱️ Duration: 8 hours</span>
+        <span class="chapters">📚 Chapters: 6</span>
+    </div>
+    <div class="progress-bar">
+        <div class="progress-fill" style="width: 0%"></div>
+    </div>
+    <p><strong>Progress:</strong> <span th:text="${progress}">0</span> / 6 chapters</p>
+</section>
+<hr>
+
+<section>
+    <h2>Course Content</h2>
+    <ol class="chapters-list">
+        <li>
+            <h3>Chapter 1: Algebraic Structures</h3>
+            <p>Type: PDF | Duration: 45 min | Size: 4.2 MB</p>
+            <button class="btn-download">Download</button>
+            <button class="btn-view">View Online</button>
+        </li>
+        <li>
+            <h3>Chapter 2: Polynomials and Equations</h3>
+            <p>Type: PDF | Duration: 50 min | Size: 5.1 MB</p>
+            <button class="btn-download">Download</button>
+            <button class="btn-view">View Online</button>
+        </li>
+        <li>
+            <h3>Chapter 3: Matrices and Determinants</h3>
+            <p>Type: PDF | Duration: 55 min | Size: 6.3 MB</p>
+            <button class="btn-download">Download</button>
+            <button class="btn-view">View Online</button>
+        </li>
+        <li>
+            <h3>Chapter 4: Vector Spaces</h3>
+            <p>Type: PDF | Duration: 50 min | Size: 4.8 MB</p>
+            <button class="btn-download">Download</button>
+            <button class="btn-view">View Online</button>
+        </li>
+        <li>
+            <h3>Chapter 5: Linear Transformations</h3>
+            <p>Type: PDF | Duration: 60 min | Size: 7.2 MB</p>
+            <button class="btn-download">Download</button>
+            <button class="btn-view">View Online</button>
+        </li>
+        <li>
+            <h3>Quiz: Algebra Fundamentals</h3>
+            <p>Type: Quiz | Duration: 30 min | Questions: 20</p>
+            <button class="btn-quiz">Start Quiz</button>
+        </li>
+    </ol>
+</section>
+<hr>
+
+<section>
+    <h2>Statistics</h2>
+    <ul class="stats">
+        <li>📖 Chapters: 6</li>
+        <li>✅ Completed: 0</li>
+        <li>⏳ Remaining: 6</li>
+        <li>📝 Assignments: 3</li>
+    </ul>
+</section>
+<hr>
+
+<section>
+    <h2>Instructor</h2>
+    <div class="instructor-info">
+        <p><strong>Prof. Ahmed Benali</strong></p>
+        <p>PhD in Pure Mathematics from University of Paris-Sud. Over 15 years of experience teaching algebra and linear algebra at university level.</p>
+    </div>
+</section>
+</body>
+</html>

@@ -23,10 +23,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 @Controller
 @RequestMapping("/teacher")
@@ -282,6 +279,105 @@ public class TeacherController {
         }
     }
     
+    // ==================== MODIFICATION DE COURS (API) ====================
+    
+    /**
+     * Met à jour un cours existant
+     */
+    @PostMapping("/api/update-course/{id}")
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> updateCourseApi(
+            @PathVariable Long id,
+            @RequestParam("title") String title,
+            @RequestParam("description") String description,
+            @RequestParam("module") String module,
+            @RequestParam("niveau") String niveau,
+            @RequestParam(value = "newFiles", required = false) List<MultipartFile> newFiles,
+            HttpSession session) {
+        
+        Map<String, Object> response = new HashMap<>();
+        
+        try {
+            Long teacherId = (Long) session.getAttribute("teacherId");
+            
+            if (teacherId == null) {
+                response.put("success", false);
+                response.put("message", "Session expirée");
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
+            }
+            
+            Course existingCourse = courseService.getCourseById(id);
+            
+            if (existingCourse == null) {
+                response.put("success", false);
+                response.put("message", "Cours non trouvé");
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+            }
+            
+            if (!existingCourse.getTeacherId().equals(teacherId)) {
+                response.put("success", false);
+                response.put("message", "Accès non autorisé");
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
+            }
+            
+            // Mettre à jour les champs
+            existingCourse.setTitle(title);
+            existingCourse.setDescription(description);
+            existingCourse.setModule(module);
+            existingCourse.setNiveau(niveau);
+            existingCourse.setUpdatedAt(LocalDateTime.now());
+            
+            // Ajouter les nouveaux fichiers
+            if (newFiles != null && !newFiles.isEmpty()) {
+                List<String> filePaths = existingCourse.getFilePaths();
+                List<String> fileNames = existingCourse.getFileNames();
+                
+                if (filePaths == null) {
+                    filePaths = new ArrayList<>();
+                    fileNames = new ArrayList<>();
+                }
+                
+                for (MultipartFile file : newFiles) {
+                    if (!file.isEmpty()) {
+                        String originalName = file.getOriginalFilename();
+                        String uniqueName = UUID.randomUUID().toString() + "_" + originalName;
+                        String uploadPath = "uploads/courses/" + uniqueName;
+                        
+                        // Sauvegarde du fichier
+                        Path path = Paths.get(uploadPath);
+                        Files.createDirectories(path.getParent());
+                        Files.write(path, file.getBytes());
+                        
+                        filePaths.add(uploadPath);
+                        fileNames.add(originalName);
+                    }
+                }
+                
+                existingCourse.setFilePaths(filePaths);
+                existingCourse.setFileNames(fileNames);
+                
+                if (!filePaths.isEmpty()) {
+                    existingCourse.setFilePath(filePaths.get(0));
+                    existingCourse.setFileName(fileNames.get(0));
+                }
+            }
+            
+            Course updatedCourse = courseService.save(existingCourse);
+            
+            response.put("success", true);
+            response.put("message", "Cours modifié avec succès");
+            response.put("courseId", updatedCourse.getId());
+            
+            return ResponseEntity.ok(response);
+            
+        } catch (Exception e) {
+            e.printStackTrace();
+            response.put("success", false);
+            response.put("message", "Erreur: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+        }
+    }
+    
     // ==================== VISUALISATION DES COURS (PAGES HTML) ====================
     
     @GetMapping("/dashboard")
@@ -436,6 +532,53 @@ public class TeacherController {
         return ResponseEntity.ok(quizzes != null ? quizzes : List.of());
     }
     
+    /**
+     * ⭐ SUPPRIMER UN QUIZ - ENDPOINT AJOUTÉ
+     */
+    @DeleteMapping("/api/delete-quiz/{quizId}")
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> deleteQuizApi(@PathVariable Long quizId, HttpSession session) {
+        Map<String, Object> response = new HashMap<>();
+        
+        try {
+            Long teacherId = (Long) session.getAttribute("teacherId");
+            
+            if (teacherId == null) {
+                response.put("success", false);
+                response.put("message", "Session expirée");
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
+            }
+            
+            Quiz quiz = quizService.getQuizById(quizId);
+            
+            if (quiz == null) {
+                response.put("success", false);
+                response.put("message", "Quiz non trouvé");
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+            }
+            
+            // Vérifier que le quiz appartient bien à l'enseignant connecté
+            if (!quiz.getTeacherId().equals(teacherId)) {
+                response.put("success", false);
+                response.put("message", "Accès non autorisé");
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
+            }
+            
+            // Supprimer le quiz
+            quizService.deleteQuiz(quizId);
+            
+            response.put("success", true);
+            response.put("message", "Quiz supprimé avec succès");
+            return ResponseEntity.ok(response);
+            
+        } catch (Exception e) {
+            e.printStackTrace();
+            response.put("success", false);
+            response.put("message", e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+        }
+    }
+    
     @PostMapping("/api/create-quiz")
     @ResponseBody
     public ResponseEntity<Map<String, Object>> createQuiz(@RequestBody Map<String, Object> quizData, HttpSession session) {
@@ -514,8 +657,6 @@ public class TeacherController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
         }
     }
-    
-   
     
     @GetMapping("/courses/niveau/{niveau}")
     @ResponseBody

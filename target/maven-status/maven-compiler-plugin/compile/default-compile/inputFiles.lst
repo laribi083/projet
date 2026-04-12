@@ -20,14 +20,12 @@ C:\Users\larib\Desktop\modelle memoire\src\main\java\com\votredomaine\modelememo
 C:\Users\larib\Desktop\modelle memoire\src\main\java\com\votredomaine\modelememoire\model\Utilisateur.java
 C:\Users\larib\Desktop\modelle memoire\src\main\java\com\votredomaine\modelememoire\repository\TeacherRepository.java
 C:\Users\larib\Desktop\modelle memoire\src\main\java\com\votredomaine\modelememoire\model\QuizResult.java
-C:\Users\larib\Desktop\modelle memoire\src\main\java\com\votredomaine\modelememoire\repository\impl\UtilisateurRepositoryImpl.java
 C:\Users\larib\Desktop\modelle memoire\src\main\java\com\votredomaine\modelememoire\model\Course.java
 C:\Users\larib\Desktop\modelle memoire\src\main\java\com\votredomaine\modelememoire\model\Teacher.java
 C:\Users\larib\Desktop\modelle memoire\src\main\java\com\votredomaine\modelememoire\model\Question.java
 C:\Users\larib\Desktop\modelle memoire\src\main\java\com\votredomaine\modelememoire\util\PasswordUtils.java
 C:\Users\larib\Desktop\modelle memoire\src\main\java\com\votredomaine\modelememoire\controller\CourseApiController.java
 C:\Users\larib\Desktop\modelle memoire\src\main\java\com\votredomaine\modelememoire\service\createservice.java
-C:\Users\larib\Desktop\modelle memoire\src\main\java\com\votredomaine\modelememoire\repository\impl\PasswordResetTokenRepositoryImpl.java
 C:\Users\larib\Desktop\modelle memoire\src\main\java\com\votredomaine\modelememoire\controller\LoginController.java
 C:\Users\larib\Desktop\modelle memoire\src\main\java\com\votredomaine\modelememoire\controller\QuizController.java
 C:\Users\larib\Desktop\modelle memoire\src\main\java\com\votredomaine\modelememoire\service\Courseservice.java

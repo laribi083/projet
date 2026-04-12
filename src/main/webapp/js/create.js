@@ -6,7 +6,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const signupForm = document.getElementById('signupForm');
     
     if (!signupForm) {
-        console.error('Formulaire d\'inscription non trouvé!');
+        console.error('Registration form not found!');
         return;
     }
     
@@ -66,10 +66,10 @@ document.addEventListener('DOMContentLoaded', function() {
         if (username) {
             const usernameValue = username.value.trim();
             if (usernameValue.length < 3) {
-                showError('username', 'Le nom d\'utilisateur doit contenir au moins 3 caractères');
+                showError('username', 'The username must contain at least 3 characters');
                 isValid = false;
             } else if (usernameValue.length > 50) {
-                showError('username', 'Le nom d\'utilisateur ne peut pas dépasser 50 caractères');
+                showError('username', 'The username cannot exceed 50 characters');
                 isValid = false;
             }
         }
@@ -80,7 +80,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const emailValue = email.value.trim();
             const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
             if (!emailRegex.test(emailValue)) {
-                showError('email', 'Veuillez entrer une adresse email valide');
+                showError('email', 'Please enter a valid email address');
                 isValid = false;
             }
         }
@@ -90,7 +90,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (password) {
             const passwordValue = password.value;
             if (passwordValue.length < 6) {
-                showError('password', 'Le mot de passe doit contenir au moins 6 caractères');
+                showError('password', 'The password must contain at least 6 characters');
                 isValid = false;
             }
         }
@@ -100,7 +100,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const passwordField = document.getElementById('password');
         if (confirmPassword && passwordField) {
             if (passwordField.value !== confirmPassword.value) {
-                showError('confirmPassword', 'Les mots de passe ne correspondent pas');
+                showError('confirmPassword', 'The passwords do not match');
                 isValid = false;
             }
         }
@@ -124,14 +124,14 @@ document.addEventListener('DOMContentLoaded', function() {
                 password: password
             };
             
-            console.log('📤 Envoi des données:', { name, email });
+            console.log('📤 Sending data:', { name, email });
             
             // Afficher un indicateur de chargement
             const submitBtn = document.querySelector('.signup-btn');
             const originalText = submitBtn ? submitBtn.textContent : 'S\'INSCRIRE';
             
             if (submitBtn) {
-                submitBtn.textContent = 'INSCRIPTION EN COURS...';
+                submitBtn.textContent = 'REGISTRATION IN PROGRESS..';
                 submitBtn.disabled = true;
             }
             
@@ -150,7 +150,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 
                 if (data.success) {
                     // Succès
-                    showSuccessMessage('✅ Inscription réussie ! Redirection vers la page de connexion...');
+                    showSuccessMessage('✅ Registration successful! Redirecting to the login page...');
                     
                     // Rediriger après 2 secondes
                     setTimeout(() => {
@@ -158,12 +158,12 @@ document.addEventListener('DOMContentLoaded', function() {
                     }, 2000);
                 } else {
                     // Erreur
-                    showErrorMessage(data.message || 'Erreur lors de l\'inscription');
+                    showErrorMessage(data.message || 'Error during registration');
                 }
                 
             } catch (error) {
                 console.error('❌ Erreur:', error);
-                showErrorMessage('Erreur de connexion au serveur: ' + error.message);
+                showErrorMessage('Error connecting to the server: ' + error.message);
             } finally {
                 // Restaurer le bouton
                 if (submitBtn) {

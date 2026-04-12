@@ -8,7 +8,7 @@
         {
             "type": "chrome",
             "request": "launch",
-            "name": "Open cours.html",
+            "name": "Open welcom.html",
             "file": "c:\\Users\\pc\\Desktop\\projet-1\\src\\main\\resources\\templates\\htmlstudent\\cours.html",
            
 

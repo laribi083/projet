@@ -13,7 +13,7 @@ import java.util.List;
 
 @Controller
 @RequestMapping("/student")
-public class studentcoursecontroller {
+public class StudentCourseController {
     
     @Autowired
     private Courseservice courseService;
@@ -50,6 +50,12 @@ public class studentcoursecontroller {
      */
     @GetMapping("/course/{id}")
     public String viewCourse(@PathVariable Long id, Model model, HttpSession session) {
+        String userName = (String) session.getAttribute("userName");
+        
+        if (userName == null) {
+            return "redirect:/login";
+        }
+        
         Course course = courseService.getCourseById(id);
         
         if (course == null) {
@@ -57,6 +63,8 @@ public class studentcoursecontroller {
         }
         
         model.addAttribute("course", course);
+        model.addAttribute("userName", userName);
+        
         return "htmlstudent/course-detail";
     }
     

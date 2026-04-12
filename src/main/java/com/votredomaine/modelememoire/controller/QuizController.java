@@ -3,7 +3,6 @@ package com.votredomaine.modelememoire.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.votredomaine.modelememoire.model.Question;
 import com.votredomaine.modelememoire.model.Quiz;
-import com.votredomaine.modelememoire.model.QuizResult;
 import com.votredomaine.modelememoire.service.QuizService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -25,20 +24,6 @@ public class QuizController {
     private final ObjectMapper objectMapper = new ObjectMapper();
     
     // ========== PARTIE TEACHER ==========
-    
-    /**
-     * Affiche le formulaire de création de quiz
-     */
-    @GetMapping("/create")
-    public String showCreateQuizForm(@RequestParam Long courseId, 
-                                      @RequestParam String courseModule, 
-                                      @RequestParam String courseNiveau,
-                                      Model model) {
-        model.addAttribute("courseId", courseId);
-        model.addAttribute("courseModule", courseModule);
-        model.addAttribute("courseNiveau", courseNiveau);
-        return "htmlTeacher/create-quiz";
-    }
     
     /**
      * API: Créer un quiz (appel AJAX)
@@ -68,7 +53,6 @@ public class QuizController {
                 return ResponseEntity.ok(response);
             }
             
-            // Créer le quiz
             Quiz quiz = new Quiz();
             quiz.setTitle(title);
             quiz.setDescription(description);
@@ -83,7 +67,6 @@ public class QuizController {
             quiz.setCreatedAt(LocalDateTime.now());
             quiz.setUpdatedAt(LocalDateTime.now());
             
-            // Parser les questions du JSON
             List<Map<String, Object>> questionsList = objectMapper.readValue(
                 questionsData, 
                 new com.fasterxml.jackson.core.type.TypeReference<List<Map<String, Object>>>() {}
@@ -112,17 +95,6 @@ public class QuizController {
         }
         
         return ResponseEntity.ok(response);
-    }
-    
-    /**
-     * Affiche la liste des quiz d'un cours (pour Teacher)
-     */
-    @GetMapping("/course/{courseId}/list")
-    public String getCourseQuizzes(@PathVariable Long courseId, Model model, HttpSession session) {
-        List<Quiz> quizzes = quizService.getQuizzesByCourse(courseId);
-        model.addAttribute("quizzes", quizzes);
-        model.addAttribute("courseId", courseId);
-        return "htmlTeacher/quiz-list";
     }
     
     /**
@@ -159,6 +131,31 @@ public class QuizController {
         }
         
         return ResponseEntity.ok(response);
+    }
+    
+    /**
+     * Prévisualiser un quiz (pour Teacher)
+     */
+    @GetMapping("/preview/{quizId}")
+    public String previewQuiz(@PathVariable Long quizId, Model model, HttpSession session) {
+        Long teacherId = (Long) session.getAttribute("teacherId");
+        if (teacherId == null) {
+            return "redirect:/login";
+        }
+        
+        Quiz quiz = quizService.getQuizById(quizId);
+        if (quiz == null) {
+            return "redirect:/teacher/dashboard";
+        }
+        
+        List<Question> questions = quizService.getQuestionsByQuizId(quizId);
+        
+        model.addAttribute("quiz", quiz);
+        model.addAttribute("questions", questions);
+        model.addAttribute("totalQuestions", questions.size());
+        model.addAttribute("preview", true);
+        
+        return "htmlstudent/take-quiz";
     }
     
     // ========== PARTIE STUDENT ==========
@@ -258,30 +255,5 @@ public class QuizController {
         Quiz quiz = quizService.getQuizById(quizId);
         model.addAttribute("quiz", quiz);
         return "htmlstudent/quiz-result";
-    }
-    
-    /**
-     * Prévisualiser un quiz (pour Teacher)
-     */
-    @GetMapping("/preview/{quizId}")
-    public String previewQuiz(@PathVariable Long quizId, Model model, HttpSession session) {
-        Long teacherId = (Long) session.getAttribute("teacherId");
-        if (teacherId == null) {
-            return "redirect:/login";
-        }
-        
-        Quiz quiz = quizService.getQuizById(quizId);
-        if (quiz == null) {
-            return "redirect:/teacher/dashboard";
-        }
-        
-        List<Question> questions = quizService.getQuestionsByQuizId(quizId);
-        
-        model.addAttribute("quiz", quiz);
-        model.addAttribute("questions", questions);
-        model.addAttribute("totalQuestions", questions.size());
-        model.addAttribute("preview", true);
-        
-        return "htmlstudent/take-quiz";
     }
 }

@@ -26,6 +26,7 @@ public class QuizService {
     @Transactional
     public Quiz createQuiz(Quiz quiz, List<Question> questions) {
         quiz.setCreatedAt(LocalDateTime.now());
+        quiz.setUpdatedAt(LocalDateTime.now());
         quiz.setTotalQuestions(questions.size());
         
         Quiz savedQuiz = quizRepository.save(quiz);
@@ -83,7 +84,7 @@ public class QuizService {
     }
     
     /**
-     * ⭐ Compte le nombre de quiz dans un cours
+     * Compte le nombre de quiz dans un cours
      */
     public long countQuizzesByCourse(Long courseId) {
         return quizRepository.countByCourseId(courseId);

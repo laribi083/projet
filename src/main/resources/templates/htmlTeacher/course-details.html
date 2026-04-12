@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Détails du cours - Brainlearning</title>
+    <link rel="stylesheet" th:href="@{/cssTracher/course-details.css}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <div class="course-header">
+            <button class="btn-back" onclick="window.location.href='/teacher/dashboard'">
+                <i class="fas fa-arrow-left"></i> Retour
+            </button>
+            <h1 th:text="${course.title}">Titre du cours</h1>
+            <p th:text="${course.description}">Description</p>
+            <div class="course-info">
+                <span><i class="fas fa-book"></i> Module: <span th:text="${course.module}"></span></span>
+                <span><i class="fas fa-graduation-cap"></i> Niveau: <span th:text="${course.niveau}"></span></span>
+                <span><i class="fas fa-calendar"></i> Créé le: <span th:text="${#temporals.format(course.createdAt, 'dd/MM/yyyy')}"></span></span>
+            </div>
+        </div>
+
+        <div class="quizzes-section">
+            <div class="section-header">
+                <h2><i class="fas fa-question-circle"></i> Quiz du cours</h2>
+                <button class="btn-create-quiz" th:onclick="'createQuiz(' + ${course.id} + ', \'' + ${course.module} + '\', \'' + ${course.niveau} + '\')'">
+                    <i class="fas fa-plus"></i> Créer un quiz
+                </button>
+            </div>
+            
+            <div class="quizzes-grid" th:if="${not #lists.isEmpty(quizzes)}">
+                <div th:each="quiz : ${quizzes}" class="quiz-card">
+                    <h3 th:text="${quiz.title}">Titre du quiz</h3>
+                    <p th:text="${quiz.description}">Description</p>
+                    <div class="quiz-stats">
+                        <span><i class="fas fa-clock"></i> <span th:text="${quiz.durationMinutes}"></span> min</span>
+                        <span><i class="fas fa-question-circle"></i> <span th:text="${quiz.totalQuestions}"></span> questions</span>
+                        <span><i class="fas fa-check-circle"></i> Score requis: <span th:text="${quiz.passingScore}"></span>%</span>
+                    </div>
+                    <div class="quiz-actions">
+                        <button class="btn-preview" th:onclick="'previewQuiz(' + ${quiz.id} + ')'">
+                            <i class="fas fa-eye"></i> Aperçu
+                        </button>
+                        <button class="btn-delete" th:onclick="'deleteQuiz(' + ${quiz.id} + ')'">
+                            <i class="fas fa-trash"></i> Supprimer
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <div th:unless="${not #lists.isEmpty(quizzes)}" class="no-quizzes">
+                <i class="fas fa-info-circle"></i>
+                <p>Aucun quiz créé pour ce cours</p>
+                <button class="btn-create-quiz" th:onclick="'createQuiz(' + ${course.id} + ', \'' + ${course.module} + '\', \'' + ${course.niveau} + '\')'">
+                    Créer votre premier quiz
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <script th:src="@{/jsTeacher/course-details.js}"></script>
+</body>
+</html>

@@ -1,10 +1,9 @@
 // jsTeacher/quiz.js
 
 let questionCount = 0;
-let questions = [];
 
 $(document).ready(function() {
-    addQuestion(); // Ajouter une première question par défaut
+    addQuestion();
     
     $('#quizForm').on('submit', function(e) {
         e.preventDefault();
@@ -18,12 +17,12 @@ function addQuestion() {
         <div class="question-card" data-index="${questionCount}">
             <div class="question-header">
                 <h3>Question ${questionCount}</h3>
-                <button type="button" class="btn-remove" onclick="removeQuestion(this)">✕</button>
+                <button type="button" class="btn-remove" onclick="removeQuestion(this)">✕ Supprimer</button>
             </div>
             
             <div class="form-group">
-                <label>Question Text</label>
-                <input type="text" class="question-text" placeholder="Enter your question...">
+                <label>Texte de la question</label>
+                <input type="text" class="question-text" placeholder="Entrez votre question...">
             </div>
             
             <div class="options-container">
@@ -46,7 +45,7 @@ function addQuestion() {
             </div>
             
             <div class="form-group">
-                <label>Correct Answer</label>
+                <label>Réponse correcte</label>
                 <select class="correct-answer">
                     <option value="0">A</option>
                     <option value="1">B</option>
@@ -74,6 +73,7 @@ function updateQuestionNumbers() {
 }
 
 function saveQuiz() {
+    // Récupérer les valeurs
     const title = $('#quizTitle').val();
     const description = $('#quizDescription').val();
     const durationMinutes = $('#durationMinutes').val();
@@ -82,13 +82,26 @@ function saveQuiz() {
     const courseModule = $('#courseModule').val();
     const courseNiveau = $('#courseNiveau').val();
     
+    // Validation
     if (!title) {
         alert('Veuillez entrer un titre pour le quiz');
         return;
     }
     
+    if (!durationMinutes || durationMinutes < 1) {
+        alert('Veuillez entrer une durée valide (minimum 1 minute)');
+        return;
+    }
+    
+    if (!passingScore || passingScore < 0 || passingScore > 100) {
+        alert('Veuillez entrer un score de réussite entre 0 et 100');
+        return;
+    }
+    
     // Collecter les questions
     const questionsData = [];
+    let hasError = false;
+    
     $('.question-card').each(function() {
         const questionText = $(this).find('.question-text').val();
         const options = [
@@ -99,21 +112,37 @@ function saveQuiz() {
         ];
         const correctAnswer = parseInt($(this).find('.correct-answer').val());
         
-        if (questionText && options[0] && options[1] && options[2] && options[3]) {
-            questionsData.push({
-                text: questionText,
-                options: options,
-                correctAnswer: correctAnswer
-            });
+        // Vérifier que la question est complète
+        if (!questionText) {
+            alert('Veuillez remplir le texte de toutes les questions');
+            hasError = true;
+            return false;
         }
+        
+        // Vérifier que toutes les options sont remplies
+        for (let i = 0; i < options.length; i++) {
+            if (!options[i]) {
+                alert(`Veuillez remplir toutes les options de la question "${questionText.substring(0, 30)}..."`);
+                hasError = true;
+                return false;
+            }
+        }
+        
+        questionsData.push({
+            text: questionText,
+            options: options,
+            correctAnswer: correctAnswer
+        });
     });
     
+    if (hasError) return;
+    
     if (questionsData.length === 0) {
-        alert('Veuillez ajouter au moins une question complète');
+        alert('Veuillez ajouter au moins une question');
         return;
     }
     
-    // Afficher un loader
+    // Afficher le loader
     $('.btn-submit').prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> Création...');
     
     // Envoyer au serveur
@@ -132,14 +161,15 @@ function saveQuiz() {
         },
         success: function(response) {
             if (response.success) {
-                alert('Quiz créé avec succès !');
+                alert('✅ Quiz créé avec succès !');
                 window.location.href = '/teacher/dashboard';
             } else {
-                alert('Erreur: ' + response.message);
+                alert('❌ Erreur: ' + response.message);
             }
         },
         error: function(xhr) {
-            alert('Erreur lors de la création du quiz');
+            console.error('Error:', xhr);
+            alert('❌ Erreur lors de la création du quiz: ' + (xhr.responseJSON?.message || xhr.statusText));
         },
         complete: function() {
             $('.btn-submit').prop('disabled', false).html('Create Quiz');
@@ -148,7 +178,7 @@ function saveQuiz() {
 }
 
 function cancelQuiz() {
-    if (confirm('Annuler la création du quiz ?')) {
+    if (confirm('Annuler la création du quiz ? Les données non sauvegardées seront perdues.')) {
         window.location.href = '/teacher/dashboard';
     }
 }

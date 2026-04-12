@@ -13,75 +13,46 @@ public class Course {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     
-    @Column(nullable = false)
     private String title;
-    
-    @Column(length = 2000)
     private String description;
-    
-    private String niveau;  // "1year", "2year", "3year"
-    
+    private String niveau;
     private String module;
-    
     private String teacherName;
-    
-    @Column(nullable = false)
     private Long teacherId;
+    private Integer duration;
+    private String status;
     
-    private String duration;
-    
-    private String status;  // "ACTIVE", "INACTIVE"
-    
-    // Champs pour les fichiers (support multi-fichiers)
     @ElementCollection
-    @CollectionTable(name = "course_file_paths", joinColumns = @JoinColumn(name = "course_id"))
-    @Column(name = "file_path")
     private List<String> filePaths = new ArrayList<>();
     
     @ElementCollection
-    @CollectionTable(name = "course_file_names", joinColumns = @JoinColumn(name = "course_id"))
-    @Column(name = "file_name")
     private List<String> fileNames = new ArrayList<>();
     
-    // Pour le contenu HTML direct
     @Column(columnDefinition = "TEXT")
     private String htmlContent;
     
-    // Champs simples pour compatibilité
     private String filePath;
     private String fileName;
     private String fileType;
-    private String fileSize;
+    private Long fileSize;
     
-    @Column(name = "created_at")
     private LocalDateTime createdAt;
-    
-    @Column(name = "updated_at")
     private LocalDateTime updatedAt;
     
-    // ⭐ NOUVEAU CHAMP : Nombre de quiz (non stocké en BDD)
+    // Champs supplémentaires pour les statistiques (non persistants)
     @Transient
-    private Integer quizCount = 0;
+    private Integer totalQuizzes = 0;
     
-    // ========== CONSTRUCTEURS ==========
+    @Transient
+    private Integer quizCount = 0;  // ⭐ AJOUTER CETTE LIGNE
     
+    @Transient
+    private Integer totalStudents = 0;
+    
+    // Constructeurs
     public Course() {}
     
-    public Course(String title, String description, String niveau, String module, 
-                  String teacherName, Long teacherId) {
-        this.title = title;
-        this.description = description;
-        this.niveau = niveau;
-        this.module = module;
-        this.teacherName = teacherName;
-        this.teacherId = teacherId;
-        this.status = "ACTIVE";
-        this.createdAt = LocalDateTime.now();
-        this.updatedAt = LocalDateTime.now();
-    }
-    
-    // ========== GETTERS ET SETTERS ==========
-    
+    // Getters et Setters
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
     
@@ -103,42 +74,32 @@ public class Course {
     public Long getTeacherId() { return teacherId; }
     public void setTeacherId(Long teacherId) { this.teacherId = teacherId; }
     
-    public String getDuration() { return duration; }
-    public void setDuration(String duration) { this.duration = duration; }
+    public Integer getDuration() { return duration; }
+    public void setDuration(Integer duration) { this.duration = duration; }
     
     public String getStatus() { return status; }
     public void setStatus(String status) { this.status = status; }
     
     public List<String> getFilePaths() { return filePaths; }
-    public void setFilePaths(List<String> filePaths) { 
-        this.filePaths = filePaths != null ? filePaths : new ArrayList<>();
-    }
+    public void setFilePaths(List<String> filePaths) { this.filePaths = filePaths; }
     
     public List<String> getFileNames() { return fileNames; }
-    public void setFileNames(List<String> fileNames) { 
-        this.fileNames = fileNames != null ? fileNames : new ArrayList<>();
-    }
+    public void setFileNames(List<String> fileNames) { this.fileNames = fileNames; }
     
     public String getHtmlContent() { return htmlContent; }
     public void setHtmlContent(String htmlContent) { this.htmlContent = htmlContent; }
     
-    public String getFilePath() { 
-        if (filePaths != null && !filePaths.isEmpty()) return filePaths.get(0);
-        return filePath; 
-    }
+    public String getFilePath() { return filePath; }
     public void setFilePath(String filePath) { this.filePath = filePath; }
     
-    public String getFileName() { 
-        if (fileNames != null && !fileNames.isEmpty()) return fileNames.get(0);
-        return fileName; 
-    }
+    public String getFileName() { return fileName; }
     public void setFileName(String fileName) { this.fileName = fileName; }
     
     public String getFileType() { return fileType; }
     public void setFileType(String fileType) { this.fileType = fileType; }
     
-    public String getFileSize() { return fileSize; }
-    public void setFileSize(String fileSize) { this.fileSize = fileSize; }
+    public Long getFileSize() { return fileSize; }
+    public void setFileSize(Long fileSize) { this.fileSize = fileSize; }
     
     public LocalDateTime getCreatedAt() { return createdAt; }
     public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
@@ -146,54 +107,37 @@ public class Course {
     public LocalDateTime getUpdatedAt() { return updatedAt; }
     public void setUpdatedAt(LocalDateTime updatedAt) { this.updatedAt = updatedAt; }
     
-    // ⭐ GETTER/SETTER POUR QUIZ COUNT
-    public Integer getQuizCount() { return quizCount; }
-    public void setQuizCount(Integer quizCount) { this.quizCount = quizCount; }
+    public Integer getTotalQuizzes() { return totalQuizzes; }
+    public void setTotalQuizzes(Integer totalQuizzes) { this.totalQuizzes = totalQuizzes; }
     
-    // ========== MÉTHODES UTILITAIRES ==========
+    public Integer getQuizCount() { return quizCount; }  // ⭐ AJOUTER
+    public void setQuizCount(Integer quizCount) { this.quizCount = quizCount; }  // ⭐ AJOUTER
     
+    public Integer getTotalStudents() { return totalStudents; }
+    public void setTotalStudents(Integer totalStudents) { this.totalStudents = totalStudents; }
+    
+    // Méthodes utilitaires
     public String getFirstFilePath() {
-        if (filePaths != null && !filePaths.isEmpty()) return filePaths.get(0);
-        return filePath;
+        return (filePaths != null && !filePaths.isEmpty()) ? filePaths.get(0) : null;
     }
     
     public String getFirstFileName() {
-        if (fileNames != null && !fileNames.isEmpty()) return fileNames.get(0);
-        return fileName;
+        return (fileNames != null && !fileNames.isEmpty()) ? fileNames.get(0) : null;
     }
     
     public String getFileTypeFromFile() {
-        String name = getFirstFileName();
-        if (name == null) return null;
-        
-        if (name.endsWith(".pdf")) return "PDF";
-        if (name.endsWith(".html") || name.endsWith(".htm")) return "HTML";
-        if (name.endsWith(".txt") || name.endsWith(".md")) return "TEXT";
-        if (name.endsWith(".mp4") || name.endsWith(".webm")) return "VIDEO";
-        if (name.endsWith(".jpg") || name.endsWith(".png") || name.endsWith(".gif")) return "IMAGE";
-        return "DOCUMENT";
-    }
-    
-    public void addFile(String filePath, String fileName) {
-        if (this.filePaths == null) this.filePaths = new ArrayList<>();
-        if (this.fileNames == null) this.fileNames = new ArrayList<>();
-        this.filePaths.add(filePath);
-        this.fileNames.add(fileName);
-        if (this.filePath == null) {
-            this.filePath = filePath;
-            this.fileName = fileName;
+        String firstFileName = getFirstFileName();
+        if (firstFileName != null && firstFileName.contains(".")) {
+            String ext = firstFileName.substring(firstFileName.lastIndexOf(".") + 1).toUpperCase();
+            switch (ext) {
+                case "PDF": return "PDF";
+                case "DOC": case "DOCX": return "WORD";
+                case "PPT": case "PPTX": return "POWERPOINT";
+                case "MP4": return "VIDEO";
+                case "MP3": return "AUDIO";
+                default: return "FILE";
+            }
         }
-    }
-    
-    @Override
-    public String toString() {
-        return "Course{" +
-                "id=" + id +
-                ", title='" + title + '\'' +
-                ", niveau='" + niveau + '\'' +
-                ", module='" + module + '\'' +
-                ", teacherName='" + teacherName + '\'' +
-                ", status='" + status + '\'' +
-                '}';
+        return "FILE";
     }
 }

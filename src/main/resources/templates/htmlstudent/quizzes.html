@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mes Quiz - BrainLearning</title>
+    <link rel="stylesheet" th:href="@{/cssstudent/dashbord.css}">
+    <link rel="stylesheet" th:href="@{/cssstudent/quizzes.css}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div class="dashboard">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h1 class="logo">BrainLearning</h1>
+            </div>
+            
+            <div class="user-profile">
+                <div class="user-avatar">
+                    <img th:src="@{'https://ui-avatars.com/api/?name=' + ${userName} + '&background=6366f1&color=fff&size=128'}" alt="User Avatar">
+                </div>
+                <h3 th:text="${userName}">Student Name</h3>
+                <p class="user-role">Student - <span th:text="${niveau}">Level</span></p>
+            </div>
+            
+            <nav class="sidebar-nav">
+                <a th:href="@{/student/dashboard}" class="nav-item" id="nav-home">
+                    <i class="fas fa-home"></i> Home
+                </a>
+                <a th:href="@{/niveux}" class="nav-item" id="nav-courses">
+                    <i class="fas fa-book"></i> My courses
+                </a>
+                <a th:href="@{/receive-courses}" class="nav-item" id="nav-receive">
+                    <i class="fas fa-download"></i> Receive courses
+                </a>
+                <a href="#" class="nav-item active" id="nav-quizzes">
+                    <i class="fas fa-question-circle"></i> Quizzes
+                </a>
+                <a href="#" class="nav-item" id="nav-ratings">
+                    <i class="fas fa-star"></i> Ratings
+                </a>
+                <a href="#" class="nav-item" id="nav-ai">
+                    <i class="fas fa-robot"></i> AI Assistant
+                </a>
+            </nav>
+            
+            <div class="sidebar-footer">
+                <a href="/logout" class="logout-btn">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </a>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <a th:href="@{/student/dashboard}" class="back-button" id="backButton">
+                <i class="fas fa-arrow-left"></i> Back to Dashboard
+            </a>
+            
+            <div class="quizzes-container">
+                <div class="quizzes-header">
+                    <h1><i class="fas fa-question-circle"></i> My Quizzes</h1>
+                    <p>Test your knowledge with these quizzes</p>
+                </div>
+                
+                <!-- Loading Spinner -->
+                <div class="loading-spinner" id="loadingSpinner">
+                    <i class="fas fa-spinner fa-spin fa-2x"></i>
+                    <p>Loading quizzes...</p>
+                </div>
+                
+                <!-- Quizzes Grid -->
+                <div class="quizzes-grid" id="quizzesGrid" style="display: none;">
+                    <div th:each="quiz : ${quizzes}" class="quiz-card" th:data-quiz-id="${quiz.id}">
+                        <div class="quiz-header">
+                            <i class="fas fa-question-circle"></i>
+                            <h3 th:text="${quiz.title}">Quiz Title</h3>
+                        </div>
+                        <div class="quiz-body">
+                            <p class="quiz-description" th:text="${quiz.description}">Description</p>
+                            <div class="quiz-info">
+                                <span><i class="fas fa-clock"></i> <span th:text="${quiz.timeLimit}">30</span> min</span>
+                                <span><i class="fas fa-question-circle"></i> <span th:text="${quiz.totalQuestions}">0</span> questions</span>
+                                <span><i class="fas fa-check-circle"></i> <span th:text="${quiz.passingScore}">70</span>% required</span>
+                            </div>
+                            <a th:href="@{/quiz/take/{id}(id=${quiz.id})}" class="btn-start">
+                                <i class="fas fa-play"></i> Start Quiz
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Empty State -->
+                <div class="empty-state" id="emptyState" style="display: none;">
+                    <i class="fas fa-question-circle"></i>
+                    <p>No quizzes available yet</p>
+                    <p class="empty-hint">Check back later for new quizzes!</p>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script th:src="@{/jsstudent/quizzes.js}"></script>
+</body>
+</html>

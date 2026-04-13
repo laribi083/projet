@@ -1,398 +1,111 @@
-// dashbord.js - Teacher Dashboard Logic
+/**
+ * dashboard.js - JavaScript pour le dashboard étudiant
+ */
 
-// Global variables
-let courseToDelete = null;
-let selectedFiles = [];
+// ========== VARIABLES GLOBALES ==========
+let recentCourses = [];
 
-// ==================== MODAL MANAGEMENT ====================
-function openAddCourseModal() {
-    console.log('Opening modal...');
-    const modal = document.getElementById('addCourseModal');
-    if (modal) {
-        modal.classList.add('active');
-        document.body.style.overflow = 'hidden';
-        resetCourseForm();
-        console.log('Modal opened');
-    } else {
-        console.error('Modal not found!');
-    }
-}
-
-function closeAddCourseModal() {
-    console.log('Closing modal...');
-    const modal = document.getElementById('addCourseModal');
-    if (modal) {
-        modal.classList.remove('active');
-        document.body.style.overflow = 'auto';
-        resetCourseForm();
-    }
-}
-
-function resetCourseForm() {
-    const form = document.getElementById('courseForm');
-    if (form) {
-        form.reset();
-    }
-    selectedFiles = [];
-    updateFileList();
-    const fileInput = document.getElementById('filesInput');
-    if (fileInput) fileInput.value = '';
-}
-
-// File upload handling
-function setupFileUpload() {
-    const fileInput = document.getElementById('filesInput');
-    const dropArea = document.getElementById('fileUploadArea');
+// ========== CHARGER LES COURS RÉCEMMENT TÉLÉCHARGÉS ==========
+async function loadRecentDownloads() {
+    const container = document.getElementById('recentCoursesContainer');
+    if (!container) return;
     
-    if (fileInput) {
-        fileInput.addEventListener('change', function(e) {
-            const files = Array.from(e.target.files);
-            selectedFiles = [...selectedFiles, ...files];
-            updateFileList();
-        });
-    }
-    
-    if (dropArea) {
-        dropArea.addEventListener('click', () => {
-            if (fileInput) fileInput.click();
-        });
-        
-        dropArea.addEventListener('dragover', (e) => {
-            e.preventDefault();
-            dropArea.style.borderColor = '#667eea';
-            dropArea.style.background = '#f3f4f6';
-            dropArea.classList.add('dragover');
-        });
-        
-        dropArea.addEventListener('dragleave', (e) => {
-            e.preventDefault();
-            dropArea.style.borderColor = '#d1d5db';
-            dropArea.style.background = '#f9fafb';
-            dropArea.classList.remove('dragover');
-        });
-        
-        dropArea.addEventListener('drop', (e) => {
-            e.preventDefault();
-            dropArea.style.borderColor = '#d1d5db';
-            dropArea.style.background = '#f9fafb';
-            dropArea.classList.remove('dragover');
-            const files = Array.from(e.dataTransfer.files);
-            selectedFiles = [...selectedFiles, ...files];
-            updateFileList();
-            if (fileInput) {
-                const dataTransfer = new DataTransfer();
-                selectedFiles.forEach(file => dataTransfer.items.add(file));
-                fileInput.files = dataTransfer.files;
-            }
-        });
-    }
-}
-
-function formatFileSize(bytes) {
-    if (bytes === 0) return '0 Bytes';
-    const k = 1024;
-    const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
-    const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
-}
-
-function getFileIcon(fileName, fileType) {
-    const extension = fileName.split('.').pop().toLowerCase();
-    
-    if (['jpg', 'jpeg', 'png', 'gif', 'bmp', 'svg', 'webp'].includes(extension)) return 'fa-file-image';
-    if (extension === 'pdf') return 'fa-file-pdf';
-    if (['doc', 'docx'].includes(extension)) return 'fa-file-word';
-    if (['xls', 'xlsx', 'csv'].includes(extension)) return 'fa-file-excel';
-    if (['ppt', 'pptx'].includes(extension)) return 'fa-file-powerpoint';
-    if (['mp4', 'avi', 'mov', 'wmv', 'flv', 'mkv', 'webm'].includes(extension)) return 'fa-file-video';
-    if (['mp3', 'wav', 'ogg', 'flac', 'aac', 'm4a'].includes(extension)) return 'fa-file-audio';
-    if (['zip', 'rar', '7z', 'tar', 'gz'].includes(extension)) return 'fa-file-archive';
-    if (['html', 'css', 'js', 'java', 'py', 'cpp', 'c', 'php', 'xml', 'json'].includes(extension)) return 'fa-file-code';
-    if (['txt', 'md', 'rtf'].includes(extension)) return 'fa-file-alt';
-    return 'fa-file';
-}
-
-function updateFileList() {
-    const fileListDiv = document.getElementById('fileList');
-    if (!fileListDiv) return;
-    
-    if (selectedFiles.length === 0) {
-        fileListDiv.innerHTML = '';
-        return;
-    }
-    
-    const totalSize = selectedFiles.reduce((sum, file) => sum + file.size, 0);
-    const totalSizeFormatted = formatFileSize(totalSize);
-    
-    const header = `
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; padding: 5px; background: #f9fafb; border-radius: 8px;">
-            <span style="font-size: 0.8rem; font-weight: 600; color: #4b5563;">
-                <i class="fas fa-files"></i> ${selectedFiles.length} fichier(s)
-            </span>
-            <span style="font-size: 0.75rem; color: #6b7280;">
-                Taille totale: ${totalSizeFormatted}
-            </span>
+    container.innerHTML = `
+        <div class="loading-spinner">
+            <i class="fas fa-spinner fa-spin"></i>
+            <p>Loading your recent downloads...</p>
         </div>
     `;
     
-    const filesList = selectedFiles.map((file, index) => {
-        const fileIcon = getFileIcon(file.name, file.type);
-        const fileSize = formatFileSize(file.size);
+    try {
+        const response = await fetch('/api/recent-downloads');
+        if (!response.ok) throw new Error('Failed to fetch recent downloads');
         
-        return `
-            <div class="file-item">
-                <div>
-                    <i class="fas ${fileIcon}"></i>
-                    <span title="${escapeHtml(file.name)}">${escapeHtml(file.name.length > 40 ? file.name.substring(0, 37) + '...' : file.name)}</span>
-                    <small style="color:#6b7280; margin-left:8px;">(${fileSize})</small>
-                </div>
-                <button type="button" class="remove-file" onclick="removeFile(${index})" title="Supprimer">
-                    <i class="fas fa-trash-alt"></i>
-                </button>
+        const courses = await response.json();
+        recentCourses = courses;
+        displayRecentCourses(courses);
+        updateStats();
+    } catch (error) {
+        console.error('Error loading recent downloads:', error);
+        container.innerHTML = `
+            <div class="empty-state">
+                <i class="fas fa-download"></i>
+                <p>No courses downloaded yet</p>
+                <p class="empty-hint">Download a course to see it here!</p>
             </div>
         `;
-    }).join('');
-    
-    fileListDiv.innerHTML = header + filesList;
-}
-
-function removeFile(index) {
-    selectedFiles.splice(index, 1);
-    updateFileList();
-    const fileInput = document.getElementById('filesInput');
-    if (fileInput) {
-        const dataTransfer = new DataTransfer();
-        selectedFiles.forEach(file => dataTransfer.items.add(file));
-        fileInput.files = dataTransfer.files;
     }
 }
 
-// ⭐ SUBMIT COURSE FORM
-async function submitCourseForm(event) {
-    event.preventDefault();
+function displayRecentCourses(courses) {
+    const container = document.getElementById('recentCoursesContainer');
     
-    const submitBtn = document.getElementById('submitBtn');
-    submitBtn.disabled = true;
-    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Création...';
+    if (!container) return;
     
-    const title = document.getElementById('courseTitle').value.trim();
-    const description = document.getElementById('courseDescription').value.trim();
-    const niveau = document.getElementById('courseLevel').value;
-    
-    if (!title || !description || !niveau) {
-        showNotification('Veuillez remplir tous les champs obligatoires', 'error');
-        submitBtn.disabled = false;
-        submitBtn.innerHTML = '<i class="fas fa-save"></i> Créer';
+    if (!courses || courses.length === 0) {
+        container.innerHTML = `
+            <div class="empty-state">
+                <i class="fas fa-download"></i>
+                <p>No courses downloaded yet</p>
+                <p class="empty-hint">Download a course to see it here!</p>
+            </div>
+        `;
         return;
     }
     
-    const formData = new FormData();
-    formData.append('title', title);
-    formData.append('description', description);
-    formData.append('niveau', niveau);
-    
-    selectedFiles.forEach(file => {
-        formData.append('files', file);
-    });
-    
-    try {
-        const response = await fetch('/teacher/api/courses', {
-            method: 'POST',
-            body: formData
-        });
-        
-        const data = await response.json();
-        
-        if (data.success) {
-            showNotification('Cours créé avec succès!', 'success');
-            closeAddCourseModal();
-            await loadCourses();
-            await loadStats();
-        } else {
-            throw new Error(data.message || 'Erreur lors de la création');
-        }
-    } catch (error) {
-        console.error('Error:', error);
-        showNotification(`Erreur: ${error.message}`, 'error');
-    } finally {
-        submitBtn.disabled = false;
-        submitBtn.innerHTML = '<i class="fas fa-save"></i> Créer';
-    }
-}
-
-// ⭐ LOAD COURSES
-async function loadCourses() {
-    try {
-        const response = await fetch('/teacher/my-courses');
-        if (!response.ok) throw new Error('Failed to fetch courses');
-        
-        const courses = await response.json();
-        const coursesGrid = document.getElementById('coursesGrid');
-        
-        console.log('📚 Cours chargés:', courses.length);
-        
-        if (!coursesGrid) return;
-        
-        if (courses.length === 0) {
-            coursesGrid.innerHTML = `
-                <div class="empty-state">
-                    <i class="fas fa-book-open"></i>
-                    <p>You have not yet created a course</p>
-                    <button class="btn-primary" onclick="openAddCourseModal()">
-                        Create your first course
-                    </button>
-                </div>
-            `;
-            return;
-        }
-        
-        coursesGrid.innerHTML = '';
-        courses.forEach(course => {
-            const courseCard = createCourseCard(course);
-            coursesGrid.appendChild(courseCard);
-        });
-    } catch (error) {
-        console.error('Error loading courses:', error);
-        showNotification('Erreur lors du chargement des cours', 'error');
-        
-        const coursesGrid = document.getElementById('coursesGrid');
-        if (coursesGrid) {
-            coursesGrid.innerHTML = `
-                <div class="empty-state">
-                    <i class="fas fa-exclamation-triangle"></i>
-                    <p>Erreur de chargement des cours</p>
-                    <button class="btn-primary" onclick="loadCourses()">
-                        Réessayer
-                    </button>
-                </div>
-            `;
-        }
-    }
-}
-
-function createCourseCard(course) {
-    const div = document.createElement('div');
-    div.className = 'course-card';
-    div.innerHTML = `
-        <div class="course-image">
-            📘
-            <span class="course-badge">${course.status === 'ACTIVE' ? 'Actif' : 'Brouillon'}</span>
-        </div>
-        <div class="course-content">
-            <h3 class="course-title">${escapeHtml(course.title)}</h3>
-            <p class="course-description">${escapeHtml(course.description ? course.description.substring(0, 100) : '')}${course.description && course.description.length > 100 ? '...' : ''}</p>
-            <div class="course-meta">
-                <div class="course-stats">
-                    <span>📖 ${course.totalQuizzes || 0} quiz</span>
-                    <span>👥 ${course.totalStudents || 0} étudiants</span>
-                </div>
-                <div class="course-actions">
-                    <button class="btn-view" onclick="viewCourse(${course.id})">📘 Voir</button>
-                    <button class="btn-edit" onclick="editCourse(${course.id})">✏️ Modifier</button>
-                    <button class="btn-delete" onclick="showDeleteModal(${course.id}, '${escapeHtml(course.title)}')">🗑 Supprimer</button>
+    container.innerHTML = courses.map(course => `
+        <div class="course-card" onclick="viewCourse(${course.id})">
+            <div class="course-image">
+                <i class="fas ${getCourseIcon(course.module)}"></i>
+                <span class="course-badge">Downloaded</span>
+            </div>
+            <div class="course-content">
+                <h3 class="course-title">${escapeHtml(course.title)}</h3>
+                <p class="course-description">${escapeHtml(course.description ? course.description.substring(0, 100) : '')}</p>
+                <div class="course-meta">
+                    <div class="course-info">
+                        <span><i class="fas fa-chalkboard-user"></i> ${escapeHtml(course.teacherName || 'Professor')}</span>
+                        <span><i class="fas fa-calendar"></i> ${formatDate(course.lastDownloadedAt)}</span>
+                    </div>
+                    <div class="course-stats">
+                        <span><i class="fas fa-download"></i> Downloaded ${course.downloadCount || 1} time(s)</span>
+                        <span><i class="fas fa-file-alt"></i> ${course.totalQuizzes || 0} quizzes</span>
+                    </div>
                 </div>
             </div>
         </div>
-    `;
-    return div;
+    `).join('');
 }
 
-// ⭐ EDITE COURSE - Redirige vers la page d'édition
-function editCourse(courseId) {
-    console.log('✏️ Modification du cours ID:', courseId);
-    window.location.href = `/teacher/edit-course/${courseId}`;
+function updateStats() {
+    const activeCount = recentCourses.length;
+    document.getElementById('coursActifs').textContent = activeCount;
+    document.getElementById('coursCompletes').textContent = recentCourses.length;
+    
+    const totalQuizzes = recentCourses.reduce((sum, course) => sum + (course.totalQuizzes || 0), 0);
+    document.getElementById('quizDisponibles').textContent = totalQuizzes;
 }
 
-// ⭐ VIEW COURSE
-function viewCourse(courseId) {
-    window.location.href = `/teacher/course/${courseId}`;
+function getCourseIcon(module) {
+    const icons = {
+        'Algebra 01': 'fa-calculator', 'Algebra 02': 'fa-calculator',
+        'Analysis 01': 'fa-chart-line', 'Analysis 02': 'fa-chart-line',
+        'DataBases and SQL': 'fa-database', 'web development 01': 'fa-laptop-code',
+        'Git and GitHub': 'fa-code-branch'
+    };
+    return icons[module] || 'fa-graduation-cap';
 }
 
-// ⭐ LOAD STATS
-async function loadStats() {
+function formatDate(dateString) {
+    if (!dateString) return 'Recently';
     try {
-        const response = await fetch('/teacher/my-courses');
-        if (!response.ok) throw new Error('Failed to fetch stats');
-        
-        const courses = await response.json();
-        
-        document.getElementById('totalCourses').textContent = courses.length;
-        
-        let totalQuizzes = 0;
-        let totalStudents = 0;
-        courses.forEach(course => {
-            totalQuizzes += course.totalQuizzes || 0;
-            totalStudents += course.totalStudents || 0;
-        });
-        
-        document.getElementById('totalQuizzes').textContent = totalQuizzes;
-        document.getElementById('totalStudents').textContent = totalStudents;
-    } catch (error) {
-        console.error('Error loading stats:', error);
-        document.getElementById('totalCourses').textContent = '0';
-        document.getElementById('totalQuizzes').textContent = '0';
-        document.getElementById('totalStudents').textContent = '0';
-    }
+        const date = new Date(dateString);
+        return date.toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', year: 'numeric' });
+    } catch { return 'Recently'; }
 }
 
-// ⭐ SHOW DELETE MODAL
-function showDeleteModal(courseId, courseTitle) {
-    courseToDelete = courseId;
-    document.getElementById('courseNameToDelete').textContent = courseTitle;
-    document.getElementById('deleteModal').style.display = 'flex';
-}
-
-function closeDeleteModal() {
-    document.getElementById('deleteModal').style.display = 'none';
-    courseToDelete = null;
-}
-
-// ⭐ CONFIRM DELETE - Version corrigée
-async function confirmDelete() {
-    if (courseToDelete) {
-        try {
-            console.log('🗑 Suppression du cours ID:', courseToDelete);
-            
-            const response = await fetch(`/teacher/delete-course/${courseToDelete}`, {
-                method: 'DELETE',
-                headers: {
-                    'Content-Type': 'application/json'
-                }
-            });
-            
-            const data = await response.json();
-            
-            if (data.success) {
-                showNotification('Cours supprimé avec succès', 'success');
-                closeDeleteModal();
-                await loadCourses();
-                await loadStats();
-            } else {
-                throw new Error(data.message || 'Delete failed');
-            }
-        } catch (error) {
-            console.error('Error:', error);
-            showNotification('Erreur lors de la suppression: ' + error.message, 'error');
-        }
-    }
-}
-
-function showNotification(message, type) {
-    const existingNotifications = document.querySelectorAll('.notification');
-    existingNotifications.forEach(notification => notification.remove());
-    
-    const notification = document.createElement('div');
-    notification.className = `notification notification-${type}`;
-    const icon = type === 'success' ? 'fa-check-circle' : (type === 'error' ? 'fa-exclamation-circle' : 'fa-info-circle');
-    notification.innerHTML = `
-        <i class="fas ${icon}"></i>
-        <span>${message}</span>
-    `;
-    document.body.appendChild(notification);
-    
-    setTimeout(() => {
-        notification.remove();
-    }, 3000);
+function viewCourse(courseId) {
+    window.location.href = `/student/course/${courseId}`;
 }
 
 function escapeHtml(text) {
@@ -402,56 +115,23 @@ function escapeHtml(text) {
     return div.innerHTML;
 }
 
-function logout() {
-    if (confirm('Voulez-vous vraiment vous déconnecter ?')) {
-        window.location.href = '/logout';
-    }
+function openChatbot() { 
+    alert('AI Assistant coming soon!'); 
 }
 
-// Initialize everything when DOM is loaded
+// ========== INITIALISATION ==========
 document.addEventListener('DOMContentLoaded', function() {
-    console.log('DOM loaded, initializing...');
+    console.log('📚 Dashboard Student initialisé');
+    loadRecentDownloads();
     
-    loadCourses();
-    loadStats();
-    setupFileUpload();
-    
-    const openBtn = document.getElementById('openNewCourseBtn');
-    const closeModalBtn = document.getElementById('closeModalBtn');
-    const cancelModalBtn = document.getElementById('cancelModalBtn');
-    
-    if (openBtn) {
-        openBtn.addEventListener('click', function(e) {
-            e.preventDefault();
-            openAddCourseModal();
-        });
-    }
-    
-    if (closeModalBtn) {
-        closeModalBtn.addEventListener('click', closeAddCourseModal);
-    }
-    
-    if (cancelModalBtn) {
-        cancelModalBtn.addEventListener('click', closeAddCourseModal);
-    }
-    
-    const courseForm = document.getElementById('courseForm');
-    if (courseForm) {
-        courseForm.addEventListener('submit', submitCourseForm);
-    }
-    
-    window.addEventListener('click', function(event) {
-        const addModal = document.getElementById('addCourseModal');
-        const deleteModal = document.getElementById('deleteModal');
-        
-        if (event.target === addModal) {
-            closeAddCourseModal();
-        }
-        
-        if (event.target === deleteModal) {
-            closeDeleteModal();
+    // Navigation active
+    const currentPath = window.location.pathname;
+    const navItems = document.querySelectorAll('.sidebar-nav .nav-item');
+    navItems.forEach(item => {
+        const href = item.getAttribute('href');
+        if (href && currentPath === href) {
+            navItems.forEach(nav => nav.classList.remove('active'));
+            item.classList.add('active');
         }
     });
-    
-    console.log('Initialization complete');
 });

@@ -1,6 +1,6 @@
 /**
  * dashbord.js - Teacher Dashboard Logic
- * Version complète avec mise à jour des statistiques
+ * Version complète avec modal pour créer des quiz
  */
 
 // ========== VARIABLES GLOBALES ==========
@@ -10,6 +10,7 @@ let selectedFiles = [];
 let editSelectedFiles = [];
 let allCourses = [];
 let allQuizzes = [];
+let tempQuestionsList = [];
 
 // ========== INITIALISATION PROFIL ==========
 function initUserProfile() {
@@ -157,7 +158,7 @@ function createCourseCard(course) {
                 <div class="course-actions">
                     <button class="btn-view" onclick="viewCourse(${course.id})"><i class="fas fa-eye"></i> Voir</button>
                     <button class="btn-edit" onclick="editCourse(${course.id})"><i class="fas fa-edit"></i> Modifier</button>
-                    <button class="btn-quiz" onclick="createQuizForCourse(${course.id}, '${escapeHtml(course.module || course.niveau)}', '${escapeHtml(course.niveau)}')">
+                    <button class="btn-quiz" onclick="openCreateQuizModal(${course.id}, '${escapeHtml(course.module || course.niveau)}', '${escapeHtml(course.niveau)}')">
                         <i class="fas fa-question-circle"></i> Quiz
                     </button>
                     <button class="btn-delete" onclick="showDeleteModal(${course.id}, '${escapeHtml(course.title)}')"><i class="fas fa-trash"></i> Supprimer</button>
@@ -257,7 +258,7 @@ async function loadQuizzes() {
     }
 }
 
-// ========== CHARGEMENT DES STATISTIQUES (AVEC API /teacher/api/stats) ==========
+// ========== CHARGEMENT DES STATISTIQUES ==========
 async function loadStats() {
     try {
         const response = await fetch('/teacher/api/stats');
@@ -288,8 +289,252 @@ function editCourse(courseId) {
     openEditCourseModal(courseId);
 }
 
-function createQuizForCourse(courseId, courseModule, courseNiveau) {
-    window.location.href = `/teacher/create-quiz?courseId=${courseId}&courseModule=${encodeURIComponent(courseModule)}&courseNiveau=${encodeURIComponent(courseNiveau)}`;
+// ========== MODAL POUR CRÉER UN QUIZ ==========
+
+// Ouvrir le modal de création de quiz
+function openCreateQuizModal(courseId, courseModule, courseNiveau) {
+    tempQuestionsList = [];
+    
+    document.getElementById('quizCourseId').value = courseId;
+    document.getElementById('quizCourseModule').value = courseModule;
+    document.getElementById('quizCourseNiveau').value = courseNiveau;
+    
+    document.getElementById('quizTitle').value = '';
+    document.getElementById('quizDescription').value = '';
+    document.getElementById('quizTimeLimit').value = '30';
+    document.getElementById('quizPassingScore').value = '70';
+    document.getElementById('newQuestionText').value = '';
+    document.getElementById('newQuestionPoints').value = '10';
+    document.getElementById('newQuestionType').value = 'SINGLE_CHOICE';
+    
+    resetModalOptions();
+    updateQuestionsDisplay();
+    
+    const modal = document.getElementById('createQuizModal');
+    if (modal) {
+        modal.style.display = 'flex';
+        document.body.style.overflow = 'hidden';
+    }
+}
+
+function closeQuizModal() {
+    const modal = document.getElementById('createQuizModal');
+    if (modal) {
+        modal.style.display = 'none';
+        document.body.style.overflow = 'auto';
+    }
+}
+
+function resetModalOptions() {
+    const container = document.getElementById('modalOptionsContainer');
+    if (container) {
+        container.innerHTML = `
+            <div class="option-row">
+                <input type="checkbox" class="correct-checkbox">
+                <input type="text" class="option-text" placeholder="Option 1" style="flex: 1;">
+                <button type="button" class="remove-option-btn" onclick="removeModalOption(this)">🗑</button>
+            </div>
+            <div class="option-row">
+                <input type="checkbox" class="correct-checkbox">
+                <input type="text" class="option-text" placeholder="Option 2" style="flex: 1;">
+                <button type="button" class="remove-option-btn" onclick="removeModalOption(this)">🗑</button>
+            </div>
+        `;
+    }
+}
+
+function addModalOption() {
+    const container = document.getElementById('modalOptionsContainer');
+    if (container) {
+        const optionCount = container.children.length + 1;
+        const div = document.createElement('div');
+        div.className = 'option-row';
+        div.innerHTML = `
+            <input type="checkbox" class="correct-checkbox">
+            <input type="text" class="option-text" placeholder="Option ${optionCount}" style="flex: 1;">
+            <button type="button" class="remove-option-btn" onclick="removeModalOption(this)">🗑</button>
+        `;
+        container.appendChild(div);
+    }
+}
+
+function removeModalOption(btn) {
+    const container = document.getElementById('modalOptionsContainer');
+    if (container && container.children.length > 2) {
+        btn.closest('.option-row').remove();
+    } else {
+        showNotification('You need at least 2 options', 'error');
+    }
+}
+
+function addQuestionToList() {
+    const questionText = document.getElementById('newQuestionText')?.value.trim();
+    if (!questionText) {
+        showNotification('Please enter a question', 'error');
+        return;
+    }
+    
+    const options = [];
+    let correctAnswerIndex = null;
+    
+    document.querySelectorAll('#modalOptionsContainer .option-row').forEach((row, idx) => {
+        const textInput = row.querySelector('.option-text');
+        const checkbox = row.querySelector('.correct-checkbox');
+        
+        if (textInput && textInput.value.trim()) {
+            options.push(textInput.value.trim());
+            if (checkbox && checkbox.checked) {
+                correctAnswerIndex = idx;
+            }
+        }
+    });
+    
+    if (options.length < 2) {
+        showNotification('Please add at least 2 options', 'error');
+        return;
+    }
+    
+    if (correctAnswerIndex === null) {
+        showNotification('Please select the correct answer', 'error');
+        return;
+    }
+    
+    const points = parseInt(document.getElementById('newQuestionPoints')?.value || 10);
+    const questionType = document.getElementById('newQuestionType')?.value || 'SINGLE_CHOICE';
+    
+    tempQuestionsList.push({
+        id: Date.now(),
+        text: questionText,
+        options: options,
+        correctAnswer: correctAnswerIndex,
+        points: points,
+        questionType: questionType,
+        orderNumber: tempQuestionsList.length + 1
+    });
+    
+    updateQuestionsDisplay();
+    
+    document.getElementById('newQuestionText').value = '';
+    document.getElementById('newQuestionPoints').value = '10';
+    resetModalOptions();
+    
+    showNotification('Question added!', 'success');
+}
+
+function removeQuestionFromList(questionId) {
+    tempQuestionsList = tempQuestionsList.filter(q => q.id !== questionId);
+    tempQuestionsList.forEach((q, idx) => q.orderNumber = idx + 1);
+    updateQuestionsDisplay();
+}
+
+function updateQuestionsDisplay() {
+    const questionsList = document.getElementById('questionsList');
+    const emptyMsg = document.getElementById('emptyQuestionsMsg');
+    const questionCountSpan = document.getElementById('questionCount');
+    
+    if (tempQuestionsList.length === 0) {
+        if (emptyMsg) emptyMsg.style.display = 'block';
+        if (questionsList) questionsList.innerHTML = '';
+        if (questionCountSpan) questionCountSpan.textContent = '(0 questions)';
+        return;
+    }
+    
+    if (emptyMsg) emptyMsg.style.display = 'none';
+    if (questionCountSpan) questionCountSpan.textContent = `(${tempQuestionsList.length} questions)`;
+    
+    questionsList.innerHTML = tempQuestionsList.map(q => `
+        <div style="background: #f3f4f6; padding: 0.75rem; margin-bottom: 0.75rem; border-radius: 12px; border-left: 3px solid #667eea;">
+            <div style="display: flex; justify-content: space-between; align-items: start;">
+                <div style="flex: 1;">
+                    <strong>${q.orderNumber}. ${escapeHtml(q.text)}</strong>
+                    <div style="font-size: 0.75rem; color: #6b7280; margin-top: 0.25rem;">
+                        <span><i class="fas fa-star"></i> ${q.points} pts</span>
+                        <span style="margin-left: 0.5rem;"><i class="fas ${q.questionType === 'SINGLE_CHOICE' ? 'fa-dot-circle' : 'fa-check-square'}"></i> ${q.questionType === 'SINGLE_CHOICE' ? 'Single Choice' : 'Multiple Choice'}</span>
+                    </div>
+                    <div style="font-size: 0.7rem; color: #10b981; margin-top: 0.25rem;">
+                        ✓ Correct: ${escapeHtml(q.options[q.correctAnswer] || 'N/A')}
+                    </div>
+                </div>
+                <button onclick="removeQuestionFromList(${q.id})" style="background: #fee2e2; border: none; border-radius: 8px; padding: 0.25rem 0.5rem; cursor: pointer;">
+                    <i class="fas fa-trash"></i>
+                </button>
+            </div>
+        </div>
+    `).join('');
+}
+
+async function saveQuizModal(event) {
+    event.preventDefault();
+    
+    const title = document.getElementById('quizTitle')?.value.trim();
+    if (!title) {
+        showNotification('Please enter a quiz title', 'error');
+        return;
+    }
+    
+    if (tempQuestionsList.length === 0) {
+        showNotification('Please add at least one question', 'error');
+        return;
+    }
+    
+    const saveBtn = document.getElementById('saveQuizBtn');
+    saveBtn.disabled = true;
+    saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
+    
+    const quizData = {
+        courseId: parseInt(document.getElementById('quizCourseId')?.value || 0),
+        title: title,
+        description: document.getElementById('quizDescription')?.value || '',
+        timeLimit: parseInt(document.getElementById('quizTimeLimit')?.value || 30),
+        passingScore: parseInt(document.getElementById('quizPassingScore')?.value || 70)
+    };
+    
+    try {
+        const quizResponse = await fetch('/teacher/api/create-quiz', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(quizData)
+        });
+        
+        const quizResult = await quizResponse.json();
+        
+        if (!quizResult.success) {
+            throw new Error(quizResult.message || 'Failed to create quiz');
+        }
+        
+        const quizId = quizResult.quizId;
+        
+        for (const question of tempQuestionsList) {
+            const questionData = {
+                questionText: question.text,
+                questionType: question.questionType,
+                points: question.points,
+                orderNumber: question.orderNumber,
+                options: question.options,
+                correctAnswer: question.correctAnswer
+            };
+            
+            await fetch(`/teacher/api/quizzes/${quizId}/questions`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(questionData)
+            });
+        }
+        
+        showNotification(`Quiz "${title}" created with ${tempQuestionsList.length} questions!`, 'success');
+        closeQuizModal();
+        
+        await loadCourses();
+        await loadQuizzes();
+        await loadStats();
+        
+    } catch (error) {
+        console.error('Error:', error);
+        showNotification('Error: ' + error.message, 'error');
+    } finally {
+        saveBtn.disabled = false;
+        saveBtn.innerHTML = '<i class="fas fa-save"></i> Save Quiz';
+    }
 }
 
 // ========== ACTIONS SUR LES QUIZZES ==========
@@ -620,11 +865,18 @@ document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('editCourseForm')?.addEventListener('submit', submitEditCourseForm);
     document.getElementById('filterModule')?.addEventListener('change', handleFilterChange);
     
+    // Formulaire du modal quiz
+    const quizForm = document.getElementById('createQuizForm');
+    if (quizForm) {
+        quizForm.addEventListener('submit', saveQuizModal);
+    }
+    
     // Fermer les modaux en cliquant en dehors
     window.addEventListener('click', (event) => {
         if (event.target === document.getElementById('addCourseModal')) closeAddCourseModal();
         if (event.target === document.getElementById('editCourseModal')) closeEditCourseModal();
         if (event.target === document.getElementById('deleteModal')) closeDeleteModal();
         if (event.target === document.getElementById('deleteQuizModal')) closeDeleteQuizModal();
+        if (event.target === document.getElementById('createQuizModal')) closeQuizModal();
     });
 });

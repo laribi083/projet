@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advanced Data Structures - BrainLearning</title>
+    <link rel="stylesheet" th:href="@{/cssstudent/modulecss.css}">
+</head>
+<body>
+<header>
+    <a th:href="@{/niveux/1st-year}" class="back-link">← Back to courses</a>
+</header>
+
+<section class="course-header">
+    <h1>Advanced Data Structures</h1>
+    <div class="course-meta">
+        <span class="instructor">👨‍🏫 Instructor: Dr. Samir Khelil</span>
+        <span class="duration">⏱️ Duration: 4 hours</span>
+        <span class="chapters">📚 Chapters: 6</span>
+    </div>
+    <div class="progress-bar">
+        <div class="progress-fill" style="width: 0%"></div>
+    </div>
+    <p><strong>Progress:</strong> <span th:text="${progress}">0</span> / 6 chapters</p>
+</section>
+<hr>
+
+<section>
+    <h2>Course Content</h2>
+    <ol class="chapters-list">
+        <li>
+            <h3>Chapter 1: Trees (Binary, AVL, Red-Black)</h3>
+            <p>Type: PDF | Duration: 40 min | Size: 4.5 MB</p>
+            <button class="btn-download">Download</button>
+            <button class="btn-code">View Code Examples</button>
+        </li>
+        <li>
+            <h3>Chapter 2: Graphs and Traversal Algorithms</h3>
+            <p>Type: PDF | Duration: 45 min | Size: 5.2 MB</p>
+            <button class="btn-download">Download</button>
+            <button class="btn-code">View Code Examples</button>
+        </li>
+        <li>
+            <h3>Chapter 3: Hash Tables and Hashing Techniques</h3>
+            <p>Type: PDF | Duration: 35 min | Size: 4.0 MB</p>
+            <button class="btn-download">Download</button>
+        </li>
+        <li>
+            <h3>Chapter 4: Heaps and Priority Queues</h3>
+            <p>Type: PDF | Duration: 30 min | Size: 3.5 MB</p>
+            <button class="btn-download">Download</button>
+        </li>
+        <li>
+            <h3>Chapter 5: Algorithm Complexity Analysis</h3>
+            <p>Type: PDF | Duration: 35 min | Size: 3.8 MB</p>
+            <button class="btn-download">Download</button>
+        </li>
+        <li>
+            <h3>Final Assessment</h3>
+            <p>Type: Evaluation | Duration: 60 min | Questions: 40</p>
+            <button class="btn-evaluation">Start Final Assessment</button>
+        </li>
+    </ol>
+</section>
+<hr>
+
+<section>
+    <h2>Statistics</h2>
+    <ul class="stats">
+        <li>📖 Chapters: 5</li>
+        <li>✅ Completed: 0</li>
+        <li>⏳ Remaining: 5</li>
+        <li>💻 Coding Exercises: 10</li>
+        <li>📝 Final Assessment: 1</li>
+    </ul>
+</section>
+</body>
+</html>

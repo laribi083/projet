@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>2nd year - BrainLearning</title>
+    <link rel="stylesheet" th:href="@{/cssstudent/interface1er.css}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <a th:href="@{/niveux}" class="back-button">← Retour à l'accueil</a>
+            <h1>🎓 2nd year - Brainlearning</h1>
+            <p>Complete program over 2 semesters | 10 modules to be validated</p>
+        </div>
+
+        <!-- ========== SEMESTRE 1 ========== -->
+        <div class="semestre-section">
+            <div class="semestre-title">
+                <h2>📘 Semestre 1 <span class="semestre-badge">Fundamentals</span></h2>
+            </div>
+            <div class="modules-grid">
+                
+                <!-- Module 1 - POOA (Programming Oriented Object Advanced) -->
+                <div class="module-card module-algebra" th:with="moduleCourses=${coursesByModule['advanced project-oriented programming']}">
+                    <div class="module-header">
+                        <div class="module-number">Module 01</div>
+                        <div class="module-title">
+                            Programming Oriented Object Advanced (POOA)
+                            <span th:if="${moduleCourses != null and !moduleCourses.isEmpty()}" class="course-count" th:text="${moduleCourses.size()} + ' cours'"></span>
+                            <span th:if="${moduleCourses == null or moduleCourses.isEmpty()}" class="course-badge">À venir</span>
+                        </div>
+                    </div>
+                    <div class="module-content">
+                        <div class="module-icon">☕</div>
+                        <div class="module-description">Concepts avancés de programmation orientée objet : héritage, polymorphisme, interfaces, design patterns et bonnes pratiques</div>
+                        <div class="module-duration">
+                            ⏱️ 8 heures | 
+                            <span th:if="${moduleCourses != null and !moduleCourses.isEmpty()}" th:text="${moduleCourses.size()} + ' cours disponibles'">0 cours disponibles</span>
+                            <span th:if="${moduleCourses == null or moduleCourses.isEmpty()}">12 vidéos</span>
+                        </div>
+                        
+                        <!-- Liste dynamique des cours créés par les enseignants -->
+                        <div th:if="${moduleCourses != null and !moduleCourses.isEmpty()}" class="dynamic-courses-list">
+                            <div class="module-stats">
+                                <span><i class="fas fa-book-open"></i> Cours disponibles :</span>
+                                <span><i class="fas fa-chalkboard-user"></i> <span th:text="${moduleCourses.size()}">0</span> cours</span>
+                            </div>
+                            <div th:each="course : ${moduleCourses}" class="dynamic-course-item">
+                                <a th:href="@{/student/course/{id}(id=${course.id})}" class="course-link">
+                                    <i class="fas fa-file-alt"></i>
+                                    <span th:text="${course.title}">Titre du cours</span>
+                                </a>
+                                <div class="course-teacher">
+                                    <i class="fas fa-user-graduate"></i>
+                                    <span th:text="${course.teacherName}">Enseignant</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div th:if="${moduleCourses == null or moduleCourses.isEmpty()}">
+                            <div class="no-courses-badge">
+                                <i class="fas fa-hourglass-half"></i> Cours à venir prochainement
+                            </div>
+                        </div>
+                        
+                        <a th:href="@{/cours/module/11}" class="btn-module" th:classappend="${moduleCourses != null and !moduleCourses.isEmpty()} ? 'btn-module-active' : ''">
+                            <span th:if="${moduleCourses != null and !moduleCourses.isEmpty()}">📖 Voir tous les cours →</span>
+                            <span th:if="${moduleCourses == null or moduleCourses.isEmpty()}">⏳ En préparation →</span>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Module 2 - Advanced Data Structures -->
+                <div class="module-card module-analyses" th:with="moduleCourses=${coursesByModule['Advanced Data Structures 02']}">
+                    <div class="module-header">
+                        <div class="module-number">Module 02</div>
+                        <div class="module-title">
+                            Advanced Data Structures
+                            <span th:if="${moduleCourses != null and !moduleCourses.isEmpty()}" class="course-count" th:text="${moduleCourses.size()} + ' cours'"></span>
+                            <span th:if="${moduleCourses == null or moduleCourses.isEmpty()}" class="course-badge">À venir</span>
+                        </div>
+                    </div>
+                    <div class="module-content">
+                        <div class="module-icon">🌲</div>
+                        <div class="module-description">Structures de données complexes : arbres binaires, AVL, B-trees, graphes, tables de hachage et leurs implémentations</div>
+                        <div class="module-duration">
+                            ⏱️ 12 heures | 
+                            <span th:if="${moduleCourses != null and !moduleCourses.isEmpty()}" th:text="${moduleCourses.size()} + ' cours disponibles'">0 cours disponibles</span>
+                            <span th:if="${moduleCourses == null or moduleCourses.isEmpty()}">18 vidéos</span>
+                        </div>
+                        
+                        <div th:if="${moduleCourses != null and !moduleCourses.isEmpty()}" class="dynamic-courses-list">
+                            <div class="module-stats">
+                                <span><i class="fas fa-book-open"></i> Cours disponibles :</span>
+                                <span><i class="fas fa-chalkboard-user"></i> <span th:text="${moduleCourses.size()}">0</span> cours</span>
+                            </div>
+                            <div th:each="course : ${moduleCourses}" class="dynamic-course-item">
+                                <a th:href="@{/student/course/{id}(id=${course.id})}" class="course-link">
+                                    <i class="fas fa-file-alt"></i>
+                                    <span th:text="${course.title}">Titre du cours</span>
+                                </a>
+                                <div class="course-teacher">
+                                    <i class="fas fa-user-graduate"></i>
+                                    <span th:text="${course.teacherName}">Enseignant</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div th:if="${moduleCourses == null or moduleCourses.isEmpty()}">
+                            <div class="no-courses-badge">
+                                <i class="fas fa-hourglass-half"></i> Cours à venir prochainement
+                            </div>
+                        </div>
+                        
+                        <a th:href="@{/cours/module/12}" class="btn-module" th:classappend="${moduleCourses != null and !moduleCourses.isEmpty()} ? 'btn-module-active' : ''">
+                            <span th:if="${moduleCourses != null and !moduleCourses.isEmpty()}">📖 Voir tous les cours →</span>
+                            <span th:if="${moduleCourses == null or moduleCourses.isEmpty()}">⏳ En préparation →</span>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Module 3 - Logic Mathématique -->
+                <div class="module-card module-analyses2" th:with="moduleCourses=${coursesByModule['Logique mathématiques']}">
+                    <div class="module-header">
+                        <div class="module-number">Module 03</div>
+                        <div class="module-title">
+                            Logic Mathématique
+                            <span th:if="${moduleCourses != null and !moduleCourses.isEmpty()}" class="course-count" th:text="${moduleCourses.size()} + ' cours'"></span>
+                            <span th:if="${moduleCourses == null or moduleCourses.isEmpty()}" class="course-badge">À venir</span>
+                        </div>
+                    </div>
+                    <div class="module-content">
+                        <div class="module-icon">🧠</div>
+                        <div class="module-description">Logique propositionnelle, calcul des prédicats, méthodes de démonstration, raisonnement mathématique et applications en informatique</div>
+                        <div class="module-duration">
+                            ⏱️ 15 heures | 
+                            <span th:if="${moduleCourses != null and !moduleCourses.isEmpty()}" th:text="${moduleCourses.size()} + ' cours disponibles'">0 cours disponibles</span>
+                            <span th:if="${moduleCourses == null or moduleCourses.isEmpty()}">22 vidéos</span>
+                        </div>
+                        
+                        <div th:if="${moduleCourses != null and !moduleCourses.isEmpty()}" class="dynamic-courses-list">
+                            <div class="module-stats">
+                                <span><i class="fas fa-book-open"></i> Cours disponibles :</span>
+                                <span><i class="fas fa-chalkboard-user"></i> <span th:text="${moduleCourses.size()}">0</span> cours</span>
+                            </div>
+                            <div th:each="course : ${moduleCourses}" class="dynamic-course-item">
+                                <a th:href="@{/student/course/{id}(id=${course.id})}" class="course-link">
+                                    <i class="fas fa-file-alt"></i>
+                                    <span th:text="${course.title}">Titre du cours</span>
+                                </a>
+                                <div class="course-teacher">
+                                    <i class="fas fa-user-graduate"></i>
+                                    <span th:text="${course.teacherName}">Enseignant</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div th:if="${moduleCourses == null or moduleCourses.isEmpty()}">
+                            <div class="no-courses-badge">
+                                <i class="fas fa-hourglass-half"></i> Cours à venir prochainement
+                            </div>
+                        </div>
+                        
+                        <a th:href="@{/cours/module/13}" class="btn-module" th:classappend="${moduleCourses != null and !moduleCourses.isEmpty()} ? 'btn-module-active' : ''">
+                            <span th:if="${moduleCourses != null and !moduleCourses.isEmpty()}">📖 Voir tous les cours →</span>
+                            <span th:if="${moduleCourses == null or moduleCourses.isEmpty()}">⏳ En préparation →</span>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Module 4 - Architecture of Ordinary -->
+                <div class="module-card module-structure" th:with="moduleCourses=${coursesByModule['Computer Architecture']}">
+                    <div class="module-header">
+                        <div class="module-number">Module 04</div>
+                        <div class="module-title">
+                            Architecture of Ordinary
+                            <span th:if="${moduleCourses != null and !moduleCourses.isEmpty()}" class="course-count" th:text="${moduleCourses.size()} + ' cours'"></span>
+                            <span th:if="${moduleCourses == null or moduleCourses.isEmpty()}" class="course-badge">À venir</span>
+                        </div>
+                    </div>
+                    <div class="module-content">
+                        <div class="module-icon">🖥️</div>
+                        <div class="module-description">Architecture des ordinateurs : processeur, mémoire, bus, cycles d'exécution et organisation interne d'un système</div>
+                        <div class="module-duration">
+                            ⏱️ 6 heures | 
+                            <span th:if="${moduleCourses != null and !moduleCourses.isEmpty()}" th:text="${moduleCourses.size()} + ' cours disponibles'">0 cours disponibles</span>
+                            <span th:if="${moduleCourses == null or moduleCourses.isEmpty()}">10 vidéos</span>
+                        </div>
+                        
+                        <div th:if="${moduleCourses != null and !moduleCourses.isEmpty()}" class="dynamic-courses-list">
+                            <div class="module-stats">
+                                <span><i class="fas fa-book-open"></i> Cours disponibles :</span>
+                                <span><i class="fas fa-chalkboard-user"></i> <span th:text="${moduleCourses.size()}">0</span> cours</span>
+                            </div>
+                            <div th:each="course : ${moduleCourses}" class="dynamic-course-item">
+                                <a th:href="@{/student/course/{id}(id=${course.id})}" class="course-link">
+                                    <i class="fas fa-file-alt"></i>
+                                    <span th:text="${course.title}">Titre du cours</span>
+                                </a>
+                                <div class="course-teacher">
+                                    <i class="fas fa-user-graduate"></i>
+                                    <span th:text="${course.teacherName}">Enseignant</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div th:if="${moduleCourses == null or moduleCourses.isEmpty()}">
+                            <div class="no-courses-badge">
+                                <i class="fas fa-hourglass-half"></i> Cours à venir prochainement
+                            </div>
+                        </div>
+                        
+                        <a th:href="@{/cours/module/14}" class="btn-module" th:classappend="${moduleCourses != null and !moduleCourses.isEmpty()} ? 'btn-module-active' : ''">
+                            <span th:if="${moduleCourses != null and !moduleCourses.isEmpty()}">📖 Voir tous les cours →</span>
+                            <span th:if="${moduleCourses == null or moduleCourses.isEmpty()}">⏳ En préparation →</span>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Module 5 - Longevity Theory -->
+                <div class="module-card module-structure2" th:with="moduleCourses=${coursesByModule['langages theorique']}">
+                    <div class="module-header">
+                        <div class="module-number">Module 05</div>
+                        <div class="module-title">
+                            Longevity Theory
+                            <span th:if="${moduleCourses != null and !moduleCourses.isEmpty()}" class="course-count" th:text="${moduleCourses.size()} + ' cours'"></span>
+                            <span th:if="${moduleCourses == null or moduleCourses.isEmpty()}" class="course-badge">À venir</span>
+                        </div>
+                    </div>
+                    <div class="module-content">
+                        <div class="module-icon">⏳</div>
+                        <div class="module-description">Théorie de la longévité des systèmes : maintenabilité, évolutivité, dette technique et bonnes pratiques de conception durable</div>
+                        <div class="module-duration">
+                            ⏱️ 10 heures | 
+                            <span th:if="${moduleCourses != null and !moduleCourses.isEmpty()}" th:text="${moduleCourses.size()} + ' cours disponibles'">0 cours disponibles</span>
+                            <span th:if="${moduleCourses == null or moduleCourses.isEmpty()}">14 vidéos</span>
+                        </div>
+                        
+                        <div th:if="${moduleCourses != null and !moduleCourses.isEmpty()}" class="dynamic-courses-list">
+                            <div class="module-stats">
+                                <span><i class="fas fa-book-open"></i> Cours disponibles :</span>
+                                <span><i class="fas fa-chalkboard-user"></i> <span th:text="${moduleCourses.size()}">0</span> cours</span>
+                            </div>
+                            <div th:each="course : ${moduleCourses}" class="dynamic-course-item">
+                                <a th:href="@{/student/course/{id}(id=${course.id})}" class="course-link">
+                                    <i class="fas fa-file-alt"></i>
+                                    <span th:text="${course.title}">Titre du cours</span>
+                                </a>
+                                <div class="course-teacher">
+                                    <i class="fas fa-user-graduate"></i>
+                                    <span th:text="${course.teacherName}">Enseignant</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div th:if="${moduleCourses == null or moduleCourses.isEmpty()}">
+                            <div class="no-courses-badge">
+                                <i class="fas fa-hourglass-half"></i> Cours à venir prochainement
+                            </div>
+                        </div>
+                        
+                        <a th:href="@{/cours/module/15}" class="btn-module" th:classappend="${moduleCourses != null and !moduleCourses.isEmpty()} ? 'btn-module-active' : ''">
+                            <span th:if="${moduleCourses != null and !moduleCourses.isEmpty()}">📖 Voir tous les cours →</span>
+                            <span th:if="${moduleCourses == null or moduleCourses.isEmpty()}">⏳ En préparation →</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Séparateur décoratif -->
+        <div class="separator">
+            <span>✨ Transition ✨</span>
+        </div>
+
+        <!-- ========== SEMESTRE 2 ========== -->
+        <div class="semestre-section">
+            <div class="semestre-title">
+                <h2>📗 Semestre 2 <span class="semestre-badge">Advance</span></h2>
+            </div>
+            <div class="modules-grid">
+                
+                <!-- Module 6 - Operating System -->
+                <div class="module-card module-courses" th:with="moduleCourses=${coursesByModule['operating system']}">
+                    <div class="module-header">
+                        <div class="module-number">Module 06</div>
+                        <div class="module-title">
+                            Operating System
+                            <span th:if="${moduleCourses != null and !moduleCourses.isEmpty()}" class="course-count" th:text="${moduleCourses.size()} + ' cours'"></span>
+                            <span th:if="${moduleCourses == null or moduleCourses.isEmpty()}" class="course-badge">À venir</span>
+                        </div>
+                    </div>
+                    <div class="module-content">
+                        <div class="module-icon">⚙️</div>
+                        <div class="module-description">Systèmes d'exploitation : gestion des processus, mémoire virtuelle, système de fichiers, synchronisation et appels système</div>
+                        <div class="module-duration">
+                            ⏱️ 8 heures | 
+                            <span th:if="${moduleCourses != null and !moduleCourses.isEmpty()}" th:text="${moduleCourses.size()} + ' cours disponibles'">0 cours disponibles</span>
+                            <span th:if="${moduleCourses == null or moduleCourses.isEmpty()}">10 vidéos</span>
+                        </div>
+                        
+                        <div th:if="${moduleCourses != null and !moduleCourses.isEmpty()}" class="dynamic-courses-list">
+                            <div class="module-stats">
+                                <span><i class="fas fa-book-open"></i> Cours disponibles :</span>
+                                <span><i class="fas fa-chalkboard-user"></i> <span th:text="${moduleCourses.size()}">0</span> cours</span>
+                            </div>
+                            <div th:each="course : ${moduleCourses}" class="dynamic-course-item">
+                                <a th:href="@{/student/course/{id}(id=${course.id})}" class="course-link">
+                                    <i class="fas fa-file-alt"></i>
+                                    <span th:text="${course.title}">Titre du cours</span>
+                                </a>
+                                <div class="course-teacher">
+                                    <i class="fas fa-user-graduate"></i>
+                                    <span th:text="${course.teacherName}">Enseignant</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div th:if="${moduleCourses == null or moduleCourses.isEmpty()}">
+                            <div class="no-courses-badge">
+                                <i class="fas fa-hourglass-half"></i> Cours à venir prochainement
+                            </div>
+                        </div>
+                        
+                        <a th:href="@{/cours/module/16}" class="btn-module" th:classappend="${moduleCourses != null and !moduleCourses.isEmpty()} ? 'btn-module-active' : ''">
+                            <span th:if="${moduleCourses != null and !moduleCourses.isEmpty()}">📖 Voir tous les cours →</span>
+                            <span th:if="${moduleCourses == null or moduleCourses.isEmpty()}">⏳ En préparation →</span>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Module 7 - Introduction to Database -->
+                <div class="module-card module-ai" th:with="moduleCourses=${coursesByModule['DataBases and SQL']}">
+                    <div class="module-header">
+                        <div class="module-number">Module 07</div>
+                        <div class="module-title">
+                            Introduction to Database
+                            <span th:if="${moduleCourses != null and !moduleCourses.isEmpty()}" class="course-count" th:text="${moduleCourses.size()} + ' cours'"></span>
+                            <span th:if="${moduleCourses == null or moduleCourses.isEmpty()}" class="course-badge">À venir</span>
+                        </div>
+                    </div>
+                    <div class="module-content">
+                        <div class="module-icon">🗄️</div>
+                        <div class="module-description">Fondamentaux des bases de données : modèle relationnel, SQL, normalisation, transactions et conception de schémas</div>
+                        <div class="module-duration">
+                            ⏱️ 14 heures | 
+                            <span th:if="${moduleCourses != null and !moduleCourses.isEmpty()}" th:text="${moduleCourses.size()} + ' cours disponibles'">0 cours disponibles</span>
+                            <span th:if="${moduleCourses == null or moduleCourses.isEmpty()}">20 vidéos</span>
+                        </div>
+                        
+                        <div th:if="${moduleCourses != null and !moduleCourses.isEmpty()}" class="dynamic-courses-list">
+                            <div class="module-stats">
+                                <span><i class="fas fa-book-open"></i> Cours disponibles :</span>
+                                <span><i class="fas fa-chalkboard-user"></i> <span th:text="${moduleCourses.size()}">0</span> cours</span>
+                            </div>
+                            <div th:each="course : ${moduleCourses}" class="dynamic-course-item">
+                                <a th:href="@{/student/course/{id}(id=${course.id})}" class="course-link">
+                                    <i class="fas fa-file-alt"></i>
+                                    <span th:text="${course.title}">Titre du cours</span>
+                                </a>
+                                <div class="course-teacher">
+                                    <i class="fas fa-user-graduate"></i>
+                                    <span th:text="${course.teacherName}">Enseignant</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div th:if="${moduleCourses == null or moduleCourses.isEmpty()}">
+                            <div class="no-courses-badge">
+                                <i class="fas fa-hourglass-half"></i> Cours à venir prochainement
+                            </div>
+                        </div>
+                        
+                        <a th:href="@{/cours/module/17}" class="btn-module" th:classappend="${moduleCourses != null and !moduleCourses.isEmpty()} ? 'btn-module-active' : ''">
+                            <span th:if="${moduleCourses != null and !moduleCourses.isEmpty()}">📖 Voir tous les cours →</span>
+                            <span th:if="${moduleCourses == null or moduleCourses.isEmpty()}">⏳ En préparation →</span>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Module 8 - Network and Communication -->
+                <div class="module-card module-opens" th:with="moduleCourses=${coursesByModule['comunication network 01']}">
+                    <div class="module-header">
+                        <div class="module-number">Module 08</div>
+                        <div class="module-title">
+                            Network and Communication
+                            <span th:if="${moduleCourses != null and !moduleCourses.isEmpty()}" class="course-count" th:text="${moduleCourses.size()} + ' cours'"></span>
+                            <span th:if="${moduleCourses == null or moduleCourses.isEmpty()}" class="course-badge">À venir</span>
+                        </div>
+                    </div>
+                    <div class="module-content">
+                        <div class="module-icon">🌐</div>
+                        <div class="module-description">Réseaux informatiques : modèle OSI, TCP/IP, adressage IP, routage, sécurité réseau et protocoles de communication</div>
+                        <div class="module-duration">
+                            ⏱️ 6 heures | 
+                            <span th:if="${moduleCourses != null and !moduleCourses.isEmpty()}" th:text="${moduleCourses.size()} + ' cours disponibles'">0 cours disponibles</span>
+                            <span th:if="${moduleCourses == null or moduleCourses.isEmpty()}">8 vidéos</span>
+                        </div>
+                        
+                        <div th:if="${moduleCourses != null and !moduleCourses.isEmpty()}" class="dynamic-courses-list">
+                            <div class="module-stats">
+                                <span><i class="fas fa-book-open"></i> Cours disponibles :</span>
+                                <span><i class="fas fa-chalkboard-user"></i> <span th:text="${moduleCourses.size()}">0</span> cours</span>
+                            </div>
+                            <div th:each="course : ${moduleCourses}" class="dynamic-course-item">
+                                <a th:href="@{/student/course/{id}(id=${course.id})}" class="course-link">
+                                    <i class="fas fa-file-alt"></i>
+                                    <span th:text="${course.title}">Titre du cours</span>
+                                </a>
+                                <div class="course-teacher">
+                                    <i class="fas fa-user-graduate"></i>
+                                    <span th:text="${course.teacherName}">Enseignant</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div th:if="${moduleCourses == null or moduleCourses.isEmpty()}">
+                            <div class="no-courses-badge">
+                                <i class="fas fa-hourglass-half"></i> Cours à venir prochainement
+                            </div>
+                        </div>
+                        
+                        <a th:href="@{/cours/module/18}" class="btn-module" th:classappend="${moduleCourses != null and !moduleCourses.isEmpty()} ? 'btn-module-active' : ''">
+                            <span th:if="${moduleCourses != null and !moduleCourses.isEmpty()}">📖 Voir tous les cours →</span>
+                            <span th:if="${moduleCourses == null or moduleCourses.isEmpty()}">⏳ En préparation →</span>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Module 9 - Software Engineering -->
+                <div class="module-card module-machine" th:with="moduleCourses=${coursesByModule['Software ingenery 01']}">
+                    <div class="module-header">
+                        <div class="module-number">Module 09</div>
+                        <div class="module-title">
+                            Software Engineering
+                            <span th:if="${moduleCourses != null and !moduleCourses.isEmpty()}" class="course-count" th:text="${moduleCourses.size()} + ' cours'"></span>
+                            <span th:if="${moduleCourses == null or moduleCourses.isEmpty()}" class="course-badge">À venir</span>
+                        </div>
+                    </div>
+                    <div class="module-content">
+                        <div class="module-icon">📋</div>
+                        <div class="module-description">Génie logiciel : méthodologies agiles, cycles de vie, tests, gestion de projet, documentation et qualité logicielle</div>
+                        <div class="module-duration">
+                            ⏱️ 20 heures | 
+                            <span th:if="${moduleCourses != null and !moduleCourses.isEmpty()}" th:text="${moduleCourses.size()} + ' cours disponibles'">0 cours disponibles</span>
+                            <span th:if="${moduleCourses == null or moduleCourses.isEmpty()}">1 projet</span>
+                        </div>
+                        
+                        <div th:if="${moduleCourses != null and !moduleCourses.isEmpty()}" class="dynamic-courses-list">
+                            <div class="module-stats">
+                                <span><i class="fas fa-book-open"></i> Cours disponibles :</span>
+                                <span><i class="fas fa-chalkboard-user"></i> <span th:text="${moduleCourses.size()}">0</span> cours</span>
+                            </div>
+                            <div th:each="course : ${moduleCourses}" class="dynamic-course-item">
+                                <a th:href="@{/student/course/{id}(id=${course.id})}" class="course-link">
+                                    <i class="fas fa-file-alt"></i>
+                                    <span th:text="${course.title}">Titre du cours</span>
+                                </a>
+                                <div class="course-teacher">
+                                    <i class="fas fa-user-graduate"></i>
+                                    <span th:text="${course.teacherName}">Enseignant</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div th:if="${moduleCourses == null or moduleCourses.isEmpty()}">
+                            <div class="no-courses-badge">
+                                <i class="fas fa-hourglass-half"></i> Cours à venir prochainement
+                            </div>
+                        </div>
+                        
+                        <a th:href="@{/cours/module/19}" class="btn-module" th:classappend="${moduleCourses != null and !moduleCourses.isEmpty()} ? 'btn-module-active' : ''">
+                            <span th:if="${moduleCourses != null and !moduleCourses.isEmpty()}">📖 Voir tous les cours →</span>
+                            <span th:if="${moduleCourses == null or moduleCourses.isEmpty()}">⏳ En préparation →</span>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Module 10 - Development of Web Applications -->
+                <div class="module-card module-electricite" th:with="moduleCourses=${coursesByModule['web development 01']}">
+                    <div class="module-header">
+                        <div class="module-number">Module 10</div>
+                        <div class="module-title">
+                            Development of Web Applications
+                            <span th:if="${moduleCourses != null and !moduleCourses.isEmpty()}" class="course-count" th:text="${moduleCourses.size()} + ' cours'"></span>
+                            <span th:if="${moduleCourses == null or moduleCourses.isEmpty()}" class="course-badge">À venir</span>
+                        </div>
+                    </div>
+                    <div class="module-content">
+                        <div class="module-icon">🌍</div>
+                        <div class="module-description">Développement web full-stack : HTML/CSS, JavaScript, frameworks front-end, backend, API REST et déploiement</div>
+                        <div class="module-duration">
+                            ⏱️ 4 heures | 
+                            <span th:if="${moduleCourses != null and !moduleCourses.isEmpty()}" th:text="${moduleCourses.size()} + ' cours disponibles'">0 cours disponibles</span>
+                            <span th:if="${moduleCourses == null or moduleCourses.isEmpty()}">QCM 50 questions</span>
+                        </div>
+                        
+                        <div th:if="${moduleCourses != null and !moduleCourses.isEmpty()}" class="dynamic-courses-list">
+                            <div class="module-stats">
+                                <span><i class="fas fa-book-open"></i> Cours disponibles :</span>
+                                <span><i class="fas fa-chalkboard-user"></i> <span th:text="${moduleCourses.size()}">0</span> cours</span>
+                            </div>
+                            <div th:each="course : ${moduleCourses}" class="dynamic-course-item">
+                                <a th:href="@{/student/course/{id}(id=${course.id})}" class="course-link">
+                                    <i class="fas fa-file-alt"></i>
+                                    <span th:text="${course.title}">Titre du cours</span>
+                                </a>
+                                <div class="course-teacher">
+                                    <i class="fas fa-user-graduate"></i>
+                                    <span th:text="${course.teacherName}">Enseignant</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div th:if="${moduleCourses == null or moduleCourses.isEmpty()}">
+                            <div class="no-courses-badge">
+                                <i class="fas fa-hourglass-half"></i> Cours à venir prochainement
+                            </div>
+                        </div>
+                        
+                        <a th:href="@{/cours/module/20}" class="btn-module" th:classappend="${moduleCourses != null and !moduleCourses.isEmpty()} ? 'btn-module-active' : ''">
+                            <span th:if="${moduleCourses != null and !moduleCourses.isEmpty()}">📖 Voir tous les cours →</span>
+                            <span th:if="${moduleCourses == null or moduleCourses.isEmpty()}">⏳ En préparation →</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

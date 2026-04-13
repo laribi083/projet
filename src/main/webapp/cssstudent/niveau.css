@@ -1,0 +1,697 @@
+/* ============================================
+   NIVEAUX.CSS - Page de sélection du niveau
+   Version complète
+   ============================================ */
+
+/* Import Google Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+/* ========== RESET & BASE ========== */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Inter', sans-serif;
+    background: #f5f7fa;
+    min-height: 100vh;
+}
+
+/* ========== DASHBOARD LAYOUT ========== */
+.dashboard {
+    display: flex;
+    min-height: 100vh;
+}
+
+/* ========== SIDEBAR STYLES ========== */
+.sidebar {
+    width: 280px;
+    background: white;
+    color: #1f2937;
+    display: flex;
+    flex-direction: column;
+    position: fixed;
+    height: 100vh;
+    overflow-y: auto;
+    box-shadow: 2px 0 10px rgba(0, 0, 0, 0.05);
+    border-right: 1px solid #e5e7eb;
+    z-index: 100;
+    transition: transform 0.3s ease;
+}
+
+.sidebar-header {
+    padding: 1.5rem;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.sidebar-header .logo {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #667eea;
+    margin: 0;
+}
+
+/* User Profile */
+.user-profile {
+    padding: 1.5rem;
+    text-align: center;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.user-avatar {
+    width: 80px;
+    height: 80px;
+    margin: 0 auto 1rem;
+    border-radius: 50%;
+    overflow: hidden;
+    border: 3px solid #667eea;
+    transition: transform 0.3s ease;
+}
+
+.user-avatar:hover {
+    transform: scale(1.05);
+}
+
+.user-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.user-profile h3 {
+    font-size: 1rem;
+    font-weight: 600;
+    margin-bottom: 0.25rem;
+    color: #1f2937;
+}
+
+.user-role {
+    font-size: 0.75rem;
+    color: #6b7280;
+}
+
+/* Navigation Menu */
+.sidebar-nav {
+    flex: 1;
+    padding: 1rem 0;
+}
+
+.nav-item {
+    display: flex;
+    align-items: center;
+    padding: 0.75rem 1.5rem;
+    color: #4b5563;
+    text-decoration: none;
+    transition: all 0.3s;
+    gap: 0.75rem;
+    font-size: 0.95rem;
+    font-weight: 500;
+    position: relative;
+}
+
+.nav-item i {
+    width: 20px;
+    font-size: 1.1rem;
+    color: #9ca3af;
+    transition: all 0.3s;
+}
+
+.nav-item:hover {
+    background: #f3f4f6;
+    color: #667eea;
+    padding-left: 2rem;
+}
+
+.nav-item:hover i {
+    color: #667eea;
+}
+
+.nav-item.active {
+    background: #eef2ff;
+    color: #667eea;
+    border-right: 3px solid #667eea;
+}
+
+.nav-item.active i {
+    color: #667eea;
+}
+
+/* Sidebar Footer */
+.sidebar-footer {
+    padding: 1rem;
+    border-top: 1px solid #e5e7eb;
+}
+
+.logout-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem;
+    background: #f3f4f6;
+    border-radius: 12px;
+    text-decoration: none;
+    color: #ef4444;
+    font-weight: 500;
+    transition: all 0.3s;
+}
+
+.logout-btn:hover {
+    background: #fee2e2;
+    color: #dc2626;
+    transform: translateY(-2px);
+}
+
+/* ========== MAIN CONTENT ========== */
+.main-content {
+    flex: 1;
+    margin-left: 280px;
+    min-height: 100vh;
+    background: linear-gradient(135deg, #0f2027 0%, #203a43 50%, #2c5364 100%);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 2rem;
+    position: relative;
+    overflow-x: hidden;
+}
+
+/* Animation de fond */
+.main-content::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: radial-gradient(circle at 20% 50%, rgba(52, 152, 219, 0.15) 0%, transparent 50%),
+                radial-gradient(circle at 80% 80%, rgba(41, 128, 185, 0.1) 0%, transparent 60%);
+    pointer-events: none;
+    animation: bgPulse 10s ease-in-out infinite;
+}
+
+@keyframes bgPulse {
+    0%, 100% { opacity: 0.6; }
+    50% { opacity: 1; }
+}
+
+/* ========== WELCOME MESSAGE ========== */
+.welcome-message {
+    text-align: center;
+    margin-bottom: 3rem;
+    animation: slideDown 0.6s ease-out;
+    z-index: 1;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-40px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.welcome-message h1 {
+    font-size: 2.8rem;
+    font-weight: 700;
+    color: white;
+    margin-bottom: 0.5rem;
+    letter-spacing: -0.5px;
+}
+
+.welcome-message h1 span {
+    background: linear-gradient(135deg, #667eea, #764ba2, #f093fb);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    position: relative;
+    display: inline-block;
+}
+
+.welcome-message p {
+    color: rgba(255, 255, 255, 0.9);
+    font-size: 1.1rem;
+    font-weight: 400;
+}
+
+/* ========== LEVELS CONTAINER ========== */
+.levels-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 2rem;
+    flex-wrap: wrap;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 1rem;
+    z-index: 1;
+}
+
+/* ========== LEVEL CARDS ========== */
+.level-card {
+    background: white;
+    border-radius: 28px;
+    padding: 2rem 1.5rem;
+    text-align: center;
+    text-decoration: none;
+    width: 300px;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    z-index: 2;
+}
+
+.level-card:hover {
+    transform: translateY(-15px) scale(1.02);
+}
+
+/* Card Icon */
+.level-icon {
+    font-size: 4rem;
+    margin-bottom: 1rem;
+    display: inline-block;
+    transition: transform 0.3s ease;
+}
+
+.level-card:hover .level-icon {
+    transform: scale(1.1) rotate(5deg);
+}
+
+/* Card Title */
+.level-card h2 {
+    font-size: 1.8rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    transition: all 0.3s ease;
+}
+
+/* Card Description */
+.level-card p {
+    color: #6b7280;
+    font-size: 0.9rem;
+    margin-bottom: 1rem;
+    line-height: 1.5;
+}
+
+/* Level Badge */
+.level-badge {
+    display: inline-block;
+    padding: 0.35rem 1.2rem;
+    border-radius: 30px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    transition: all 0.3s ease;
+}
+
+.level-card:hover .level-badge {
+    transform: scale(1.05);
+}
+
+/* ========== LEVEL 1 - 1st YEAR ========== */
+.level-1 {
+    background: linear-gradient(135deg, #ffffff 0%, #f0f9ff 100%);
+    border-bottom: 4px solid #2980b9;
+}
+
+.level-1 h2 {
+    color: #2980b9;
+}
+
+.level-1 .level-badge {
+    background: linear-gradient(135deg, #2980b9, #3498db);
+    color: white;
+    box-shadow: 0 2px 10px rgba(41, 128, 185, 0.3);
+}
+
+.level-1:hover {
+    box-shadow: 0 25px 50px rgba(41, 128, 185, 0.4);
+    border-bottom: 4px solid #3498db;
+}
+
+.level-1:hover h2 {
+    color: #3498db;
+}
+
+/* ========== LEVEL 2 - 2nd YEAR ========== */
+.level-2 {
+    background: linear-gradient(135deg, #ffffff 0%, #f5f3ff 100%);
+    border-bottom: 4px solid #2c3e50;
+}
+
+.level-2 h2 {
+    color: #2c3e50;
+}
+
+.level-2 .level-badge {
+    background: linear-gradient(135deg, #2c3e50, #4a627a);
+    color: white;
+    box-shadow: 0 2px 10px rgba(44, 62, 80, 0.3);
+}
+
+.level-2:hover {
+    box-shadow: 0 25px 50px rgba(44, 62, 80, 0.4);
+    border-bottom: 4px solid #4a627a;
+}
+
+.level-2:hover h2 {
+    color: #4a627a;
+}
+
+/* ========== LEVEL 3 - 3rd YEAR ========== */
+.level-3 {
+    background: linear-gradient(135deg, #ffffff 0%, #f0fdf4 100%);
+    border-bottom: 4px solid #16a085;
+}
+
+.level-3 h2 {
+    color: #16a085;
+}
+
+.level-3 .level-badge {
+    background: linear-gradient(135deg, #16a085, #1abc9c);
+    color: white;
+    box-shadow: 0 2px 10px rgba(22, 160, 133, 0.3);
+}
+
+.level-3:hover {
+    box-shadow: 0 25px 50px rgba(22, 160, 133, 0.4);
+    border-bottom: 4px solid #1abc9c;
+}
+
+.level-3:hover h2 {
+    color: #1abc9c;
+}
+
+/* Effet de brillance sur les cartes */
+.level-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, 
+        transparent, 
+        rgba(255, 255, 255, 0.4), 
+        transparent);
+    transition: left 0.6s ease;
+    pointer-events: none;
+}
+
+.level-card:hover::before {
+    left: 100%;
+}
+
+/* Effet de ripple au clic */
+.level-card:active {
+    transform: translateY(-5px) scale(0.98);
+    transition: transform 0.1s ease;
+}
+
+/* ========== ANIMATIONS ========== */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(40px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes fadeInLeft {
+    from {
+        opacity: 0;
+        transform: translateX(-30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes fadeInRight {
+    from {
+        opacity: 0;
+        transform: translateX(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+.level-card {
+    opacity: 0;
+}
+
+.level-card:nth-child(1) { 
+    animation: fadeInLeft 0.6s ease forwards;
+    animation-delay: 0.1s; 
+}
+
+.level-card:nth-child(2) { 
+    animation: fadeInUp 0.6s ease forwards;
+    animation-delay: 0.3s; 
+}
+
+.level-card:nth-child(3) { 
+    animation: fadeInRight 0.6s ease forwards;
+    animation-delay: 0.5s; 
+}
+
+/* ========== SCROLLBAR STYLES ========== */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #667eea;
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #5a67d8;
+}
+
+/* ========== RESPONSIVE DESIGN ========== */
+@media (max-width: 1024px) {
+    .level-card {
+        width: 260px;
+        padding: 1.5rem;
+    }
+    
+    .level-card h2 {
+        font-size: 1.5rem;
+    }
+    
+    .level-icon {
+        font-size: 3rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .sidebar {
+        width: 80px;
+        transform: translateX(-100%);
+        position: fixed;
+        transition: transform 0.3s ease;
+        z-index: 1000;
+    }
+    
+    .sidebar.active {
+        transform: translateX(0);
+    }
+    
+    .sidebar .logo,
+    .user-profile h3,
+    .user-role,
+    .nav-item span,
+    .logout-btn span {
+        display: none;
+    }
+    
+    .nav-item i {
+        margin: 0;
+    }
+    
+    .nav-item {
+        justify-content: center;
+        padding: 0.75rem;
+    }
+    
+    .main-content {
+        margin-left: 0;
+        padding: 1rem;
+    }
+    
+    .welcome-message h1 {
+        font-size: 1.8rem;
+    }
+    
+    .welcome-message p {
+        font-size: 0.9rem;
+    }
+    
+    .levels-container {
+        gap: 1rem;
+    }
+    
+    .level-card {
+        width: 240px;
+        padding: 1.2rem;
+    }
+    
+    .level-card h2 {
+        font-size: 1.3rem;
+    }
+    
+    .level-icon {
+        font-size: 2.5rem;
+    }
+    
+    .level-badge {
+        font-size: 0.7rem;
+        padding: 0.25rem 0.8rem;
+    }
+    
+    /* Menu toggle button */
+    .menu-toggle {
+        display: flex;
+        position: fixed;
+        bottom: 20px;
+        left: 20px;
+        width: 50px;
+        height: 50px;
+        background: #667eea;
+        border-radius: 50%;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 1.5rem;
+        cursor: pointer;
+        box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        z-index: 1001;
+        transition: all 0.3s ease;
+    }
+    
+    .menu-toggle:hover {
+        transform: scale(1.1);
+        background: #5a67d8;
+    }
+}
+
+@media (max-width: 480px) {
+    .levels-container {
+        flex-direction: column;
+        gap: 1rem;
+    }
+    
+    .level-card {
+        width: 100%;
+        max-width: 280px;
+    }
+    
+    .welcome-message h1 {
+        font-size: 1.5rem;
+    }
+    
+    .main-content {
+        padding: 1rem;
+    }
+}
+
+/* ========== ACCESSIBILITÉ ========== */
+.level-card:focus-visible {
+    outline: 3px solid #667eea;
+    outline-offset: 4px;
+    transform: scale(1.02);
+}
+
+.nav-item:focus-visible,
+.logout-btn:focus-visible {
+    outline: 2px solid #667eea;
+    outline-offset: 2px;
+}
+
+/* ========== MENU TOGGLE (mobile) ========== */
+.menu-toggle {
+    display: none;
+}
+
+@media (max-width: 768px) {
+    .menu-toggle {
+        display: flex;
+    }
+}
+
+/* ========== LOADING STATE ========== */
+.loading {
+    position: relative;
+    opacity: 0.6;
+    pointer-events: none;
+}
+
+.loading::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 30px;
+    height: 30px;
+    border: 3px solid #e2e8f0;
+    border-top-color: #667eea;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    transform: translate(-50%, -50%);
+}
+
+@keyframes spin {
+    to {
+        transform: translate(-50%, -50%) rotate(360deg);
+    }
+}
+
+/* ========== TOOLTIP ========== */
+.level-card {
+    position: relative;
+}
+
+.level-card::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    bottom: -30px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #1f2937;
+    color: white;
+    padding: 4px 8px;
+    border-radius: 6px;
+    font-size: 0.7rem;
+    white-space: nowrap;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+    pointer-events: none;
+}
+
+.level-card:hover::after {
+    opacity: 1;
+    visibility: visible;
+    bottom: -40px;
+}

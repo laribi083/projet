@@ -1,0 +1,481 @@
+/* ============================================
+   INTERFACE 1ÈRE ANNÉE - STYLES
+   Design moderne avec semestres et animations
+   ============================================ */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+    padding: 40px 20px;
+    position: relative;
+}
+
+/* Animation de fond */
+body::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: radial-gradient(circle at 20% 50%, rgba(255,255,255,0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 80%, rgba(255,255,255,0.08) 0%, transparent 60%);
+    pointer-events: none;
+    animation: bgPulse 8s ease-in-out infinite;
+}
+
+@keyframes bgPulse {
+    0%, 100% { opacity: 0.5; }
+    50% { opacity: 1; }
+}
+
+.container {
+    max-width: 1300px;
+    margin: 0 auto;
+    position: relative;
+    z-index: 1;
+}
+
+/* ========== HEADER ========== */
+.header {
+    text-align: center;
+    margin-bottom: 50px;
+    animation: slideDown 0.6s ease-out;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-40px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.back-button {
+    display: inline-block;
+    margin-bottom: 25px;
+    padding: 10px 25px;
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+    text-decoration: none;
+    border-radius: 30px;
+    transition: all 0.3s;
+    font-weight: 500;
+    backdrop-filter: blur(5px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.back-button:hover {
+    background: rgba(255, 255, 255, 0.35);
+    transform: translateX(-5px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+}
+
+.header h1 {
+    font-size: 2.5em;
+    color: white;
+    margin-bottom: 12px;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+    font-weight: 700;
+}
+
+.header p {
+    color: rgba(255, 255, 255, 0.9);
+    font-size: 1.1em;
+    font-weight: 400;
+}
+
+/* ========== SECTIONS SEMESTRES ========== */
+.semestre-section {
+    margin-bottom: 50px;
+    animation: fadeInUp 0.6s ease forwards;
+}
+
+.semestre-title {
+    text-align: center;
+    margin-bottom: 30px;
+    position: relative;
+}
+
+.semestre-title h2 {
+    display: inline-block;
+    font-size: 1.8em;
+    font-weight: 700;
+    background: rgba(255, 255, 255, 0.2);
+    padding: 12px 35px;
+    border-radius: 60px;
+    color: white;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.semestre-badge {
+    display: inline-block;
+    margin-left: 15px;
+    font-size: 0.7em;
+    background: rgba(255, 255, 255, 0.3);
+    padding: 5px 12px;
+    border-radius: 30px;
+    vertical-align: middle;
+}
+
+/* ========== SÉPARATEUR ========== */
+.separator {
+    text-align: center;
+    margin: 40px 0;
+    position: relative;
+}
+
+.separator::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.5), transparent);
+}
+
+.separator span {
+    position: relative;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    padding: 10px 30px;
+    border-radius: 40px;
+    color: white;
+    font-weight: 600;
+    display: inline-block;
+    z-index: 1;
+    font-size: 1.1em;
+}
+
+/* ========== GRILLE DES MODULES ========== */
+.modules-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+    gap: 30px;
+    margin-top: 20px;
+}
+
+/* ========== CARTE MODULE ========== */
+.module-card {
+    background: white;
+    border-radius: 25px;
+    overflow: hidden;
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    position: relative;
+    animation: fadeInUp 0.5s ease forwards;
+    opacity: 0;
+}
+
+.module-card:nth-child(1) { animation-delay: 0.05s; }
+.module-card:nth-child(2) { animation-delay: 0.1s; }
+.module-card:nth-child(3) { animation-delay: 0.15s; }
+.module-card:nth-child(4) { animation-delay: 0.2s; }
+.module-card:nth-child(5) { animation-delay: 0.25s; }
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.module-card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 25px 45px rgba(0, 0, 0, 0.25);
+}
+
+/* En-tête du module */
+.module-header {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    padding: 20px;
+    color: white;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+}
+
+/* Effet de brillance sur l'en-tête */
+.module-header::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+    transition: left 0.6s ease;
+}
+
+.module-card:hover .module-header::before {
+    left: 100%;
+}
+
+.module-number {
+    font-size: 0.85em;
+    background: rgba(255, 255, 255, 0.25);
+    display: inline-block;
+    padding: 5px 15px;
+    border-radius: 20px;
+    margin-bottom: 10px;
+    font-weight: 500;
+}
+
+.module-title {
+    font-size: 1.5em;
+    font-weight: bold;
+    letter-spacing: 1px;
+}
+
+/* Contenu du module */
+.module-content {
+    padding: 25px;
+    text-align: center;
+    background: white;
+}
+
+.module-icon {
+    font-size: 3.5em;
+    margin-bottom: 15px;
+    display: inline-block;
+    transition: transform 0.3s;
+}
+
+.module-card:hover .module-icon {
+    transform: scale(1.1);
+}
+
+.module-description {
+    color: #555;
+    font-size: 0.9em;
+    line-height: 1.6;
+    margin-bottom: 20px;
+    min-height: 70px;
+}
+
+.module-duration {
+    color: #667eea;
+    font-size: 0.85em;
+    margin-bottom: 20px;
+    font-weight: 600;
+    padding: 8px 15px;
+    background: #f0f4ff;
+    display: inline-block;
+    border-radius: 25px;
+}
+
+/* Bouton */
+.btn-module {
+    display: inline-block;
+    padding: 12px 30px;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
+    text-decoration: none;
+    border-radius: 50px;
+    font-weight: 600;
+    transition: all 0.3s;
+    border: none;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+    z-index: 1;
+}
+
+.btn-module::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+    transition: left 0.5s;
+    z-index: -1;
+}
+
+.btn-module:hover::before {
+    left: 100%;
+}
+
+.btn-module:hover {
+    transform: scale(1.05);
+    box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+}
+
+/* ========== STYLES SPÉCIFIQUES POUR CHAQUE MODULE ========== */
+/* Semestre 1 */
+.module-algebra .module-header { background: linear-gradient(135deg, #e44d26, #f16529); }
+.module-analyses .module-header { background: linear-gradient(135deg, #264de4, #2965f1); }
+.module-analyses2 .module-header { background: linear-gradient(135deg, #f7df1e, #f0db4f); color: #323330; }
+.module-structure .module-header { background: linear-gradient(135deg, #f05033, #e34c26); }
+.module-structure2 .module-header { background: linear-gradient(135deg, #3b5998, #00aced); }
+
+/* Semestre 2 */
+.module-courses .module-header { background: linear-gradient(135deg, #7952b3, #563d7c); }
+.module-ai .module-header { background: linear-gradient(135deg, #323330, #f7df1e); color: #f7df1e; }
+.module-opens .module-header { background: linear-gradient(135deg, #34a853, #0f9d58); }
+.module-machine .module-header { background: linear-gradient(135deg, #ff9800, #ff5722); }
+.module-electricite .module-header { background: linear-gradient(135deg, #9c27b0, #673ab7); }
+
+/* Ajustements pour les modules avec texte foncé */
+.module-analyses2 .module-number,
+.module-analyses2 .module-title,
+.module-ai .module-number,
+.module-ai .module-title {
+    color: #323330;
+    text-shadow: none;
+}
+
+.module-analyses2 .module-number {
+    background: rgba(50, 51, 48, 0.2);
+}
+
+.module-ai .module-number {
+    background: rgba(50, 51, 48, 0.2);
+}
+
+/* ========== RESPONSIVE ========== */
+@media (max-width: 1024px) {
+    .modules-grid {
+        grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+        gap: 25px;
+    }
+    
+    .header h1 {
+        font-size: 2.2em;
+    }
+}
+
+@media (max-width: 768px) {
+    body {
+        padding: 30px 15px;
+    }
+    
+    .modules-grid {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+    
+    .header {
+        margin-bottom: 30px;
+    }
+    
+    .header h1 {
+        font-size: 1.8em;
+    }
+    
+    .header p {
+        font-size: 1em;
+    }
+    
+    .module-title {
+        font-size: 1.3em;
+    }
+    
+    .module-icon {
+        font-size: 3em;
+    }
+    
+    .module-description {
+        font-size: 0.85em;
+        min-height: auto;
+    }
+    
+    .back-button {
+        padding: 8px 20px;
+        font-size: 0.9em;
+    }
+    
+    .semestre-title h2 {
+        font-size: 1.3em;
+        padding: 8px 25px;
+    }
+    
+    .semestre-badge {
+        font-size: 0.6em;
+        margin-left: 8px;
+    }
+    
+    .separator span {
+        font-size: 0.9em;
+        padding: 8px 20px;
+    }
+}
+
+@media (max-width: 480px) {
+    body {
+        padding: 20px 12px;
+    }
+    
+    .header h1 {
+        font-size: 1.5em;
+    }
+    
+    .header p {
+        font-size: 0.9em;
+    }
+    
+    .module-header {
+        padding: 15px;
+    }
+    
+    .module-title {
+        font-size: 1.2em;
+    }
+    
+    .module-content {
+        padding: 20px;
+    }
+    
+    .module-icon {
+        font-size: 2.5em;
+    }
+    
+    .module-description {
+        font-size: 0.8em;
+    }
+    
+    .btn-module {
+        padding: 10px 25px;
+        font-size: 0.9em;
+    }
+    
+    .module-duration {
+        font-size: 0.75em;
+    }
+}
+
+/* ========== SCROLLBAR PERSONNALISÉE ========== */
+::-webkit-scrollbar {
+    width: 10px;
+}
+
+::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.1);
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: rgba(102, 126, 234, 0.6);
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: rgba(102, 126, 234, 0.8);
+}

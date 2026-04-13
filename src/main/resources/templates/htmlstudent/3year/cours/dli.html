@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Software Development - BrainLearning</title>
+    <link rel="stylesheet" th:href="@{css/cssstudent/modulecss.css}">
+</head>
+<body>
+<header>
+    <a th:href="@{/interface3eme}" class="back-link">← Back to Courses</a>
+</header>
+
+<section>
+    <h1>Interactive Software Development</h1>
+    <p>Design and develop engaging interactive applications with modern frontend technologies and real-time features.</p>
+    <p>
+        <strong>Instructor:</strong> Dr. Karim Hadjadj | 
+        <strong>Duration:</strong> 20 hours | 
+        <strong>Chapters:</strong> 6
+    </p>
+    <p><strong>Progress:</strong> 0 / 6 chapters</p>
+</section>
+<hr>
+
+<section>
+    <h2>Course Content</h2>
+    <ol>
+        <li>
+            <h3>
+                <a th:href="@{/cours/dli/chapter/1}">Introduction to Interactive Software</a>
+            </h3>
+            <p>Type: PDF | Duration: 45 min | Size: 4.5 MB</p>
+            <button class="btn-download">Download</button>
+        </li>
+        <li>
+            <h3>
+                <a th:href="@{/cours/dli/chapter/2}">User Experience (UX) Design Fundamentals</a>
+            </h3>
+            <p>Type: PDF | Duration: 60 min | Size: 6.2 MB</p>
+            <button class="btn-download">Download</button>
+        </li>
+        <li>
+            <h3>
+                <a th:href="@{/cours/dli/chapter/3}">User Interface (UI) Design Principles</a>
+            </h3>
+            <p>Type: PDF | Duration: 55 min | Size: 5.8 MB</p>
+            <button class="btn-download">Download</button>
+        </li>
+        <li>
+            <h3>
+                <a th:href="@{/cours/dli/chapter/4}">Frontend Frameworks for Interactivity</a>
+            </h3>
+            <p>Type: PDF | Duration: 70 min | Size: 8.5 MB</p>
+            <button class="btn-download">Download</button>
+        </li>
+        <li>
+            <h3>
+                <a th:href="@{/cours/dli/chapter/5}">Real-time Interactions and WebSockets</a>
+            </h3>
+            <p>Type: PDF | Duration: 50 min | Size: 5.2 MB</p>
+            <button class="btn-download">Download</button>
+        </li>
+        <li>
+            <h3>
+                <a th:href="@{/cours/dli/chapter/6}">Animation and Visual Effects</a>
+            </h3>
+            <p>Type: PDF | Duration: 55 min | Size: 6.5 MB</p>
+            <button class="btn-download">Download</button>
+        </li>
+        <li>
+            <h3>Quiz: Interactive Software Development</h3>
+            <p>Type: Quiz | Duration: 45 min | Questions: 30</p>
+            <button class="btn-quiz">Start Quiz</button>
+        </li>
+        <li>
+            <h3>Final Project: Interactive Application</h3>
+            <p>Type: Project | Duration: 3 weeks | Group: 2-3 students</p>
+            <button class="btn-project">Start Project</button>
+        </li>
+    </ol>
+</section>
+<hr>
+
+<section>
+    <h2>Statistics</h2>
+    <ul>
+        <li>Chapters: 6</li>
+        <li>Completed: 0</li>
+        <li>Remaining: 6</li>
+        <li>Coding Exercises: 8</li>
+        <li>Labs: 4</li>
+    </ul>
+</section>
+<hr>
+
+<section>
+    <h2>Instructor</h2>
+    <p><strong>Dr. Karim Hadjadj</strong></p>
+    <p>Interactive Software Expert</p>
+    <p>Experienced trainer with over 10 years in the field of Human-Computer Interaction and interactive application development. Former lead developer at major tech companies and consultant for UX/UI design.</p>
+</section>
+<hr>
+
+<section>
+    <h2>Technologies Covered</h2>
+    <ul>
+        <li>HTML5 / CSS3 / JavaScript</li>
+        <li>React.js / Vue.js / Angular</li>
+        <li>WebSocket / Socket.io</li>
+        <li>Three.js / WebGL</li>
+        <li>Figma / Adobe XD</li>
+        <li>UX/UI Design Principles</li>
+    </ul>
+</section>
+<hr>
+
+<section>
+    <h2>Practical Labs</h2>
+    <ol>
+        <li>
+            <h3>Lab 1: Interactive Prototypes with Figma</h3>
+            <p>Duration: 2 hours | Tools: Figma</p>
+            <button class="btn-download">Download Instructions</button>
+        </li>
+        <li>
+            <h3>Lab 2: React Component Library</h3>
+            <p>Duration: 3 hours | Tools: React, Storybook</p>
+            <button class="btn-download">Download Instructions</button>
+        </li>
+        <li>
+            <h3>Lab 3: Real-time Chat Application</h3>
+            <p>Duration: 4 hours | Tools: WebSocket, Socket.io</p>
+            <button class="btn-download">Download Instructions</button>
+        </li>
+        <li>
+            <h3>Lab 4: 3D Interactive Scene with Three.js</h3>
+            <p>Duration: 3 hours | Tools: Three.js, WebGL</p>
+            <button class="btn-download">Download Instructions</button>
+        </li>
+    </ol>
+</section>
+<hr>
+
+<script>
+    // Simple JavaScript for button actions
+    document.querySelectorAll('.btn-download').forEach(button => {
+        button.addEventListener('click', function() {
+            alert('Downloading course material...');
+        });
+    });
+    
+    document.querySelectorAll('.btn-quiz').forEach(button => {
+        button.addEventListener('click', function() {
+            if (confirm('Are you ready to start the quiz? You will have 45 minutes to complete 30 questions.')) {
+                window.location.href = '/quiz/dli';
+            }
+        });
+    });
+    
+    document.querySelectorAll('.btn-project').forEach(button => {
+        button.addEventListener('click', function() {
+            alert('Project details will be sent to your email. Check your inbox!');
+        });
+    });
+</script>
+</body>
+</html>

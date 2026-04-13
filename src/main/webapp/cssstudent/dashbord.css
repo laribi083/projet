@@ -704,4 +704,378 @@ body {
     .login-container {
         flex-direction: column;
     }
+}/* ========== RECENT COURSES SECTION ========== */
+
+.recent-courses {
+    background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+    border-radius: 24px;
+    padding: 1.8rem;
+    margin-top: 2rem;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+    border: 1px solid rgba(102, 126, 234, 0.1);
+}
+
+/* En-tête de la section */
+.recent-courses .section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 1.8rem;
+    padding-bottom: 1rem;
+    border-bottom: 2px solid #eef2ff;
+}
+
+.recent-courses .section-header h3 {
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: #1e293b;
+    position: relative;
+    display: inline-block;
+}
+
+.recent-courses .section-header h3:before {
+    content: '';
+    position: absolute;
+    bottom: -0.5rem;
+    left: 0;
+    width: 50px;
+    height: 3px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 3px;
+}
+
+.recent-courses .view-all {
+    color: #667eea;
+    text-decoration: none;
+    font-size: 0.9rem;
+    font-weight: 500;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    transition: all 0.3s ease;
+    background: #eef2ff;
+}
+
+.recent-courses .view-all:hover {
+    background: #667eea;
+    color: white;
+    transform: translateX(3px);
+}
+
+.recent-courses .view-all i {
+    transition: transform 0.3s ease;
+}
+
+.recent-courses .view-all:hover i {
+    transform: translateX(3px);
+}
+
+/* Grille des cours */
+.recent-courses .courses-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+    gap: 1.5rem;
+}
+
+/* Carte de cours */
+.recent-courses .course-card {
+    background: white;
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    cursor: pointer;
+    position: relative;
+    border: 1px solid #eef2ff;
+}
+
+.recent-courses .course-card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 20px 35px -10px rgba(102, 126, 234, 0.3);
+    border-color: #667eea;
+}
+
+/* Image d'en-tête du cours */
+.recent-courses .course-image {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    padding: 1.5rem;
+    text-align: center;
+    font-size: 2.5rem;
+    position: relative;
+    color: white;
+    overflow: hidden;
+}
+
+.recent-courses .course-image i {
+    filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.1));
+    transition: transform 0.3s ease;
+}
+
+.recent-courses .course-card:hover .course-image i {
+    transform: scale(1.05);
+}
+
+/* Badge de disponibilité */
+.recent-courses .course-badge {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    background: rgba(255, 255, 255, 0.95);
+    color: #667eea;
+    padding: 0.3rem 0.9rem;
+    border-radius: 30px;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    backdrop-filter: blur(4px);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+/* Contenu du cours */
+.recent-courses .course-content {
+    padding: 1.3rem;
+}
+
+.recent-courses .course-title {
+    font-size: 1.2rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    color: #1e293b;
+    line-height: 1.3;
+    transition: color 0.3s ease;
+}
+
+.recent-courses .course-card:hover .course-title {
+    color: #667eea;
+}
+
+.recent-courses .course-description {
+    font-size: 0.85rem;
+    color: #64748b;
+    margin-bottom: 1rem;
+    line-height: 1.5;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+/* Métadonnées du cours */
+.recent-courses .course-meta {
+    margin-bottom: 1rem;
+}
+
+.recent-courses .course-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.75rem;
+    color: #64748b;
+    margin-bottom: 0.5rem;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.recent-courses .course-info span {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    background: #f1f5f9;
+    padding: 0.2rem 0.6rem;
+    border-radius: 20px;
+}
+
+.recent-courses .course-info i {
+    font-size: 0.7rem;
+    color: #667eea;
+}
+
+.recent-courses .course-stats {
+    display: flex;
+    gap: 1rem;
+    font-size: 0.7rem;
+    color: #64748b;
+}
+
+.recent-courses .course-stats span {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    background: #f8fafc;
+    padding: 0.2rem 0.6rem;
+    border-radius: 20px;
+}
+
+/* Bouton Voir le cours */
+.recent-courses .btn-view-course {
+    width: 100%;
+    padding: 0.7rem;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    font-size: 0.85rem;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+}
+
+.recent-courses .btn-view-course:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+    background: linear-gradient(135deg, #5a67d8 0%, #6b46a0 100%);
+}
+
+.recent-courses .btn-view-course:active {
+    transform: translateY(0);
+}
+
+/* Spinner de chargement */
+.recent-courses .loading-spinner {
+    text-align: center;
+    padding: 3rem;
+    color: #667eea;
+}
+
+.recent-courses .loading-spinner i {
+    font-size: 2rem;
+    margin-bottom: 1rem;
+}
+
+.recent-courses .loading-spinner p {
+    color: #64748b;
+    font-size: 0.9rem;
+}
+
+/* État vide et erreur */
+.recent-courses .empty-state,
+.recent-courses .error-state {
+    text-align: center;
+    padding: 3rem;
+    background: #f8fafc;
+    border-radius: 16px;
+    grid-column: 1 / -1;
+}
+
+.recent-courses .empty-state i,
+.recent-courses .error-state i {
+    font-size: 3rem;
+    color: #cbd5e0;
+    margin-bottom: 1rem;
+}
+
+.recent-courses .empty-state p,
+.recent-courses .error-state p {
+    color: #64748b;
+    margin-bottom: 0.5rem;
+}
+
+.recent-courses .empty-state .empty-hint {
+    font-size: 0.8rem;
+    color: #94a3b8;
+}
+
+.recent-courses .btn-retry {
+    margin-top: 1rem;
+    padding: 0.5rem 1.2rem;
+    background: #667eea;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 0.85rem;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.recent-courses .btn-retry:hover {
+    background: #5a67d8;
+    transform: translateY(-2px);
+}
+
+/* Animation d'apparition des cartes */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.recent-courses .course-card {
+    animation: fadeInUp 0.4s ease forwards;
+    animation-delay: calc(var(--card-index, 0) * 0.1s);
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+    .recent-courses .courses-grid {
+        grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    }
+}
+
+@media (max-width: 768px) {
+    .recent-courses {
+        padding: 1rem;
+    }
+    
+    .recent-courses .courses-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .recent-courses .section-header {
+        flex-direction: column;
+        gap: 0.8rem;
+        align-items: flex-start;
+    }
+    
+    .recent-courses .course-info {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .recent-courses .course-stats {
+        flex-wrap: wrap;
+    }
+}
+
+/* Mode sombre (optionnel) */
+@media (prefers-color-scheme: dark) {
+    .recent-courses {
+        background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+        border-color: rgba(102, 126, 234, 0.2);
+    }
+    
+    .recent-courses .course-card {
+        background: #1e293b;
+        border-color: #334155;
+    }
+    
+    .recent-courses .course-title {
+        color: #f1f5f9;
+    }
+    
+    .recent-courses .course-description {
+        color: #94a3b8;
+    }
+    
+    .recent-courses .course-info span,
+    .recent-courses .course-stats span {
+        background: #334155;
+        color: #94a3b8;
+    }
+    
+    .recent-courses .section-header h3 {
+        color: #f1f5f9;
+    }
 }

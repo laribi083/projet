@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz Result - BrainLearning</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" th:href="@{/cssstudent/quiz-result.css}">
+</head>
+<body>
+    <div class="result-card">
+        <div th:if="${param.passed != null and param.passed[0] == 'true'}" class="result-icon passed">
+            <i class="fas fa-trophy"></i>
+        </div>
+        <div th:if="${param.passed == null or param.passed[0] == 'false'}" class="result-icon failed">
+            <i class="fas fa-frown"></i>
+        </div>
+        
+        <h1 th:text="${quiz.title}">Quiz Title</h1>
+        
+        <div class="score-circle" id="scoreCircle">
+            <div class="score-inner">
+                <div class="score-number" th:text="${param.percentage != null ? param.percentage[0] : '0'} + '%'">0%</div>
+                <div class="score-total">Score</div>
+            </div>
+        </div>
+        
+        <div class="details">
+            <div class="detail-row">
+                <span>📝 Your Score</span>
+                <strong th:text="${param.score != null ? param.score[0] : '0'} + ' / ' + (param.total != null ? param.total[0] : '0')">0/0</strong>
+            </div>
+            <div class="detail-row">
+                <span>🎯 Passing Score</span>
+                <strong th:text="${quiz.passingScore} + '%'">60%</strong>
+            </div>
+            <div class="detail-row">
+                <span>📊 Percentage</span>
+                <strong th:text="${param.percentage != null ? param.percentage[0] : '0'} + '%'">0%</strong>
+            </div>
+        </div>
+        
+        <div th:if="${param.passed != null and param.passed[0] == 'true'}" class="message">
+            <p style="color: #28a745;">🎉 Félicitations ! Vous avez réussi le quiz !</p>
+        </div>
+        <div th:if="${param.passed == null or param.passed[0] == 'false'}" class="message">
+            <p style="color: #dc3545;">😔 Vous n'avez pas atteint le score minimum requis. Réessayez !</p>
+        </div>
+        
+        <a href="/student/dashboard" class="btn-home">
+            <i class="fas fa-home"></i> Retour au Dashboard
+        </a>
+    </div>
+    
+    <script th:inline="javascript">
+        /*<![CDATA[*/
+        window.resultData = {
+            percentage: /*[[${param.percentage != null ? param.percentage[0] : 0}]]*/ 0
+        };
+        /*]]>*/
+    </script>
+    <script th:src="@{/jsstudent/quiz-result.js}"></script>
+</body>
+</html>

@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${course.title} + ' - View Online'">Course Viewer</title>
+    
+    <!-- CSS Files -->
+    <link rel="stylesheet" th:href="@{/cssstudent/course-viewer.css}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="viewer-container">
+        <div class="viewer-header">
+            <h1 th:text="${course.title}">Course Title</h1>
+            <a href="javascript:history.back()" class="btn-back">← Retour</a>
+        </div>
+        
+        <div class="toolbar">
+            <button onclick="printContent()" class="toolbar-btn">🖨️ Imprimer</button>
+            <button onclick="copyContent()" class="toolbar-btn">📋 Copier</button>
+            <a th:href="@{/course/{id}/download(id=${course.id})}" class="toolbar-btn">⬇️ Télécharger</a>
+        </div>
+        
+        <div class="viewer-content" th:utext="${content}">
+            Chargement...
+        </div>
+    </div>
+
+    <!-- JavaScript Files -->
+    <script th:src="@{/jsstudent/course-viewer.js}"></script>
+</body>
+</html>

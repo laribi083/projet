@@ -3,124 +3,123 @@
 <head>
     <meta charset="UTF-8">
     <title>Welcome</title>
-    <link rel="stylesheet" th:href="@{/css/welcom.css}">
+    <link rel="stylesheet" href="welcom.css">
 </head>
 <body>
-
 <div class="container">
-    <!-- Navigation -->
+   
     <nav class="navbar">
         <div class="logo"><i class="fas fa-brain" style="color:#5a3dff; margin-right:6px;"></i> AdaptLearn</div>
         <div class="nav-links">
-            <a href="#features">Fonctionnalités</a>
-            <a href="#howitworks">Comment ça marche</a>
-            <a href="#benefits">Avantages</a>
-            <a href="#testimonial">Témoignages</a>
-            <a href="#" id="loginBtn" class="btn-outline">Connexion</a>
-            <a href="#" id="signupNavBtn" class="btn-primary">Inscription</a>
+            <a href="#features">Features</a>
+            <a href="#howitworks">How It Works</a>
+            <a href="#benefits">Benefits</a>
+            <a href="#testimonial">Testimonials</a>
+            <a href="#" id="loginBtn" class="btn-outline">Login</a>
+            <a href="#" id="signupNavBtn" class="btn-primary">Sign Up</a>
         </div>
     </nav>
 
-    <!-- Hero -->
+
     <div class="hero">
         <div class="hero-content">
-            <div class="hero-badge"><i class="fas fa-robot"></i> Intelligence adaptative</div>
-            <h1>Apprenez à votre rythme</h1>
-            <p>Une plateforme d'apprentissage intelligente qui s'adapte à votre niveau, vos besoins et votre progression.</p>
-            <button class="btn-primary btn-large" id="heroCta">Découvrir AdaptLearn →</button>
+            <div class="hero-badge"><i class="fas fa-robot"></i> Adaptive Intelligence</div>
+            <h1>Learn at your own pace</h1>
+            <p>An intelligent learning platform that adapts to your level, needs, and progress.</p>
+            <button class="btn-primary btn-large" id="heroCta">Discover AdaptLearn →</button>
             <div class="features-highlight">
-                <div class="feature-chip"><i class="fas fa-microchip"></i> IA Adaptative</div>
-                <div class="feature-chip"><i class="fas fa-user-check"></i> Contenu Personnalisé</div>
-                <div class="feature-chip"><i class="fas fa-chart-line"></i> Apprentissage Intelligent</div>
+                <div class="feature-chip"><i class="fas fa-microchip"></i> Adaptive AI</div>
+                <div class="feature-chip"><i class="fas fa-user-check"></i> Personalized Content</div>
+                <div class="feature-chip"><i class="fas fa-chart-line"></i> Smart Learning</div>
             </div>
         </div>
         <div class="hero-image">
             <i class="fas fa-chalkboard-user"></i>
             <i class="fas fa-arrow-right"></i>
             <i class="fas fa-brain"></i>
-            <p style="margin-top:20px; font-weight:500;">Parcours sur-mesure</p>
+            <p style="margin-top:20px; font-weight:500;">Custom learning path</p>
         </div>
     </div>
 
-    <!-- Comment ça marche (4 étapes) -->
+  
     <section id="howitworks">
-        <h2 class="section-title">Comment ça marche ?</h2>
-        <div class="section-sub">Un parcours d'apprentissage en 4 étapes, entièrement personnalisé selon votre profil</div>
+        <h2 class="section-title">How It Works?</h2>
+        <div class="section-sub">A 4-step learning journey, fully personalized to your profile</div>
         <div class="steps-grid">
-            <div class="step-card"><div class="step-number">01</div><h3>Créez votre profil</h3><p>Inscrivez-vous et répondez à quelques questions pour définir vos objectifs et votre niveau actuel.</p></div>
-            <div class="step-card"><div class="step-number">02</div><h3>Évaluation initiale</h3><p>Notre IA analyse vos compétences grâce à un quiz adaptatif pour personnaliser votre parcours.</p></div>
-            <div class="step-card"><div class="step-number">03</div><h3>Apprentissage personnalisé</h3><p>Accédez à des cours, exercices et ressources adaptés à votre niveau et progression.</p></div>
-            <div class="step-card"><div class="step-number">04</div><h3>Progression continue</h3><p>Le système s'adapte en temps réel selon vos résultats et vous recommande les prochaines étapes.</p></div>
+            <div class="step-card"><div class="step-number">01</div><h3>Create your profile</h3><p>Sign up and answer a few questions to define your goals and current level.</p></div>
+            <div class="step-card"><div class="step-number">02</div><h3>Initial assessment</h3><p>Our AI analyzes your skills through an adaptive quiz to personalize your path.</p></div>
+            <div class="step-card"><div class="step-number">03</div><h3>Personalized learning</h3><p>Access courses, exercises, and resources tailored to your level and progress.</p></div>
+            <div class="step-card"><div class="step-number">04</div><h3>Continuous progression</h3><p>The system adapts in real-time based on your results and recommends next steps.</p></div>
         </div>
     </section>
 
-    <!-- Fonctionnalités principales -->
+  
     <section id="features">
-        <h2 class="section-title">Fonctionnalités principales</h2>
-        <div class="section-sub">Des outils puissants pour maximiser votre apprentissage</div>
+        <h2 class="section-title">Main Features</h2>
+        <div class="section-sub">Powerful tools to maximize your learning</div>
         <div class="cards-grid">
-            <div class="card-feature"><i class="fas fa-sliders-h"></i><h4>Contenu Adaptatif</h4><p>Le système ajuste automatiquement la difficulté selon vos performances et votre style d’apprentissage.</p></div>
-            <div class="card-feature"><i class="fas fa-chart-simple"></i><h4>Tableaux de bord</h4><p>Suivez votre progression avec des graphiques détaillés sur vos forces et axes d'amélioration.</p></div>
-            <div class="card-feature"><i class="fas fa-headset"></i><h4>Assistant IA 24/7</h4><p>Un chatbot intelligent répond à vos questions, explique les concepts difficiles et vous guide.</p></div>
-            <div class="card-feature"><i class="fas fa-book-open"></i><h4>Bibliothèque de cours</h4><p>Centaines de cours en génie logiciel, des bases aux concepts avancés, adaptables à votre niveau.</p></div>
-            <div class="card-feature"><i class="fas fa-question-circle"></i><h4>Quiz et évaluations</h4><p>Évaluations régulières pour mesurer vos progrès et identifier les points d'attention.</p></div>
-            <div class="card-feature"><i class="fas fa-lightbulb"></i><h4>Recommandations intelligentes</h4><p>L'IA suggère les prochains cours, exercices en fonction de vos objectifs et historique.</p></div>
+            <div class="card-feature"><i class="fas fa-sliders-h"></i><h4>Adaptive Content</h4><p>The system automatically adjusts difficulty based on your performance and learning style.</p></div>
+            <div class="card-feature"><i class="fas fa-chart-simple"></i><h4>Dashboards</h4><p>Track your progress with detailed charts on your strengths and areas for improvement.</p></div>
+            <div class="card-feature"><i class="fas fa-headset"></i><h4>24/7 AI Assistant</h4><p>An intelligent chatbot answers your questions, explains difficult concepts, and guides you.</p></div>
+            <div class="card-feature"><i class="fas fa-book-open"></i><h4>Course Library</h4><p>Hundreds of courses in software engineering, from basics to advanced concepts, adaptable to your level.</p></div>
+            <div class="card-feature"><i class="fas fa-question-circle"></i><h4>Quizzes & Assessments</h4><p>Regular assessments to measure your progress and identify areas of focus.</p></div>
+            <div class="card-feature"><i class="fas fa-lightbulb"></i><h4>Smart Recommendations</h4><p>AI suggests next courses and exercises based on your goals and history.</p></div>
         </div>
     </section>
 
-    <!-- Avantages section -->
+
     <section id="benefits">
-        <h2 class="section-title">Pourquoi choisir AdaptLearn?</h2>
-        <div class="section-sub">Une plateforme conçue pour maximiser votre réussite académique</div>
+        <h2 class="section-title">Why choose AdaptLearn?</h2>
+        <div class="section-sub">A platform designed to maximize your academic success</div>
         <div class="benefits-grid">
-            <div class="benefit-item"><i class="fas fa-hourglass-half" style="font-size:2.5rem; color:#5a3dff;"></i><h3 style="margin:16px 0">Gagnez du temps</h3><p>Notre IA sélectionne automatiquement les ressources les plus pertinentes pour vous.</p></div>
-            <div class="benefit-item"><i class="fas fa-rocket" style="font-size:2.5rem; color:#5a3dff;"></i><h3 style="margin:16px 0">Progressez plus vite</h3><p>L'apprentissage adaptatif permet d'apprendre 40% plus rapidement qu'avec des méthodes traditionnelles.</p></div>
-            <div class="benefit-item"><i class="fas fa-trophy" style="font-size:2.5rem; color:#5a3dff;"></i><h3 style="margin:16px 0">Restez motivé</h3><p>Des objectifs clairs, des réussites célébrées et un contenu toujours adapté maintiennent votre motivation.</p></div>
+            <div class="benefit-item"><i class="fas fa-hourglass-half" style="font-size:2.5rem; color:#5a3dff;"></i><h3 style="margin:16px 0">Save time</h3><p>Our AI automatically selects the most relevant resources for you.</p></div>
+            <div class="benefit-item"><i class="fas fa-rocket" style="font-size:2.5rem; color:#5a3dff;"></i><h3 style="margin:16px 0">Progress faster</h3><p>Adaptive learning allows you to learn 40% faster than traditional methods.</p></div>
+            <div class="benefit-item"><i class="fas fa-trophy" style="font-size:2.5rem; color:#5a3dff;"></i><h3 style="margin:16px 0">Stay motivated</h3><p>Clear goals, celebrated achievements, and always-adapted content keep you motivated.</p></div>
         </div>
     </section>
 
-    <!-- Témoignage unique -->
+
     <section id="testimonial">
         <div class="testimonial">
             <i class="fas fa-quote-left" style="font-size: 2rem; color:#cdd9ff;"></i>
-            <p style="font-size:1.2rem; margin:15px 0">“AdaptLearn a transformé ma façon d'apprendre. Le contenu s'ajuste parfaitement à mon niveau, et j'ai gagné en confiance. Je recommande !”</p>
-            <h4>— Sarah K., étudiante en génie logiciel</h4>
+            <p style="font-size:1.2rem; margin:15px 0">"AdaptLearn has transformed the way I learn. The content adjusts perfectly to my level, and I've gained confidence. I recommend it!"</p>
+            <h4>— Sarah K., software engineering student</h4>
             <div style="margin-top:12px;"><i class="fas fa-star" style="color:#f5b042;"></i><i class="fas fa-star" style="color:#f5b042;"></i><i class="fas fa-star" style="color:#f5b042;"></i><i class="fas fa-star" style="color:#f5b042;"></i><i class="fas fa-star" style="color:#f5b042;"></i></div>
         </div>
     </section>
 
-    <!-- CTA final + footer -->
+  
     <div class="cta">
-        <h2 style="font-size: 2.2rem;">Prêt à transformer votre apprentissage?</h2>
-        <p style="margin: 20px 0; font-size:1.1rem;">Rejoignez des milliers d'étudiants qui apprennent de manière plus intelligente avec AdaptLearn.</p>
-        <button class="btn-primary btn-large" id="finalCtaBtn">Commencer gratuitement</button>
+        <h2 style="font-size: 2.2rem;">Ready to transform your learning?</h2>
+        <p style="margin: 20px 0; font-size:1.1rem;">Join thousands of students who are learning smarter with AdaptLearn.</p>
+        <button class="btn-primary btn-large" id="finalCtaBtn">Start for free</button>
     </div>
 
     <footer>
-        <div>© 2026 AdaptLearn. Plateforme d'apprentissage adaptatif.</div>
+        <div>© 2026 AdaptLearn. Adaptive learning platform.</div>
         <div style="display: flex; gap: 24px;">
-            <span>À propos</span>
+            <span>About</span>
             <span>Contact</span>
-            <span>Confidentialité</span>
+            <span>Privacy</span>
         </div>
     </footer>
 </div>
 
-<!-- floating chatbot simulateur -->
-<div class="chat-preview" id="chatBotBtn">
-    <i class="fas fa-comment-dots"></i> Assistant IA 24/7
-</div>
-<div class="toast-msg" id="toastMsg">✨ Assistant IA : je suis là pour vous aider !</div>
 
-<!-- MODAL générique pour connexion/inscription -->
+<div class="chat-preview" id="chatBotBtn">
+    <i class="fas fa-comment-dots"></i> 24/7 AI Assistant
+</div>
+<div class="toast-msg" id="toastMsg">✨ AI Assistant: I'm here to help you!</div>
+
+
 <div id="authModal" class="modal">
     <div class="modal-content">
         <span class="close-modal" id="closeModalBtn">&times;</span>
-        <h3 id="modalTitle">Connexion</h3>
+        <h3 id="modalTitle">Login</h3>
         <input type="email" id="emailInput" placeholder="Email" autocomplete="off">
-        <input type="password" id="passwordInput" placeholder="Mot de passe">
-        <button id="modalActionBtn" class="btn-primary" style="width:100%; margin-top:15px;">Se connecter</button>
-        <p id="modalSwitchText" style="margin-top:20px; font-size:0.8rem;">Pas encore de compte ? <a href="#" id="switchToSignup">S'inscrire</a></p>
+        <input type="password" id="passwordInput" placeholder="Password">
+        <button id="modalActionBtn" class="btn-primary" style="width:100%; margin-top:15px;">Log in</button>
+        <p id="modalSwitchText" style="margin-top:20px; font-size:0.8rem;">Don't have an account yet? <a href="#" id="switchToSignup">Sign up</a></p>
     </div>
 </div>
 </body>

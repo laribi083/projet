@@ -19,7 +19,7 @@ public class Course {
     @Column(length = 2000)
     private String description;
     
-    private String niveau;  // "1year", "2year", "3year"
+    private String niveau;
     
     private String module;
     
@@ -30,17 +30,14 @@ public class Course {
     
     private String duration;
     
-    private String status;  // "ACTIVE", "INACTIVE"
+    private String status;
     
-    // ⭐ NOUVEAU CHAMP POUR LA DATE DU DERNIER TÉLÉCHARGEMENT
     @Column(name = "last_downloaded_at")
     private LocalDateTime lastDownloadedAt;
     
-    // ⭐ NOUVEAU CHAMP POUR LE NOMBRE DE TÉLÉCHARGEMENTS
     @Column(name = "download_count")
     private Integer downloadCount = 0;
     
-    // Champs pour les fichiers (support multi-fichiers)
     @ElementCollection
     @CollectionTable(name = "course_file_paths", joinColumns = @JoinColumn(name = "course_id"))
     @Column(name = "file_path")
@@ -51,11 +48,9 @@ public class Course {
     @Column(name = "file_name")
     private List<String> fileNames = new ArrayList<>();
     
-    // Pour le contenu HTML direct
     @Column(columnDefinition = "TEXT")
     private String htmlContent;
     
-    // Champs simples pour compatibilité
     private String filePath;
     private String fileName;
     private String fileType;
@@ -69,6 +64,10 @@ public class Course {
     
     @Transient
     private Integer quizCount = 0;
+    
+    // ⭐ AJOUTER CE CHAMP
+    @Transient
+    private Integer totalStudents = 0;
     
     // ========== CONSTRUCTEURS ==========
     
@@ -117,7 +116,6 @@ public class Course {
     public String getStatus() { return status; }
     public void setStatus(String status) { this.status = status; }
     
-    // ⭐ GETTERS/SETTERS pour les téléchargements
     public LocalDateTime getLastDownloadedAt() { return lastDownloadedAt; }
     public void setLastDownloadedAt(LocalDateTime lastDownloadedAt) { this.lastDownloadedAt = lastDownloadedAt; }
     
@@ -164,6 +162,10 @@ public class Course {
     public Integer getQuizCount() { return quizCount; }
     public void setQuizCount(Integer quizCount) { this.quizCount = quizCount; }
     
+    // ⭐ GETTER ET SETTER POUR totalStudents
+    public Integer getTotalStudents() { return totalStudents; }
+    public void setTotalStudents(Integer totalStudents) { this.totalStudents = totalStudents; }
+    
     // ========== MÉTHODES UTILITAIRES ==========
     
     public String getFirstFilePath() {
@@ -199,7 +201,6 @@ public class Course {
         }
     }
     
-    // ⭐ Incrémenter le compteur de téléchargements
     public void incrementDownloadCount() {
         if (this.downloadCount == null) {
             this.downloadCount = 1;

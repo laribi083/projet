@@ -2,6 +2,7 @@ package com.votredomaine.modelememoire.controller;
 
 import com.votredomaine.modelememoire.model.Course;
 import com.votredomaine.modelememoire.service.Courseservice;
+import com.votredomaine.modelememoire.service.EnrollmentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -18,27 +19,17 @@ public class studentcoursecontroller {
     @Autowired
     private Courseservice courseService;
     
-    // ========== PAGES HTML ==========
+    @Autowired
+    private EnrollmentService enrollmentService;
     
-   /* @GetMapping("/dashboard")
-    public String dashboard(Model model, HttpSession session) {
-        String userName = (String) session.getAttribute("userName");
-        String niveau = (String) session.getAttribute("niveau");
-        
-        if (userName == null) {
-            return "redirect:/login";
-        }
-        
-        model.addAttribute("userName", userName);
-        model.addAttribute("niveau", niveau);
-        
-        return "htmlstudent/Dashboard";
-    } */
+    // ========== PAGES HTML ==========
     
     @GetMapping("/receive-courses")
     public String receiveCourses(Model model, HttpSession session) {
         String userName = (String) session.getAttribute("userName");
         String niveau = (String) session.getAttribute("niveau");
+        
+        System.out.println("🔍 [receiveCourses] userName: " + userName);
         
         if (userName == null) {
             return "redirect:/login";
@@ -54,15 +45,51 @@ public class studentcoursecontroller {
         return "htmlstudent/receive-courses";
     }
     
+    /**
+     * PAGE DÉTAIL D'UN COURS - Avec enregistrement du téléchargement
+     */
     @GetMapping("/course/{id}")
     public String viewCourse(@PathVariable Long id, Model model, HttpSession session) {
+        String userName = (String) session.getAttribute("userName");
+        Long userId = (Long) session.getAttribute("userId");
+        
+        System.out.println("========================================");
+        System.out.println("🔍 [viewCourse] APPELÉ");
+        System.out.println("   courseId: " + id);
+        System.out.println("   userName: " + userName);
+        System.out.println("   userId: " + userId);
+        System.out.println("========================================");
+        
+        if (userName == null) {
+            System.out.println("⚠️ userName null, redirection login");
+            return "redirect:/login";
+        }
+        
+        if (userId == null) {
+            System.out.println("⚠️ userId null, redirection login");
+            return "redirect:/login";
+        }
+        
         Course course = courseService.getCourseById(id);
         
         if (course == null) {
+            System.out.println("❌ Cours non trouvé avec ID: " + id);
             return "redirect:/student/receive-courses";
         }
         
+        // ⭐⭐⭐ POINT CRITIQUE : Enregistrer le téléchargement ⭐⭐⭐
+        System.out.println("📝 Appel de enrollmentService.registerDownload()...");
+        try {
+            boolean isNew = enrollmentService.registerDownload(userId, userName, id);
+            System.out.println("📥 Résultat registerDownload: " + (isNew ? "NOUVELLE inscription" : "Déjà inscrit"));
+        } catch (Exception e) {
+            System.err.println("❌ Erreur lors de l'enregistrement: " + e.getMessage());
+            e.printStackTrace();
+        }
+        
         model.addAttribute("course", course);
+        model.addAttribute("userName", userName);
+        
         return "htmlstudent/course-detail";
     }
     

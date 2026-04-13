@@ -151,7 +151,8 @@ function createCourseCard(course) {
             <div class="course-meta">
                 <div class="course-stats">
                     <span><i class="fas fa-tag"></i> ${escapeHtml(course.module || 'Non défini')}</span>
-                    <span><i class="fas fa-question-circle"></i> ${course.totalQuizzes || 0} quiz</span>
+                    <span><i class="fas fa-question-circle"></i> ${course.quizCount || 0} quiz</span>
+                    <span><i class="fas fa-users"></i> ${course.totalStudents || 0} étudiants</span>
                 </div>
                 <div class="course-actions">
                     <button class="btn-view" onclick="viewCourse(${course.id})"><i class="fas fa-eye"></i> Voir</button>
@@ -256,27 +257,19 @@ async function loadQuizzes() {
     }
 }
 
-// ========== CHARGEMENT DES STATISTIQUES (CORRIGÉ) ==========
+// ========== CHARGEMENT DES STATISTIQUES (AVEC API /teacher/api/stats) ==========
 async function loadStats() {
     try {
-        // Compter les cours
-        const coursesResponse = await fetch('/teacher/my-courses');
-        const courses = await coursesResponse.json();
-        const totalCourses = courses.length;
+        const response = await fetch('/teacher/api/stats');
+        if (!response.ok) throw new Error('Failed to fetch stats');
         
-        // Compter les quiz
-        const quizzesResponse = await fetch('/teacher/api/quizzes');
-        const quizzes = await quizzesResponse.json();
-        const totalQuizzes = quizzes.length;
+        const stats = await response.json();
         
-        // Mettre à jour l'affichage
-        document.getElementById('totalCourses').textContent = totalCourses;
-        document.getElementById('totalQuizzes').textContent = totalQuizzes;
+        document.getElementById('totalCourses').textContent = stats.totalCourses || 0;
+        document.getElementById('totalQuizzes').textContent = stats.totalQuizzes || 0;
+        document.getElementById('totalStudents').textContent = stats.totalStudents || 0;
         
-        // Pour les étudiants (valeur par défaut en attendant l'implémentation)
-        document.getElementById('totalStudents').textContent = '0';
-        
-        console.log(`📊 Stats mises à jour: ${totalCourses} cours, ${totalQuizzes} quiz`);
+        console.log(`📊 Stats mises à jour: ${stats.totalCourses} cours, ${stats.totalQuizzes} quiz, ${stats.totalStudents} étudiants`);
         
     } catch (error) {
         console.error('Error loading stats:', error);

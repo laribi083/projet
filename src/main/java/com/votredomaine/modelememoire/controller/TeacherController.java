@@ -4,6 +4,7 @@ import com.votredomaine.modelememoire.model.Course;
 import com.votredomaine.modelememoire.model.Quiz;
 import com.votredomaine.modelememoire.model.Teacher;
 import com.votredomaine.modelememoire.service.Courseservice;
+import com.votredomaine.modelememoire.service.EnrollmentService;
 import com.votredomaine.modelememoire.service.QuizService;
 import com.votredomaine.modelememoire.service.TeacherService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,6 +38,9 @@ public class TeacherController {
     
     @Autowired
     private QuizService quizService;
+    
+    @Autowired
+    private EnrollmentService enrollmentService;
    
     // ==================== GESTION DES ENSEIGNANTS (API) ====================
     
@@ -216,10 +220,40 @@ public class TeacherController {
             for (Course course : courses) {
                 long quizCount = quizService.countQuizzesByCourse(course.getId());
                 course.setQuizCount((int) quizCount);
+                
+                // ⭐ AJOUTER LE NOMBRE D'ÉTUDIANTS POUR CHAQUE COURS
+                long studentCount = enrollmentService.countStudentsByCourse(course.getId());
+                course.setTotalStudents((int) studentCount);
             }
         }
         
         return ResponseEntity.ok(courses != null ? courses : List.of());
+    }
+    
+    // ⭐ NOUVEL ENDPOINT POUR LES STATISTIQUES GLOBALES
+    @GetMapping("/api/stats")
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> getTeacherStats(HttpSession session) {
+        Long teacherId = (Long) session.getAttribute("teacherId");
+        if (teacherId == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+        
+        Map<String, Object> stats = new HashMap<>();
+        
+        // Nombre de cours
+        List<Course> courses = courseService.getCoursesByTeacherId(teacherId);
+        stats.put("totalCourses", courses.size());
+        
+        // Nombre de quiz
+        List<Quiz> quizzes = quizService.getQuizzesByTeacher(teacherId);
+        stats.put("totalQuizzes", quizzes.size());
+        
+        // ⭐ NOMBRE TOTAL D'ÉTUDIANTS INSCRITS (unique)
+        long totalStudents = enrollmentService.countTotalStudentsByTeacher(teacherId);
+        stats.put("totalStudents", totalStudents);
+        
+        return ResponseEntity.ok(stats);
     }
     
     @DeleteMapping("/delete-course/{courseId}")
@@ -281,9 +315,6 @@ public class TeacherController {
     
     // ==================== MODIFICATION DE COURS (API) ====================
     
-    /**
-     * Met à jour un cours existant
-     */
     @PostMapping("/api/update-course/{id}")
     @ResponseBody
     public ResponseEntity<Map<String, Object>> updateCourseApi(
@@ -320,14 +351,12 @@ public class TeacherController {
                 return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
             }
             
-            // Mettre à jour les champs
             existingCourse.setTitle(title);
             existingCourse.setDescription(description);
             existingCourse.setModule(module);
             existingCourse.setNiveau(niveau);
             existingCourse.setUpdatedAt(LocalDateTime.now());
             
-            // Ajouter les nouveaux fichiers
             if (newFiles != null && !newFiles.isEmpty()) {
                 List<String> filePaths = existingCourse.getFilePaths();
                 List<String> fileNames = existingCourse.getFileNames();
@@ -343,7 +372,6 @@ public class TeacherController {
                         String uniqueName = UUID.randomUUID().toString() + "_" + originalName;
                         String uploadPath = "uploads/courses/" + uniqueName;
                         
-                        // Sauvegarde du fichier
                         Path path = Paths.get(uploadPath);
                         Files.createDirectories(path.getParent());
                         Files.write(path, file.getBytes());
@@ -532,9 +560,6 @@ public class TeacherController {
         return ResponseEntity.ok(quizzes != null ? quizzes : List.of());
     }
     
-    /**
-     * ⭐ SUPPRIMER UN QUIZ - ENDPOINT AJOUTÉ
-     */
     @DeleteMapping("/api/delete-quiz/{quizId}")
     @ResponseBody
     public ResponseEntity<Map<String, Object>> deleteQuizApi(@PathVariable Long quizId, HttpSession session) {
@@ -557,14 +582,12 @@ public class TeacherController {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
             }
             
-            // Vérifier que le quiz appartient bien à l'enseignant connecté
             if (!quiz.getTeacherId().equals(teacherId)) {
                 response.put("success", false);
                 response.put("message", "Accès non autorisé");
                 return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
             }
             
-            // Supprimer le quiz
             quizService.deleteQuiz(quizId);
             
             response.put("success", true);

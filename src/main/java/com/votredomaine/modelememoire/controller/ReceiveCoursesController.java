@@ -2,6 +2,7 @@ package com.votredomaine.modelememoire.controller;
 
 import com.votredomaine.modelememoire.model.Course;
 import com.votredomaine.modelememoire.service.Courseservice;
+import com.votredomaine.modelememoire.service.EnrollmentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
@@ -24,6 +25,9 @@ public class ReceiveCoursesController {
     
     @Autowired
     private Courseservice courseService;
+    
+    @Autowired
+    private EnrollmentService enrollmentService;  // ⭐ AJOUTER CETTE LIGNE
     
     @GetMapping("/receive-courses")
     public String showReceiveCourses(HttpSession session, Model model) {
@@ -86,18 +90,42 @@ public class ReceiveCoursesController {
         return ResponseEntity.ok(modules);
     }
     
-    // ⭐ ENDPOINT POUR TÉLÉCHARGER UN COURS (MET À JOUR LA DATE)
+    // ⭐ ENDPOINT POUR TÉLÉCHARGER UN COURS (AVEC ENREGISTREMENT DANS ENROLLMENTS)
     @GetMapping("/course/{courseId}/download")
     public ResponseEntity<Resource> downloadCourse(@PathVariable Long courseId, HttpSession session) {
         try {
             String userName = (String) session.getAttribute("userName");
+            Long userId = (Long) session.getAttribute("userId");
+            
+            System.out.println("========================================");
+            System.out.println("📥 [DOWNLOAD] Tentative de téléchargement");
+            System.out.println("   courseId: " + courseId);
+            System.out.println("   userName: " + userName);
+            System.out.println("   userId: " + userId);
+            System.out.println("========================================");
+            
+            if (userName == null || userId == null) {
+                System.err.println("❌ Utilisateur non connecté");
+                return ResponseEntity.status(401).build();
+            }
+            
             Course course = courseService.getCourseById(courseId);
             
             if (course == null) {
+                System.err.println("❌ Cours non trouvé");
                 return ResponseEntity.notFound().build();
             }
             
-            // ⭐ METTRE À JOUR LA DATE DE DERNIER TÉLÉCHARGEMENT
+            // ⭐⭐⭐ ENREGISTRER L'INSCRIPTION DANS LA TABLE ENROLLMENTS ⭐⭐⭐
+            try {
+                boolean isNew = enrollmentService.registerDownload(userId, userName, courseId);
+                System.out.println("📥 Inscription enregistrée - Nouvelle: " + isNew);
+            } catch (Exception e) {
+                System.err.println("❌ Erreur lors de l'enregistrement: " + e.getMessage());
+                e.printStackTrace();
+            }
+            
+            // Mettre à jour le compteur de téléchargements du cours
             course.incrementDownloadCount();
             courseService.update(course);
             
@@ -106,6 +134,7 @@ public class ReceiveCoursesController {
             
             String filePath = course.getFirstFilePath();
             if (filePath == null || filePath.isEmpty()) {
+                System.err.println("❌ Aucun fichier associé au cours");
                 return ResponseEntity.notFound().build();
             }
             
@@ -121,6 +150,7 @@ public class ReceiveCoursesController {
                     .contentType(MediaType.APPLICATION_OCTET_STREAM)
                     .body(resource);
             } else {
+                System.err.println("❌ Fichier non trouvé: " + filePath);
                 return ResponseEntity.notFound().build();
             }
         } catch (Exception e) {

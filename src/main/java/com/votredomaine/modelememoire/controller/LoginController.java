@@ -73,7 +73,9 @@ public class LoginController {
                     session.setAttribute("loggedIn", true);
                     
                     System.out.println("✅ Connexion STUDENT réussie - ID: " + user.getId());
-                    return new ModelAndView("redirect:/student/dashboard");  // ← AJOUTÉ !
+                    System.out.println("   userName: " + user.getName());
+                    System.out.println("   userId en session: " + session.getAttribute("userId"));
+                    return new ModelAndView("redirect:/student/dashboard");
                 }
             } catch (Exception e) {
                 System.out.println("⚠️ Erreur BCrypt pour student: " + e.getMessage());

@@ -1,0 +1,73 @@
+/* TABLE CARD */
+.table-card {
+    background: white;
+    border-radius: 15px;
+    padding: 20px;
+    margin-top: 20px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+}
+
+.table-header {
+    margin-bottom: 15px;
+}
+
+.table-header input {
+    padding: 10px;
+    border-radius: 10px;
+    border: 1px solid #ddd;
+    width: 250px;
+}
+
+/* TABLE */
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+th,
+td {
+    padding: 12px;
+    border-top: 1px solid #eee;
+    text-align: left;
+}
+
+/* BADGES */
+.badge {
+    padding: 4px 10px;
+    border-radius: 8px;
+    font-size: 12px;
+}
+
+.pending {
+    background: #fef9c3;
+    color: #ca8a04;
+}
+
+.approved {
+    background: #dcfce7;
+    color: #16a34a;
+}
+
+.rejected {
+    background: #fee2e2;
+    color: #dc2626;
+}
+
+/* ACTION BUTTONS */
+.actions button {
+    border: none;
+    padding: 6px 10px;
+    margin-right: 5px;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.btn-approve {
+    background: #22c55e;
+    color: white;
+}
+
+.btn-reject {
+    background: #ef4444;
+    color: white;
+}

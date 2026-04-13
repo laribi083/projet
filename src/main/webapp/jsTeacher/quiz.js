@@ -73,6 +73,13 @@ function updateQuestionNumbers() {
     questionCount = $('.question-card').length;
 }
 
+// Fonction pour rafraîchir les statistiques (appelée depuis le dashboard)
+function refreshStats() {
+    if (typeof window.loadStats === 'function') {
+        window.loadStats();
+    }
+}
+
 function saveQuiz() {
     const title = $('#quizTitle').val();
     const description = $('#quizDescription').val();
@@ -133,12 +140,15 @@ function saveQuiz() {
         success: function(response) {
             if (response.success) {
                 alert('Quiz créé avec succès !');
+                // ⭐ Rafraîchir les statistiques avant redirection
+                refreshStats();
                 window.location.href = '/teacher/dashboard';
             } else {
                 alert('Erreur: ' + response.message);
             }
         },
         error: function(xhr) {
+            console.error('Erreur:', xhr);
             alert('Erreur lors de la création du quiz');
         },
         complete: function() {

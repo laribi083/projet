@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Users</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link rel="stylesheet" href="dashboard.css">
+    <link rel="stylesheet" href="user.css">
+
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+</head>
+
+<body>
+
+    <!-- SIDEBAR -->
+    <div class="sidebar" id="sidebar">
+        <div class="top">
+            <h2>Admin Panel</h2>
+            <i class="fas fa-bars" id="toggleBtn"></i>
+        </div>
+
+        <ul class="menu">
+
+            <li>
+                <a href="dashboard.html">
+                    <i class="fas fa-th-large"></i>
+                    <span>Dashboard</span>
+                </a>
+            </li>
+
+            <li class="active">
+                <a href="user.html">
+                    <i class="fas fa-users"></i>
+                    <span>Users Management</span>
+                </a>
+            </li>
+
+            <li>
+                <a href="level.html">
+                    <i class="fas fa-graduation-cap"></i>
+                    <span>Educational Levels</span>
+                </a>
+            </li>
+
+            <li>
+                <a href="valid.html">
+                    <i class="fas fa-check-square"></i>
+                    <span>Course Verification</span>
+                </a>
+            </li>
+
+        </ul>
+    </div>
+
+    <!-- MAIN -->
+    <div class="main">
+
+        <div class="header">
+            <h1>Users Management</h1>
+            <p>Manage platform users</p>
+        </div>
+
+        <!-- TABLE -->
+        <div class="table-card">
+
+            <div class="table-header">
+                <input id="search" placeholder="Search user...">
+
+                <button onclick="openModal()" class="add-btn">
+                    <i class="fas fa-plus"></i> Add User
+                </button>
+            </div>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>User</th>
+                        <th>Role</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+
+                <tbody id="userTable"></tbody>
+            </table>
+
+        </div>
+
+    </div>
+
+    <!-- MODAL -->
+    <div class="modal" id="modal">
+        <div class="modal-content">
+            <h3>Add User</h3>
+
+            <input id="name" placeholder="Name">
+            <input id="email" placeholder="Email">
+
+            <select id="role">
+                <option>Student</option>
+                <option>Teacher</option>
+                <option>Admin</option>
+            </select>
+
+            <button onclick="addUser()">Save</button>
+            <button onclick="closeModal()">Cancel</button>
+        </div>
+    </div>
+
+    <script src="dashboard.js"></script>
+    <script src="user.js"></script>
+
+</body>
+
+</html>

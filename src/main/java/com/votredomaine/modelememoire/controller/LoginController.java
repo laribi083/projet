@@ -1,8 +1,10 @@
 package com.votredomaine.modelememoire.controller;
 
+import com.votredomaine.modelememoire.model.Admin;
 import com.votredomaine.modelememoire.model.Teacher;
 import com.votredomaine.modelememoire.model.Utilisateur;
 import com.votredomaine.modelememoire.repository.UserRepository;
+import com.votredomaine.modelememoire.service.AdminService;
 import com.votredomaine.modelememoire.service.TeacherService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -10,6 +12,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import jakarta.servlet.http.HttpSession;
+import java.util.Optional;
 
 @Controller
 public class LoginController {
@@ -20,6 +23,9 @@ public class LoginController {
     @Autowired
     private TeacherService teacherService;
     
+    @Autowired
+    private AdminService adminService;  // ⭐ AJOUTÉ
+    
     private BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
     @GetMapping("/login")
@@ -27,7 +33,6 @@ public class LoginController {
         return "login";
     }
 
-    // Traitement du formulaire POST
     @PostMapping("/login")
     public ModelAndView processLogin(@RequestParam String email, 
                                      @RequestParam String password,
@@ -35,7 +40,23 @@ public class LoginController {
         
         System.out.println("🔐 Tentative de connexion pour: " + email);
         
-        // 1. Vérifier d'abord si c'est un TEACHER
+        // ⭐ 1. Vérifier d'abord si c'est un ADMIN
+        Optional<Admin> adminOpt = adminService.loginAdmin(email, password);
+        
+        if (adminOpt.isPresent()) {
+            Admin admin = adminOpt.get();
+            session.setAttribute("adminId", admin.getId());
+            session.setAttribute("adminName", admin.getFullName());
+            session.setAttribute("adminEmail", admin.getEmail());
+            session.setAttribute("adminUsername", admin.getUsername());
+            session.setAttribute("role", "ADMIN");
+            session.setAttribute("loggedIn", true);
+            
+            System.out.println("✅ Connexion ADMIN réussie - ID: " + admin.getId());
+            return new ModelAndView("redirect:/admin/dashboard");
+        }
+        
+        // 2. Vérifier ensuite si c'est un TEACHER
         var teacherOpt = teacherService.findByEmail(email);
         
         if (teacherOpt.isPresent()) {
@@ -59,7 +80,7 @@ public class LoginController {
             }
         }
         
-        // 2. Vérifier dans la table users (étudiants)
+        // 3. Vérifier dans la table users (étudiants)
         var userOpt = userRepository.findByEmail(email);
         
         if (userOpt.isPresent()) {
@@ -73,8 +94,6 @@ public class LoginController {
                     session.setAttribute("loggedIn", true);
                     
                     System.out.println("✅ Connexion STUDENT réussie - ID: " + user.getId());
-                    System.out.println("   userName: " + user.getName());
-                    System.out.println("   userId en session: " + session.getAttribute("userId"));
                     return new ModelAndView("redirect:/student/dashboard");
                 }
             } catch (Exception e) {
@@ -88,7 +107,6 @@ public class LoginController {
         return mav;
     }
     
-    // Dashboard étudiant
     @GetMapping("/student/dashboard")
     public ModelAndView studentDashboard(HttpSession session) {
         if (session.getAttribute("role") == null || !"STUDENT".equals(session.getAttribute("role"))) {
@@ -104,7 +122,6 @@ public class LoginController {
         return mav;
     }
     
-    // Route pour les quiz teacher
     @GetMapping("/teacher/quiz")
     public ModelAndView teacherQuiz(HttpSession session) {
         if (session.getAttribute("role") == null || !"TEACHER".equals(session.getAttribute("role"))) {
@@ -116,7 +133,6 @@ public class LoginController {
         return mav;
     }
     
-    // Route pour créer un cours
     @GetMapping("/teacher/create-course")
     public ModelAndView createCourse(HttpSession session) {
         if (session.getAttribute("role") == null || !"TEACHER".equals(session.getAttribute("role"))) {
@@ -128,7 +144,6 @@ public class LoginController {
         return mav;
     }
     
-    // Déconnexion
     @GetMapping("/logout")
     public String logout(HttpSession session) {
         session.invalidate();

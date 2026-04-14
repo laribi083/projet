@@ -1,153 +1,229 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
 
 <head>
     <meta charset="UTF-8">
-    <title>Dashboard</title>
+    <title>Admin Dashboard - BrainLearning</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <link rel="stylesheet" href="@{/cssadmin/dashbord.css}">
+    <link th:href="@{/cssadmin/dashboard.css}" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
 
 <body>
+    <div class="dashboard-container">
+        <!-- SIDEBAR GAUCHE -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">
+                    <i class="fas fa-brain"></i>
+                    <span>Brain<span>Learning</span></span>
+                </div>
+                <button class="toggle-btn" id="toggleBtn">
+                    <i class="fas fa-bars"></i>
+                </button>
+            </div>
 
-    <div class="sidebar" id="sidebar">
-        <div class="top">
-            <h2>Admin Panel</h2>
-            <i class="fas fa-bars" id="toggleBtn"></i>
-        </div>
+            <div class="admin-profile">
+                <div class="admin-avatar">
+                    <span th:text="${#strings.substring(adminName, 0, 1)}">S</span>
+                </div>
+                <div class="admin-info">
+                    <h4 th:text="${adminName}">Super Administrator</h4>
+                    <p th:text="${adminEmail}">kitouniisrauniv2@gmail.com</p>
+                </div>
+            </div>
 
-        <ul class="menu">
+            <nav class="sidebar-nav">
+                <ul class="nav-menu">
+                    <li class="nav-item active">
+                        <a href="#">
+                            <i class="fas fa-th-large"></i>
+                            <span>Dashboard</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#">
+                            <i class="fas fa-users"></i>
+                            <span>Users Management</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#">
+                            <i class="fas fa-graduation-cap"></i>
+                            <span>Educational Levels</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#">
+                            <i class="fas fa-check-square"></i>
+                            <span>Course Verification</span>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
 
-            <li class="active">
-                <a href="dashboard.html">
-                    <i class="fas fa-th-large"></i>
-                    <span>Dashboard</span>
+            <!-- ⭐ LOGOUT EN BAS ⭐ -->
+            <div class="sidebar-footer">
+                <a href="/logout" class="logout-btn">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span>Logout</span>
                 </a>
-            </li>
+            </div>
+        </aside>
 
-            <li>
-                <a href="user.html">
-                    <i class="fas fa-users"></i>
-                    <span>Users Management</span>
-                </a>
-            </li>
+        <!-- MAIN CONTENT -->
+        <main class="main-content">
+            <!-- Top Bar -->
+            <div class="top-bar">
+                <div class="page-title">
+                    <h1>My dashboard</h1>
+                    <p>Overview of the educational platform</p>
+                </div>
+                
+            </div>
 
-            <li>
-                <a href="level.html">
-                    <i class="fas fa-graduation-cap"></i>
-                    <span>Educational Levels</span>
-                </a>
-            </li>
+            <!-- Stats Cards -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon blue">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3 id="totalUsers">0</h3>
+                        <p>Total Users</p>
+                    </div>
+                    <div class="stat-change positive">
+                        <i class="fas fa-arrow-up"></i> +12%
+                    </div>
+                </div>
 
-            <li>
-                <a href="valid.html">
-                    <i class="fas fa-check-square"></i>
-                    <span>Course Verification</span>
-                </a>
-            </li>
+                <div class="stat-card">
+                    <div class="stat-icon green">
+                        <i class="fas fa-book"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3 id="totalCourses">0</h3>
+                        <p>Published Courses</p>
+                    </div>
+                    <div class="stat-change positive">
+                        <i class="fas fa-arrow-up"></i> +8%
+                    </div>
+                </div>
 
-        </ul>
+                <div class="stat-card">
+                    <div class="stat-icon yellow">
+                        <i class="fas fa-clock"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3 id="pendingCourses">0</h3>
+                        <p>Pending Courses</p>
+                    </div>
+                    <div class="stat-change negative">
+                        <i class="fas fa-arrow-down"></i> -5%
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-icon purple">
+                        <i class="fas fa-check-circle"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3 id="validatedCourses">0</h3>
+                        <p>Validated Courses</p>
+                    </div>
+                    <div class="stat-change positive">
+                        <i class="fas fa-arrow-up"></i> +15%
+                    </div>
+                </div>
+            </div>
+
+            <!-- Content Grid -->
+            <div class="content-grid">
+                <!-- Recent Activities -->
+                <div class="activity-section">
+                    <div class="section-header">
+                        <h3><i class="fas fa-history"></i> Recent Activities</h3>
+                        <a href="#" class="view-all">View All</a>
+                    </div>
+                    <div class="activity-list">
+                        <div class="activity-item">
+                            <div class="activity-icon blue-bg">
+                                <i class="fas fa-plus-circle"></i>
+                            </div>
+                            <div class="activity-details">
+                                <p><b>Prof. Martin Dupont</b> published "Introduction to React"</p>
+                                <small>2 hours ago</small>
+                            </div>
+                        </div>
+                        <div class="activity-item">
+                            <div class="activity-icon green-bg">
+                                <i class="fas fa-user-plus"></i>
+                            </div>
+                            <div class="activity-details">
+                                <p><b>Marie Leblanc</b> registered as a student</p>
+                                <small>3 hours ago</small>
+                            </div>
+                        </div>
+                        <div class="activity-item">
+                            <div class="activity-icon purple-bg">
+                                <i class="fas fa-edit"></i>
+                            </div>
+                            <div class="activity-details">
+                                <p><b>Prof. Sophie Bernard</b> updated "JavaScript Advanced"</p>
+                                <small>5 hours ago</small>
+                            </div>
+                        </div>
+                        <div class="activity-item">
+                            <div class="activity-icon orange-bg">
+                                <i class="fas fa-download"></i>
+                            </div>
+                            <div class="activity-details">
+                                <p><b>Boudebza ranim</b> downloaded a course</p>
+                                <small>Yesterday</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Pending Courses -->
+                <div class="pending-section">
+                    <div class="section-header">
+                        <h3><i class="fas fa-clock"></i> Pending Courses</h3>
+                        <a href="#" class="view-all">View All</a>
+                    </div>
+                    <div class="pending-list">
+                        <div class="pending-item">
+                            <div class="pending-info">
+                                <h4>Introduction to TypeScript</h4>
+                                <p>Prof. Jean Moreau</p>
+                                <small>Submitted: 2026-04-04</small>
+                            </div>
+                            <span class="badge intermediate">Intermediate</span>
+                        </div>
+                        <div class="pending-item">
+                            <div class="pending-info">
+                                <h4>Design Patterns in Java</h4>
+                                <p>Prof. Claire Dubois</p>
+                                <small>Submitted: 2026-04-03</small>
+                            </div>
+                            <span class="badge advanced">Advanced</span>
+                        </div>
+                        <div class="pending-item">
+                            <div class="pending-info">
+                                <h4>Web Development with React</h4>
+                                <p>Prof. Thomas Bernard</p>
+                                <small>Submitted: 2026-04-02</small>
+                            </div>
+                            <span class="badge beginner">Beginner</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
     </div>
 
-    <div class="admin">
-        <div class="circle">A</div>
-        <div class="admin-info">
-            <p>Administrator</p>
-            <small>admin@platform.com</small>
-        </div>
-    </div>
-    </div>
-
-    <div class="main">
-
-        <div class="header">
-            <h1>Dashboard</h1>
-            <p>Overview of the educational platform</p>
-        </div>
-
-        <div class="cards">
-            <div class="card">
-                <div class="icon blue"><i class="fas fa-users"></i></div>
-                <div>
-                    <span class="green">+12%</span>
-                    <p>Total Users</p>
-                    <h2 id="users">0</h2>
-                </div>
-            </div>
-
-            <div class="card">
-                <div class="icon greenBg"><i class="fas fa-book"></i></div>
-                <div>
-                    <span class="green">+8%</span>
-                    <p>Published Courses</p>
-                    <h2 id="courses">0</h2>
-                </div>
-            </div>
-
-            <div class="card">
-                <div class="icon yellow"><i class="fas fa-exclamation"></i></div>
-                <div>
-                    <span class="red">-5%</span>
-                    <p>Pending Courses</p>
-                    <h2 id="pending">0</h2>
-                </div>
-            </div>
-
-            <div class="card">
-                <div class="icon purple"><i class="fas fa-check"></i></div>
-                <div>
-                    <span class="green">+15%</span>
-                    <p>Validated Courses</p>
-                    <h2 id="validated">0</h2>
-                </div>
-            </div>
-        </div>
-
-        <div class="content">
-
-            <div class="activity">
-                <h3>Recent Activities</h3>
-
-                <div class="activity-item">
-                    <b>Prof. Martin</b> published "Introduction to React"
-                    <small>2h ago</small>
-                </div>
-
-                <div class="activity-item">
-                    <b>Marie</b> registered
-                    <small>3h ago</small>
-                </div>
-
-                <div class="activity-item">
-                    <b>Prof. Sophie</b> updated course
-                    <small>5h ago</small>
-                </div>
-            </div>
-
-            <div class="courses">
-                <h3>Pending Courses</h3>
-
-                <div class="course">
-                    Introduction to TypeScript
-                    <span class="badge">Intermediate</span>
-                    <p>Prof. Jean</p>
-                </div>
-
-                <div class="course">
-                    Design Patterns in Java
-                    <span class="badge">Advanced</span>
-                    <p>Prof. Claire</p>
-                </div>
-
-            </div>
-
-        </div>
-
-    </div>
-
-    <script src="dashboard.js"></script>
+    <script th:src="@{/jsadmin/dashboard.js}"></script>
 </body>
-
 </html>

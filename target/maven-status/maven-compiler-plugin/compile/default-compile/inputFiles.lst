@@ -10,6 +10,7 @@ C:\Users\larib\Desktop\modelle memoire\src\main\java\com\votredomaine\modelememo
 C:\Users\larib\Desktop\modelle memoire\src\main\java\com\votredomaine\modelememoire\service\forgetpassservice.java
 C:\Users\larib\Desktop\modelle memoire\src\main\java\com\votredomaine\modelememoire\service\TeacherService.java
 C:\Users\larib\Desktop\modelle memoire\src\main\java\com\votredomaine\modelememoire\controller\studentcoursecontroller.java
+C:\Users\larib\Desktop\modelle memoire\src\main\java\com\votredomaine\modelememoire\service\ActivityService.java
 C:\Users\larib\Desktop\modelle memoire\src\main\java\com\votredomaine\modelememoire\controller\forgetController.java
 C:\Users\larib\Desktop\modelle memoire\src\main\java\com\votredomaine\modelememoire\Application.java
 C:\Users\larib\Desktop\modelle memoire\src\main\java\com\votredomaine\modelememoire\controller\InscriptionController.java
@@ -19,6 +20,7 @@ C:\Users\larib\Desktop\modelle memoire\src\main\java\com\votredomaine\modelememo
 C:\Users\larib\Desktop\modelle memoire\src\main\java\com\votredomaine\modelememoire\repository\QuestionRepository.java
 C:\Users\larib\Desktop\modelle memoire\src\main\java\com\votredomaine\modelememoire\service\UtilisateurService.java
 C:\Users\larib\Desktop\modelle memoire\src\main\java\com\votredomaine\modelememoire\model\Utilisateur.java
+C:\Users\larib\Desktop\modelle memoire\src\main\java\com\votredomaine\modelememoire\repository\ActivityRepository.java
 C:\Users\larib\Desktop\modelle memoire\src\main\java\com\votredomaine\modelememoire\repository\TeacherRepository.java
 C:\Users\larib\Desktop\modelle memoire\src\main\java\com\votredomaine\modelememoire\model\QuizResult.java
 C:\Users\larib\Desktop\modelle memoire\src\main\java\com\votredomaine\modelememoire\model\Course.java
@@ -33,6 +35,7 @@ C:\Users\larib\Desktop\modelle memoire\src\main\java\com\votredomaine\modelememo
 C:\Users\larib\Desktop\modelle memoire\src\main\java\com\votredomaine\modelememoire\service\EnrollmentService.java
 C:\Users\larib\Desktop\modelle memoire\src\main\java\com\votredomaine\modelememoire\service\AdminService.java
 C:\Users\larib\Desktop\modelle memoire\src\main\java\com\votredomaine\modelememoire\controller\LoginController.java
+C:\Users\larib\Desktop\modelle memoire\src\main\java\com\votredomaine\modelememoire\model\Activity.java
 C:\Users\larib\Desktop\modelle memoire\src\main\java\com\votredomaine\modelememoire\controller\QuizController.java
 C:\Users\larib\Desktop\modelle memoire\src\main\java\com\votredomaine\modelememoire\controller\AdminController.java
 C:\Users\larib\Desktop\modelle memoire\src\main\java\com\votredomaine\modelememoire\service\Courseservice.java

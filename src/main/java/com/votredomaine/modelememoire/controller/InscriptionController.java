@@ -2,6 +2,7 @@ package com.votredomaine.modelememoire.controller;
 
 import com.votredomaine.modelememoire.model.Utilisateur;
 import com.votredomaine.modelememoire.repository.UserRepository;
+import com.votredomaine.modelememoire.service.ActivityService;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -16,6 +17,9 @@ public class InscriptionController {
     
     @Autowired
     private UserRepository userRepository;
+    
+    @Autowired
+    private ActivityService activityService;  // ⭐ AJOUTER CETTE LIGNE
     
     private BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
@@ -71,6 +75,9 @@ public class InscriptionController {
             Utilisateur savedUser = userRepository.save(utilisateur);
             
             System.out.println("✅ UTILISATEUR CRÉÉ: " + savedUser.getEmail() + " avec ID: " + savedUser.getId());
+            
+            // ⭐ AJOUTER L'ACTIVITÉ DANS LA TABLE ACTIVITIES ⭐
+            activityService.logUserRegistered(name, "STUDENT");
             
             response.put("success", true);
             response.put("message", "Inscription réussie !");

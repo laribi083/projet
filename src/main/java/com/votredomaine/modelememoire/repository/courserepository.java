@@ -32,11 +32,14 @@ public interface courserepository extends JpaRepository<Course, Long> {
     
     List<Course> findByTeacherNameContainingIgnoreCase(String teacherName);
     
-    // ⭐ AJOUTER CETTE MÉTHODE MANQUANTE ⭐
+    // ⭐ NOUVELLE MÉTHODE POUR COMPTER PAR STATUT ⭐
+    long countByStatus(String status);
+    
+    // ⭐ MÉTHODE POUR LES COURS ACTIFS TRIÉS
     @Query("SELECT c FROM Course c WHERE c.status = 'ACTIVE' ORDER BY c.createdAt DESC")
     List<Course> findAllActiveCoursesOrderByDate();
     
-    // ⭐ AJOUTER AUSSI CETTE MÉTHODE POUR LA RECHERCHE ⭐
+    // ⭐ MÉTHODE POUR LA RECHERCHE AVANCÉE
     @Query("SELECT c FROM Course c WHERE " +
            "(:status IS NULL OR c.status = :status) AND " +
            "(:niveau IS NULL OR c.niveau = :niveau) AND " +

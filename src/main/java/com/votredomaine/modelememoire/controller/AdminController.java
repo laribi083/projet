@@ -1,10 +1,13 @@
 package com.votredomaine.modelememoire.controller;
 
+import com.votredomaine.modelememoire.model.Activity;
 import com.votredomaine.modelememoire.model.Admin;
+import com.votredomaine.modelememoire.model.Course;
 import com.votredomaine.modelememoire.model.Teacher;
 import com.votredomaine.modelememoire.model.Utilisateur;
 import com.votredomaine.modelememoire.repository.TeacherRepository;
 import com.votredomaine.modelememoire.repository.UserRepository;
+import com.votredomaine.modelememoire.service.ActivityService;
 import com.votredomaine.modelememoire.service.AdminService;
 import com.votredomaine.modelememoire.service.Courseservice;
 import com.votredomaine.modelememoire.service.QuizService;
@@ -15,6 +18,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import jakarta.servlet.http.HttpSession;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -39,19 +43,16 @@ public class AdminController {
     @Autowired
     private QuizService quizService;
     
+    @Autowired
+    private ActivityService activityService;
+    
     // ==================== PAGES ====================
     
-    /**
-     * Page de connexion admin
-     */
     @GetMapping("/login")
     public String showLoginPage() {
         return "admin-login";
     }
     
-    /**
-     * Dashboard admin
-     */
     @GetMapping("/dashboard")
     public String dashboard(HttpSession session, Model model) {
         if (session.getAttribute("adminId") == null) {
@@ -67,9 +68,6 @@ public class AdminController {
     
     // ==================== API ADMIN (Authentification) ====================
     
-    /**
-     * Inscription d'un nouvel administrateur
-     */
     @PostMapping("/api/register")
     @ResponseBody
     public ResponseEntity<Map<String, Object>> registerAdmin(@RequestBody Map<String, String> registerData) {
@@ -81,23 +79,23 @@ public class AdminController {
             String password = registerData.get("password");
             String fullName = registerData.get("fullName");
             
-            System.out.println("📝 Création d'admin: " + email);
+            System.out.println("📝 Creating admin: " + email);
             
             if (username == null || username.trim().isEmpty()) {
                 response.put("success", false);
-                response.put("message", "Nom d'utilisateur requis");
+                response.put("message", "Username is required");
                 return ResponseEntity.badRequest().body(response);
             }
             
             if (email == null || email.trim().isEmpty()) {
                 response.put("success", false);
-                response.put("message", "Email requis");
+                response.put("message", "Email is required");
                 return ResponseEntity.badRequest().body(response);
             }
             
             if (password == null || password.length() < 6) {
                 response.put("success", false);
-                response.put("message", "Le mot de passe doit contenir au moins 6 caractères");
+                response.put("message", "Password must be at least 6 characters");
                 return ResponseEntity.badRequest().body(response);
             }
             
@@ -108,12 +106,12 @@ public class AdminController {
             Admin admin = adminService.registerAdmin(username, email, password, fullName);
             
             response.put("success", true);
-            response.put("message", "Admin créé avec succès");
+            response.put("message", "Admin created successfully");
             response.put("adminId", admin.getId());
             response.put("email", admin.getEmail());
             response.put("username", admin.getUsername());
             
-            System.out.println("✅ ADMIN CRÉÉ: " + admin.getEmail());
+            System.out.println("✅ ADMIN CREATED: " + admin.getEmail());
             
         } catch (Exception e) {
             response.put("success", false);
@@ -123,9 +121,6 @@ public class AdminController {
         return ResponseEntity.ok(response);
     }
     
-    /**
-     * Connexion administrateur (API)
-     */
     @PostMapping("/api/login")
     @ResponseBody
     public ResponseEntity<Map<String, Object>> login(@RequestBody Map<String, String> loginData, HttpSession session) {
@@ -135,11 +130,11 @@ public class AdminController {
             String email = loginData.get("email");
             String password = loginData.get("password");
             
-            System.out.println("🔐 Tentative de connexion admin: " + email);
+            System.out.println("🔐 Admin login attempt: " + email);
             
             if (email == null || password == null) {
                 response.put("success", false);
-                response.put("message", "Email et mot de passe requis");
+                response.put("message", "Email and password are required");
                 return ResponseEntity.badRequest().body(response);
             }
             
@@ -155,40 +150,34 @@ public class AdminController {
                 session.setAttribute("loggedIn", true);
                 
                 response.put("success", true);
-                response.put("message", "Connexion réussie");
+                response.put("message", "Login successful");
                 response.put("redirectUrl", "/admin/dashboard");
                 response.put("adminName", admin.getFullName());
                 
-                System.out.println("✅ ADMIN CONNECTÉ: " + admin.getEmail());
+                System.out.println("✅ ADMIN LOGGED IN: " + admin.getEmail());
             } else {
                 response.put("success", false);
-                response.put("message", "Email ou mot de passe incorrect");
+                response.put("message", "Invalid email or password");
             }
             
         } catch (Exception e) {
             response.put("success", false);
-            response.put("message", "Erreur: " + e.getMessage());
+            response.put("message", "Error: " + e.getMessage());
         }
         
         return ResponseEntity.ok(response);
     }
     
-    /**
-     * Déconnexion administrateur
-     */
     @PostMapping("/api/logout")
     @ResponseBody
     public ResponseEntity<Map<String, Object>> logout(HttpSession session) {
         session.invalidate();
         Map<String, Object> response = new HashMap<>();
         response.put("success", true);
-        response.put("message", "Déconnexion réussie");
+        response.put("message", "Logout successful");
         return ResponseEntity.ok(response);
     }
     
-    /**
-     * Vérifier si l'admin est connecté
-     */
     @GetMapping("/api/check-session")
     @ResponseBody
     public ResponseEntity<Map<String, Object>> checkSession(HttpSession session) {
@@ -207,70 +196,103 @@ public class AdminController {
         return ResponseEntity.ok(response);
     }
     
-    // ==================== API STATISTIQUES (Dashboard) ====================
+    // ==================== STATISTICS API ====================
     
-    /**
-     * ⭐ STATISTIQUES POUR LE DASHBOARD ADMIN
-     * Compte les étudiants (users) + les enseignants (teachers) + cours + quiz
-     */
     @GetMapping("/api/stats")
     @ResponseBody
     public ResponseEntity<Map<String, Object>> getAdminStats() {
         Map<String, Object> stats = new HashMap<>();
         
         try {
-            // Compter les étudiants (users)
             long studentsCount = userRepository.count();
-            
-            // Compter les enseignants (teachers)
             long teachersCount = teacherRepository.count();
-            
-            // ⭐ Total des utilisateurs (étudiants + enseignants) - SAUF admins
             long totalUsers = studentsCount + teachersCount;
             
-            // Compter les cours
-            long totalCourses = courseService.findAll().size();
+            long publishedCourses = courseService.countPublishedCourses();
+            long pendingCourses = courseService.countPendingCourses();
+            long validatedCourses = courseService.countValidatedCourses();
+            long totalCourses = publishedCourses + pendingCourses + validatedCourses;
             
-            // Compter les quiz
             long totalQuizzes = quizService.getAllActiveQuizzes().size();
-            
-            // Cours en attente (cours sans fichiers)
-            long pendingCourses = courseService.findAll().stream()
-                .filter(c -> c.getFilePaths() == null || c.getFilePaths().isEmpty())
-                .count();
-            
-            // Cours validés
-            long validatedCourses = totalCourses - pendingCourses;
             
             stats.put("success", true);
             stats.put("totalUsers", totalUsers);
             stats.put("studentsCount", studentsCount);
             stats.put("teachersCount", teachersCount);
             stats.put("totalCourses", totalCourses);
-            stats.put("totalQuizzes", totalQuizzes);
+            stats.put("publishedCourses", publishedCourses);
             stats.put("pendingCourses", pendingCourses);
             stats.put("validatedCourses", validatedCourses);
+            stats.put("totalQuizzes", totalQuizzes);
             
-            System.out.println("📊 Stats Admin - Utilisateurs: " + totalUsers + 
-                               " (Étudiants: " + studentsCount + 
-                               ", Enseignants: " + teachersCount + 
-                               ", Cours: " + totalCourses + 
-                               ", Quiz: " + totalQuizzes + ")");
+            System.out.println("📊 STATS - Users: " + totalUsers + ", Published: " + publishedCourses);
             
         } catch (Exception e) {
             stats.put("success", false);
             stats.put("error", e.getMessage());
-            e.printStackTrace();
         }
         
         return ResponseEntity.ok(stats);
     }
     
-    // ==================== API GESTION DES UTILISATEURS ====================
+    // ==================== RECENT ACTIVITIES API ====================
     
-    /**
-     * ⭐ LISTE DE TOUS LES UTILISATEURS (Étudiants + Enseignants)
-     */
+    @GetMapping("/api/recent-activities")
+    @ResponseBody
+    public ResponseEntity<List<Map<String, Object>>> getRecentActivities() {
+        List<Map<String, Object>> activities = new ArrayList<>();
+        
+        try {
+            List<Activity> recentActivities = activityService.getRecentActivities();
+            
+            for (Activity activity : recentActivities) {
+                Map<String, Object> act = new HashMap<>();
+                act.put("userName", activity.getUserName());
+                act.put("message", activity.getMessage());
+                act.put("timeAgo", activity.getTimeAgo());
+                act.put("type", activity.getType());
+                activities.add(act);
+            }
+            
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        
+        return ResponseEntity.ok(activities);
+    }
+    
+    // ==================== ⭐ PENDING COURSES API (AJOUTER CE CODE) ⭐ ====================
+    
+    @GetMapping("/api/pending-courses")
+    @ResponseBody
+    public ResponseEntity<List<Map<String, Object>>> getPendingCourses() {
+        List<Map<String, Object>> pendingCourses = new ArrayList<>();
+        
+        try {
+            List<Course> courses = courseService.findByStatus("PENDING");
+            
+            for (Course course : courses) {
+                Map<String, Object> courseMap = new HashMap<>();
+                courseMap.put("id", course.getId());
+                courseMap.put("title", course.getTitle());
+                courseMap.put("teacherName", course.getTeacherName());
+                courseMap.put("createdAt", course.getCreatedAt());
+                courseMap.put("module", course.getModule());
+                courseMap.put("niveau", course.getNiveau());
+                pendingCourses.add(courseMap);
+            }
+            
+            System.out.println("📚 Pending courses found: " + pendingCourses.size());
+            
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        
+        return ResponseEntity.ok(pendingCourses);
+    }
+    
+    // ==================== USER MANAGEMENT API ====================
+    
     @GetMapping("/api/all-users")
     @ResponseBody
     public ResponseEntity<Map<String, Object>> getAllUsers() {
@@ -295,27 +317,18 @@ public class AdminController {
         return ResponseEntity.ok(response);
     }
     
-    /**
-     * ⭐ LISTE DES ÉTUDIANTS UNIQUEMENT
-     */
     @GetMapping("/api/students")
     @ResponseBody
     public ResponseEntity<List<Utilisateur>> getStudents() {
         return ResponseEntity.ok(userRepository.findAll());
     }
     
-    /**
-     * ⭐ LISTE DES ENSEIGNANTS UNIQUEMENT
-     */
     @GetMapping("/api/teachers")
     @ResponseBody
     public ResponseEntity<List<Teacher>> getTeachers() {
         return ResponseEntity.ok(teacherRepository.findAll());
     }
     
-    /**
-     * ⭐ LISTE DES ADMINISTRATEURS
-     */
     @GetMapping("/api/all")
     @ResponseBody
     public ResponseEntity<Map<String, Object>> getAllAdmins() {
@@ -328,6 +341,37 @@ public class AdminController {
             response.put("success", false);
             response.put("message", e.getMessage());
         }
+        return ResponseEntity.ok(response);
+    }
+    
+    @PutMapping("/api/course/{id}/status")
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> updateCourseStatus(
+            @PathVariable Long id,
+            @RequestParam String status) {
+        Map<String, Object> response = new HashMap<>();
+        
+        try {
+            Course course = courseService.getCourseById(id);
+            if (course == null) {
+                response.put("success", false);
+                response.put("message", "Course not found");
+                return ResponseEntity.notFound().build();
+            }
+            
+            course.setStatus(status);
+            courseService.save(course);
+            
+            response.put("success", true);
+            response.put("message", "Course status updated successfully");
+            
+            System.out.println("✅ Course '" + course.getTitle() + "' status updated to: " + status);
+            
+        } catch (Exception e) {
+            response.put("success", false);
+            response.put("message", e.getMessage());
+        }
+        
         return ResponseEntity.ok(response);
     }
 }

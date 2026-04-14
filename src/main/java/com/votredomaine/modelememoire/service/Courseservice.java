@@ -50,8 +50,9 @@ public class Courseservice {
         course.setCreatedAt(LocalDateTime.now());
         course.setUpdatedAt(LocalDateTime.now());
         
+        // ⭐ PAR DÉFAUT, LE COURS EST EN ATTENTE (PENDING)
         if (course.getStatus() == null) {
-            course.setStatus("ACTIVE");
+            course.setStatus("PENDING");
         }
         
         if (files != null && !files.isEmpty()) {
@@ -199,7 +200,50 @@ public class Courseservice {
         return courseRepository.findByStatus(status);
     }
     
-    // ========== NOUVELLES MÉTHODES ==========
+    // ========== ⭐ NOUVELLES MÉTHODES POUR LES STATISTIQUES ADMIN ⭐ ==========
+    
+    /**
+     * Compte les cours publiés (ACTIVE)
+     */
+    public long countPublishedCourses() {
+        return courseRepository.countByStatus("ACTIVE");
+    }
+    
+    /**
+     * Compte les cours en attente (PENDING)
+     */
+    public long countPendingCourses() {
+        return courseRepository.countByStatus("PENDING");
+    }
+    
+    /**
+     * Compte les cours validés (VALIDATED)
+     */
+    public long countValidatedCourses() {
+        return courseRepository.countByStatus("VALIDATED");
+    }
+    
+    /**
+     * Compte les cours par statut
+     */
+    public long countByStatus(String status) {
+        return courseRepository.countByStatus(status);
+    }
+    
+    /**
+     * Met à jour le statut d'un cours
+     */
+    public Course updateCourseStatus(Long id, String status) {
+        Course course = getCourseById(id);
+        if (course != null) {
+            course.setStatus(status);
+            course.setUpdatedAt(LocalDateTime.now());
+            return courseRepository.save(course);
+        }
+        return null;
+    }
+    
+    // ========== MÉTHODES EXISTANTES SUPPLEMENTAIRES ==========
     
     public List<Course> getAllCoursesForReceive() {
         return courseRepository.findAllActiveCoursesOrderByDate();
@@ -258,13 +302,14 @@ public class Courseservice {
     }
     
     public void incrementDownloadCount(Long courseId) {
-    Course course = courseRepository.findById(courseId).orElse(null);
-    if (course != null) {
-        course.incrementDownloadCount();
-        courseRepository.save(course);
+        Course course = courseRepository.findById(courseId).orElse(null);
+        if (course != null) {
+            course.incrementDownloadCount();
+            courseRepository.save(course);
+        }
     }
-}
-    // ========== MÉTHODES UTILITAIRES PRIVÉES CORRIGÉES ==========
+    
+    // ========== MÉTHODES UTILITAIRES PRIVÉES ==========
     
     private String generateDownloadMessage(Course course) {
         String fileName = course.getFileNames() != null && !course.getFileNames().isEmpty() 

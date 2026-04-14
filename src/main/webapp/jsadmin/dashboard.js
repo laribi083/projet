@@ -1,5 +1,6 @@
 /**
  * dashboard.js - Admin Dashboard JavaScript
+ * Version finale avec chargement des vraies statistiques
  */
 
 // ========== TOGGLE SIDEBAR ==========
@@ -29,31 +30,38 @@ function animateNumber(elementId, targetNumber) {
     }, 20);
 }
 
-// ========== CHARGER LES STATISTIQUES ==========
+// ========== CHARGER LES STATISTIQUES DEPUIS L'API ==========
 async function loadStats() {
     try {
         const response = await fetch('/admin/api/stats');
         const data = await response.json();
         
         if (data.success) {
+            // Total Users = Étudiants + Enseignants (sans admins)
             animateNumber('totalUsers', data.totalUsers || 0);
             animateNumber('totalCourses', data.totalCourses || 0);
             animateNumber('pendingCourses', data.pendingCourses || 0);
             animateNumber('validatedCourses', data.validatedCourses || 0);
+            
+            console.log(`📊 Stats chargées: ${data.totalUsers} utilisateurs (${data.studentsCount} étudiants, ${data.teachersCount} enseignants)`);
+            console.log(`📚 Cours: ${data.totalCourses} (${data.pendingCourses} en attente, ${data.validatedCourses} validés)`);
+            console.log(`📝 Quiz: ${data.totalQuizzes}`);
         } else {
-            // Fallback
-            animateNumber('totalUsers', 1247);
-            animateNumber('totalCourses', 456);
-            animateNumber('pendingCourses', 23);
-            animateNumber('validatedCourses', 433);
+            console.error('Erreur API:', data.error);
+            fallbackAnimation();
         }
     } catch (error) {
-        console.error('Error loading stats:', error);
-        animateNumber('totalUsers', 1247);
-        animateNumber('totalCourses', 456);
-        animateNumber('pendingCourses', 23);
-        animateNumber('validatedCourses', 433);
+        console.error('Erreur chargement stats:', error);
+        fallbackAnimation();
     }
+}
+
+// Fallback si l'API ne répond pas
+function fallbackAnimation() {
+    animateNumber('totalUsers', 0);
+    animateNumber('totalCourses', 0);
+    animateNumber('pendingCourses', 0);
+    animateNumber('validatedCourses', 0);
 }
 
 // ========== INITIALISATION ==========
@@ -70,6 +78,9 @@ document.addEventListener('DOMContentLoaded', () => {
             card.style.transform = 'translateY(0)';
         });
     });
+    
+    // Rafraîchir les stats toutes les 30 secondes
+    setInterval(loadStats, 30000);
     
     console.log('Admin Dashboard initialisé');
 });

@@ -1,7 +1,13 @@
 package com.votredomaine.modelememoire.controller;
 
 import com.votredomaine.modelememoire.model.Admin;
+import com.votredomaine.modelememoire.model.Teacher;
+import com.votredomaine.modelememoire.model.Utilisateur;
+import com.votredomaine.modelememoire.repository.TeacherRepository;
+import com.votredomaine.modelememoire.repository.UserRepository;
 import com.votredomaine.modelememoire.service.AdminService;
+import com.votredomaine.modelememoire.service.Courseservice;
+import com.votredomaine.modelememoire.service.QuizService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -10,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
 
 import jakarta.servlet.http.HttpSession;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -19,6 +26,18 @@ public class AdminController {
     
     @Autowired
     private AdminService adminService;
+    
+    @Autowired
+    private UserRepository userRepository;
+    
+    @Autowired
+    private TeacherRepository teacherRepository;
+    
+    @Autowired
+    private Courseservice courseService;
+    
+    @Autowired
+    private QuizService quizService;
     
     // ==================== PAGES ====================
     
@@ -46,7 +65,7 @@ public class AdminController {
         return "htmladmin/dashboard";
     }
     
-    // ==================== API ====================
+    // ==================== API ADMIN (Authentification) ====================
     
     /**
      * Inscription d'un nouvel administrateur
@@ -64,7 +83,6 @@ public class AdminController {
             
             System.out.println("📝 Création d'admin: " + email);
             
-            // Validation
             if (username == null || username.trim().isEmpty()) {
                 response.put("success", false);
                 response.put("message", "Nom d'utilisateur requis");
@@ -189,8 +207,114 @@ public class AdminController {
         return ResponseEntity.ok(response);
     }
     
+    // ==================== API STATISTIQUES (Dashboard) ====================
+    
     /**
-     * Récupérer tous les administrateurs (pour debug)
+     * ⭐ STATISTIQUES POUR LE DASHBOARD ADMIN
+     * Compte les étudiants (users) + les enseignants (teachers) + cours + quiz
+     */
+    @GetMapping("/api/stats")
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> getAdminStats() {
+        Map<String, Object> stats = new HashMap<>();
+        
+        try {
+            // Compter les étudiants (users)
+            long studentsCount = userRepository.count();
+            
+            // Compter les enseignants (teachers)
+            long teachersCount = teacherRepository.count();
+            
+            // ⭐ Total des utilisateurs (étudiants + enseignants) - SAUF admins
+            long totalUsers = studentsCount + teachersCount;
+            
+            // Compter les cours
+            long totalCourses = courseService.findAll().size();
+            
+            // Compter les quiz
+            long totalQuizzes = quizService.getAllActiveQuizzes().size();
+            
+            // Cours en attente (cours sans fichiers)
+            long pendingCourses = courseService.findAll().stream()
+                .filter(c -> c.getFilePaths() == null || c.getFilePaths().isEmpty())
+                .count();
+            
+            // Cours validés
+            long validatedCourses = totalCourses - pendingCourses;
+            
+            stats.put("success", true);
+            stats.put("totalUsers", totalUsers);
+            stats.put("studentsCount", studentsCount);
+            stats.put("teachersCount", teachersCount);
+            stats.put("totalCourses", totalCourses);
+            stats.put("totalQuizzes", totalQuizzes);
+            stats.put("pendingCourses", pendingCourses);
+            stats.put("validatedCourses", validatedCourses);
+            
+            System.out.println("📊 Stats Admin - Utilisateurs: " + totalUsers + 
+                               " (Étudiants: " + studentsCount + 
+                               ", Enseignants: " + teachersCount + 
+                               ", Cours: " + totalCourses + 
+                               ", Quiz: " + totalQuizzes + ")");
+            
+        } catch (Exception e) {
+            stats.put("success", false);
+            stats.put("error", e.getMessage());
+            e.printStackTrace();
+        }
+        
+        return ResponseEntity.ok(stats);
+    }
+    
+    // ==================== API GESTION DES UTILISATEURS ====================
+    
+    /**
+     * ⭐ LISTE DE TOUS LES UTILISATEURS (Étudiants + Enseignants)
+     */
+    @GetMapping("/api/all-users")
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> getAllUsers() {
+        Map<String, Object> response = new HashMap<>();
+        
+        try {
+            List<Utilisateur> students = userRepository.findAll();
+            List<Teacher> teachers = teacherRepository.findAll();
+            
+            response.put("success", true);
+            response.put("students", students);
+            response.put("studentsCount", students.size());
+            response.put("teachers", teachers);
+            response.put("teachersCount", teachers.size());
+            response.put("totalUsers", students.size() + teachers.size());
+            
+        } catch (Exception e) {
+            response.put("success", false);
+            response.put("error", e.getMessage());
+        }
+        
+        return ResponseEntity.ok(response);
+    }
+    
+    /**
+     * ⭐ LISTE DES ÉTUDIANTS UNIQUEMENT
+     */
+    @GetMapping("/api/students")
+    @ResponseBody
+    public ResponseEntity<List<Utilisateur>> getStudents() {
+        return ResponseEntity.ok(userRepository.findAll());
+    }
+    
+    /**
+     * ⭐ LISTE DES ENSEIGNANTS UNIQUEMENT
+     */
+    @GetMapping("/api/teachers")
+    @ResponseBody
+    public ResponseEntity<List<Teacher>> getTeachers() {
+        return ResponseEntity.ok(teacherRepository.findAll());
+    }
+    
+    /**
+     * ⭐ LISTE DES ADMINISTRATEURS
      */
     @GetMapping("/api/all")
     @ResponseBody

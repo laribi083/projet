@@ -24,7 +24,7 @@ public class Courseservice {
     
     private final String UPLOAD_DIR = System.getProperty("user.dir") + "/uploads/courses/";
     
-    // ========== MÉTHODES EXISTANTES ==========
+    // ========== MÉTHODES DE BASE ==========
     
     public List<Course> getCoursesByTeacherId(Long teacherId) {
         return courseRepository.findByTeacherId(teacherId);
@@ -46,11 +46,75 @@ public class Courseservice {
         return courseRepository.findByStatus("ACTIVE");
     }
     
+    public List<Course> findAll() {
+        return courseRepository.findAll();
+    }
+    
+    public List<Course> findByStatus(String status) {
+        return courseRepository.findByStatus(status);
+    }
+    
+    public List<Course> findByNiveau(String niveau) {
+        return courseRepository.findByNiveau(niveau);
+    }
+    
+    public List<Course> findByNiveauAndStatus(String niveau, String status) {
+        return courseRepository.findByNiveauAndStatus(niveau, status);
+    }
+    
+    public List<Course> findByTeacherId(Long teacherId) {
+        return courseRepository.findByTeacherId(teacherId);
+    }
+    
+    public List<Course> findByModule(String module) {
+        return courseRepository.findByModule(module);
+    }
+    
+    public List<Course> findByTeacherName(String teacherName) {
+        return courseRepository.findByTeacherNameContainingIgnoreCase(teacherName);
+    }
+    
+    public List<Course> findByModuleAndNiveau(String module, String niveau) {
+        if (module == null || module.trim().isEmpty() || module.equals("all")) {
+            return courseRepository.findByNiveau(niveau);
+        }
+        return courseRepository.findByModuleAndNiveau(module, niveau);
+    }
+    
+    public List<Course> findByModuleAndNiveauAndStatus(String module, String niveau, String status) {
+        if (module == null || module.trim().isEmpty() || module.equals("all")) {
+            return courseRepository.findByNiveauAndStatus(niveau, status);
+        }
+        return courseRepository.findByModuleAndNiveauAndStatus(module, niveau, status);
+    }
+    
+    public List<Course> getAllCoursesForReceive() {
+        return courseRepository.findAllActiveCoursesOrderByDate();
+    }
+    
+    public List<Course> searchCourses(String status, String niveau, String module, String search) {
+        return courseRepository.searchCourses(status, niveau, module, search);
+    }
+    
+    // ========== CRUD ==========
+    
+    public Course save(Course course) {
+        if (course.getCreatedAt() == null) {
+            course.setCreatedAt(LocalDateTime.now());
+        }
+        course.setUpdatedAt(LocalDateTime.now());
+        return courseRepository.save(course);
+    }
+    
+    public Course update(Course course) {
+        course.setUpdatedAt(LocalDateTime.now());
+        return courseRepository.save(course);
+    }
+    
     public Course createCourse(Course course, List<MultipartFile> files) throws IOException {
         course.setCreatedAt(LocalDateTime.now());
         course.setUpdatedAt(LocalDateTime.now());
         
-        // ⭐ PAR DÉFAUT, LE COURS EST EN ATTENTE (PENDING)
         if (course.getStatus() == null) {
             course.setStatus("PENDING");
         }
@@ -149,90 +213,42 @@ public class Courseservice {
         }
     }
     
+    public void incrementDownloadCount(Long courseId) {
+        Course course = courseRepository.findById(courseId).orElse(null);
+        if (course != null) {
+            course.incrementDownloadCount();
+            courseRepository.save(course);
+        }
+    }
+    
+    // ========== STATISTIQUES ==========
+    
     public long getTotalCoursesByTeacher(Long teacherId) {
         return courseRepository.countByTeacherId(teacherId);
     }
     
-    public List<Course> findByTeacherId(Long teacherId) {
-        return courseRepository.findByTeacherId(teacherId);
-    }
-    
-    public List<Course> findByNiveau(String niveau) {
-        return courseRepository.findByNiveau(niveau);
-    }
-    
-    public List<Course> findByNiveauAndStatus(String niveau, String status) {
-        return courseRepository.findByNiveauAndStatus(niveau, status);
-    }
-    
-    public List<Course> findByModuleAndNiveau(String module, String niveau) {
-        if (module == null || module.trim().isEmpty() || module.equals("all")) {
-            return courseRepository.findByNiveau(niveau);
-        }
-        return courseRepository.findByModuleAndNiveau(module, niveau);
-    }
-    
-    public List<Course> findByModuleAndNiveauAndStatus(String module, String niveau, String status) {
-        if (module == null || module.trim().isEmpty() || module.equals("all")) {
-            return courseRepository.findByNiveauAndStatus(niveau, status);
-        }
-        return courseRepository.findByModuleAndNiveauAndStatus(module, niveau, status);
-    }
-    
-    public Course save(Course course) {
-        if (course.getCreatedAt() == null) {
-            course.setCreatedAt(LocalDateTime.now());
-        }
-        course.setUpdatedAt(LocalDateTime.now());
-        return courseRepository.save(course);
-    }
-    
-    public Course update(Course course) {
-        course.setUpdatedAt(LocalDateTime.now());
-        return courseRepository.save(course);
-    }
-    
-    public List<Course> findAll() {
-        return courseRepository.findAll();
-    }
-    
-    public List<Course> findByStatus(String status) {
-        return courseRepository.findByStatus(status);
-    }
-    
-    // ========== ⭐ NOUVELLES MÉTHODES POUR LES STATISTIQUES ADMIN ⭐ ==========
-    
-    /**
-     * Compte les cours publiés (ACTIVE)
-     */
     public long countPublishedCourses() {
         return courseRepository.countByStatus("ACTIVE");
     }
     
-    /**
-     * Compte les cours en attente (PENDING)
-     */
     public long countPendingCourses() {
         return courseRepository.countByStatus("PENDING");
     }
     
-    /**
-     * Compte les cours validés (VALIDATED)
-     */
     public long countValidatedCourses() {
         return courseRepository.countByStatus("VALIDATED");
     }
     
-    /**
-     * Compte les cours par statut
-     */
     public long countByStatus(String status) {
         return courseRepository.countByStatus(status);
     }
     
-    /**
-     * Met à jour le statut d'un cours
-     */
+    public long countByNiveau(String niveau) {
+        return courseRepository.countByNiveau(niveau);
+    }
+    
+    // ========== GESTION DES STATUTS ==========
+    
     public Course updateCourseStatus(Long id, String status) {
         Course course = getCourseById(id);
         if (course != null) {
@@ -243,11 +259,7 @@ public class Courseservice {
         return null;
     }
     
-    // ========== MÉTHODES EXISTANTES SUPPLEMENTAIRES ==========
-    
-    public List<Course> getAllCoursesForReceive() {
-        return courseRepository.findAllActiveCoursesOrderByDate();
-    }
+    // ========== CONTENU DES COURS ==========
     
     public String readCourseContent(Long courseId) throws IOException {
         Course course = courseRepository.findById(courseId).orElse(null);
@@ -274,11 +286,11 @@ public class Courseservice {
                     return generateDownloadMessage(course);
                 }
             } else {
-                return "<div class='error-message'>❌ Fichier non trouvé sur le serveur</div>";
+                return "<div class='error-message'>❌ File not found on server</div>";
             }
         }
         
-        return "<div class='info-message'>📄 Aucun contenu disponible pour ce cours.</div>";
+        return "<div class='info-message'>📄 No content available for this course.</div>";
     }
     
     public boolean hasContent(Long courseId) {
@@ -289,39 +301,19 @@ public class Courseservice {
                (course.getFilePaths() != null && !course.getFilePaths().isEmpty());
     }
     
-    public List<Course> searchCourses(String status, String niveau, String module, String search) {
-        return courseRepository.searchCourses(status, niveau, module, search);
-    }
-    
-    public List<Course> findByModule(String module) {
-        return courseRepository.findByModule(module);
-    }
-    
-    public List<Course> findByTeacherName(String teacherName) {
-        return courseRepository.findByTeacherNameContainingIgnoreCase(teacherName);
-    }
-    
-    public void incrementDownloadCount(Long courseId) {
-        Course course = courseRepository.findById(courseId).orElse(null);
-        if (course != null) {
-            course.incrementDownloadCount();
-            courseRepository.save(course);
-        }
-    }
-    
     // ========== MÉTHODES UTILITAIRES PRIVÉES ==========
     
     private String generateDownloadMessage(Course course) {
         String fileName = course.getFileNames() != null && !course.getFileNames().isEmpty() 
-                          ? course.getFileNames().get(0) : "fichier";
+                          ? course.getFileNames().get(0) : "file";
         long courseId = course.getId();
         return "<div class='download-message' style='text-align: center; padding: 40px;'>" +
                "<div style='font-size: 4rem;'>📄</div>" +
                "<h3>" + fileName + "</h3>" +
-               "<p>Ce fichier n'est pas affichable directement dans le navigateur.</p>" +
+               "<p>This file cannot be displayed directly in the browser.</p>" +
                "<button onclick=\"window.location.href='/course/" + courseId + "/download'\" " +
                "style='background: #667eea; color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; margin-top: 20px;'>" +
-               "⬇️ Télécharger le fichier" +
+               "⬇️ Download file" +
                "</button>" +
                "</div>";
     }

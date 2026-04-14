@@ -1,122 +1,211 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 
 <head>
     <meta charset="UTF-8">
-    <title>Course Validation</title>
+    <title>Course Verification - BrainLearning</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <link rel="stylesheet" href="dashboard.css">
-    <link rel="stylesheet" href="valid.css">
-
+    <link th:href="@{/cssadmin/dashboard.css}" rel="stylesheet">
+    <link th:href="@{/cssadmin/valid.css}" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
 
 <body>
+    <div class="dashboard-container">
+        <!-- SIDEBAR -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">
+                    <i class="fas fa-brain"></i>
+                    <span>Brain<span>Learning</span></span>
+                </div>
+                <button class="toggle-btn" id="toggleBtn">
+                    <i class="fas fa-bars"></i>
+                </button>
+            </div>
 
-    <!-- SIDEBAR -->
-    <div class="sidebar" id="sidebar">
-        <div class="top">
-            <h2>Admin Panel</h2>
-            <i class="fas fa-bars" id="toggleBtn"></i>
-        </div>
+            <div class="admin-profile">
+                <div class="admin-avatar">
+                    <span th:text="${#strings.substring(adminName, 0, 1)}">A</span>
+                </div>
+                <div class="admin-info">
+                    <h4 th:text="${adminName}">Administrator</h4>
+                    <p th:text="${adminEmail}">admin@brainlearning.com</p>
+                </div>
+            </div>
 
-        <ul class="menu">
+            <nav class="sidebar-nav">
+                <ul class="nav-menu">
+                    <li class="nav-item">
+                        <a th:href="@{/admin/dashboard}">
+                            <i class="fas fa-th-large"></i>
+                            <span>Dashboard</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a th:href="@{/admin/users}">
+                            <i class="fas fa-users"></i>
+                            <span>Users Management</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a th:href="@{/admin/levels}">
+                            <i class="fas fa-graduation-cap"></i>
+                            <span>Educational Levels</span>
+                        </a>
+                    </li>
+                    <li class="nav-item active">
+                        <a th:href="@{/admin/course-verification}">
+                            <i class="fas fa-check-square"></i>
+                            <span>Course Verification</span>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
 
-            <li>
-                <a href="dashboard.html">
-                    <i class="fas fa-th-large"></i>
-                    <span>Dashboard</span>
+            <div class="sidebar-footer">
+                <a href="/logout" class="logout-btn">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span>Logout</span>
                 </a>
-            </li>
+            </div>
+        </aside>
 
-            <li>
-                <a href="user.html">
-                    <i class="fas fa-users"></i>
-                    <span>Users Management</span>
-                </a>
-            </li>
+        <!-- MAIN CONTENT -->
+        <main class="main-content">
+            <div class="top-bar">
+                <div class="page-title">
+                    <h1>Course Verification</h1>
+                    <p>Review and validate submitted courses</p>
+                </div>
+            </div>
 
-            <li>
-                <a href="level.html">
-                    <i class="fas fa-graduation-cap"></i>
-                    <span>Educational Levels</span>
-                </a>
-            </li>
+            <!-- STATS CARDS -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon yellow">
+                        <i class="fas fa-clock"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3 th:text="${pendingCourses.size()}">0</h3>
+                        <p>Pending</p>
+                    </div>
+                </div>
 
-            <li class="active">
-                <a href="valid.html">
-                    <i class="fas fa-check-square"></i>
-                    <span>Course Verification</span>
-                </a>
-            </li>
+                <div class="stat-card">
+                    <div class="stat-icon green">
+                        <i class="fas fa-check-circle"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3 th:text="${validatedCourses.size()}">0</h3>
+                        <p>Validated</p>
+                    </div>
+                </div>
 
-        </ul>
+                <div class="stat-card">
+                    <div class="stat-icon blue">
+                        <i class="fas fa-book"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3 th:text="${publishedCourses.size()}">0</h3>
+                        <p>Published</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PENDING COURSES TABLE -->
+            <div class="table-card">
+                <div class="table-header">
+                    <h3><i class="fas fa-clock"></i> Pending Courses</h3>
+                    <input type="text" id="searchPending" placeholder="Search course..." class="search-input">
+                </div>
+                <div class="table-responsive">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Title</th>
+                                <th>Teacher</th>
+                                <th>Module</th>
+                                <th>Level</th>
+                                <th>Submitted</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="course : ${pendingCourses}">
+                                <td th:text="${course.title}">Course Title</td>
+                                <td th:text="${course.teacherName}">Teacher Name</td>
+                                <td th:text="${course.module}">Module</td>
+                                <td><span class="level-badge" th:text="${course.niveau}">1st Year</span></td>
+                                <td th:text="${#temporals.format(course.createdAt, 'dd/MM/yyyy')}">2024-01-01</td>
+                                <td>
+                                    <button class="btn-validate" th:onclick="'validateCourse(' + ${course.id} + ')'">
+                                        <i class="fas fa-check"></i> Validate
+                                    </button>
+                                </td>
+                            </tr>
+                            <tr th:if="${pendingCourses.isEmpty()}">
+                                <td colspan="6" style="text-align: center;">No pending courses</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- VALIDATED COURSES TABLE -->
+            <div class="table-card">
+                <div class="table-header">
+                    <h3><i class="fas fa-check-circle"></i> Validated Courses</h3>
+                </div>
+                <div class="table-responsive">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Title</th>
+                                <th>Teacher</th>
+                                <th>Module</th>
+                                <th>Level</th>
+                                <th>Validated</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="course : ${validatedCourses}">
+                                <td th:text="${course.title}">Course Title</td>
+                                <td th:text="${course.teacherName}">Teacher Name</td>
+                                <td th:text="${course.module}">Module</td>
+                                <td><span class="level-badge validated" th:text="${course.niveau}">1st Year</span></td>
+                                <td th:text="${#temporals.format(course.updatedAt, 'dd/MM/yyyy')}">2024-01-01</td>
+                            </tr>
+                            <tr th:if="${validatedCourses.isEmpty()}">
+                                <td colspan="5" style="text-align: center;">No validated courses</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
     </div>
 
-    <!-- MAIN -->
-    <div class="main">
-
-        <div class="header">
-            <h1>Course Verification</h1>
-            <p>Approve or reject submitted courses</p>
-        </div>
-
-        <!-- CARDS -->
-        <div class="cards">
-            <div class="card">
-                <div class="icon yellow"><i class="fas fa-clock"></i></div>
-                <div>
-                    <p>Pending</p>
-                    <h2 id="pendingCount">0</h2>
-                </div>
-            </div>
-
-            <div class="card">
-                <div class="icon greenBg"><i class="fas fa-check"></i></div>
-                <div>
-                    <p>Approved</p>
-                    <h2 id="approvedCount">0</h2>
-                </div>
-            </div>
-
-            <div class="card">
-                <div class="icon purple"><i class="fas fa-times"></i></div>
-                <div>
-                    <p>Rejected</p>
-                    <h2 id="rejectedCount">0</h2>
-                </div>
-            </div>
-        </div>
-
-        <!-- TABLE -->
-        <div class="table-card">
-
-            <div class="table-header">
-                <input id="search" placeholder="Search course...">
-            </div>
-
-            <table>
-                <thead>
-                    <tr>
-                        <th>Course</th>
-                        <th>Teacher</th>
-                        <th>Level</th>
-                        <th>Status</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-
-                <tbody id="courseTable"></tbody>
-            </table>
-
-        </div>
-
-    </div>
-
-    <script src="dashboard.js"></script>
-    <script src="valid.js"></script>
-
+    <script th:src="@{/jsadmin/dashboard.js}"></script>
+    <script th:src="@{/jsadmin/valid.js}"></script>
+    <script>
+        function validateCourse(courseId) {
+            if (confirm('Are you sure you want to validate this course?')) {
+                fetch(`/admin/api/course/${courseId}/status?status=VALIDATED`, {
+                    method: 'PUT'
+                }).then(response => response.json())
+                  .then(data => {
+                      if (data.success) {
+                          alert('Course validated successfully!');
+                          location.reload();
+                      } else {
+                          alert('Error: ' + data.message);
+                      }
+                  });
+            }
+        }
+    </script>
 </body>
-
 </html>

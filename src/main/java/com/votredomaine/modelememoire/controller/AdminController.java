@@ -66,7 +66,64 @@ public class AdminController {
         return "htmladmin/dashboard";
     }
     
-    // ==================== API ADMIN (Authentification) ====================
+    @GetMapping("/users")
+    public String usersManagement(Model model, HttpSession session) {
+        if (session.getAttribute("adminId") == null) {
+            return "redirect:/admin/login";
+        }
+        
+        List<Utilisateur> students = userRepository.findAll();
+        List<Teacher> teachers = teacherRepository.findAll();
+        
+        model.addAttribute("adminName", session.getAttribute("adminName"));
+        model.addAttribute("adminEmail", session.getAttribute("adminEmail"));
+        model.addAttribute("students", students);
+        model.addAttribute("teachers", teachers);
+        model.addAttribute("totalStudents", students.size());
+        model.addAttribute("totalTeachers", teachers.size());
+        
+        return "htmladmin/user";
+    }
+    
+    @GetMapping("/levels")
+    public String educationalLevels(Model model, HttpSession session) {
+        if (session.getAttribute("adminId") == null) {
+            return "redirect:/admin/login";
+        }
+        
+        long firstYearCount = courseService.countByNiveau("1year");
+        long secondYearCount = courseService.countByNiveau("2year");
+        long thirdYearCount = courseService.countByNiveau("3year");
+        
+        model.addAttribute("adminName", session.getAttribute("adminName"));
+        model.addAttribute("adminEmail", session.getAttribute("adminEmail"));
+        model.addAttribute("firstYearCount", firstYearCount);
+        model.addAttribute("secondYearCount", secondYearCount);
+        model.addAttribute("thirdYearCount", thirdYearCount);
+        
+        return "htmladmin/level";
+    }
+    
+    @GetMapping("/course-verification")
+    public String courseVerification(Model model, HttpSession session) {
+        if (session.getAttribute("adminId") == null) {
+            return "redirect:/admin/login";
+        }
+        
+        List<Course> pendingCourses = courseService.findByStatus("PENDING");
+        List<Course> validatedCourses = courseService.findByStatus("VALIDATED");
+        List<Course> publishedCourses = courseService.findByStatus("ACTIVE");
+        
+        model.addAttribute("adminName", session.getAttribute("adminName"));
+        model.addAttribute("adminEmail", session.getAttribute("adminEmail"));
+        model.addAttribute("pendingCourses", pendingCourses);
+        model.addAttribute("validatedCourses", validatedCourses);
+        model.addAttribute("publishedCourses", publishedCourses);
+        
+        return "htmladmin/valid";
+    }
+    
+    // ==================== API AUTHENTIFICATION ====================
     
     @PostMapping("/api/register")
     @ResponseBody
@@ -235,8 +292,6 @@ public class AdminController {
         return ResponseEntity.ok(stats);
     }
     
-    // ==================== RECENT ACTIVITIES API ====================
-    
     @GetMapping("/api/recent-activities")
     @ResponseBody
     public ResponseEntity<List<Map<String, Object>>> getRecentActivities() {
@@ -260,8 +315,6 @@ public class AdminController {
         
         return ResponseEntity.ok(activities);
     }
-    
-    // ==================== ⭐ PENDING COURSES API (AJOUTER CE CODE) ⭐ ====================
     
     @GetMapping("/api/pending-courses")
     @ResponseBody
@@ -291,7 +344,7 @@ public class AdminController {
         return ResponseEntity.ok(pendingCourses);
     }
     
-    // ==================== USER MANAGEMENT API ====================
+    // ==================== USER MANAGEMENT API (CRUD) ====================
     
     @GetMapping("/api/all-users")
     @ResponseBody
@@ -341,6 +394,206 @@ public class AdminController {
             response.put("success", false);
             response.put("message", e.getMessage());
         }
+        return ResponseEntity.ok(response);
+    }
+    
+    // ==================== SUPPRESSION ET MODIFICATION ====================
+    
+    /**
+     * Supprimer un étudiant
+     */
+    @DeleteMapping("/api/student/{id}")
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> deleteStudent(@PathVariable Long id) {
+        Map<String, Object> response = new HashMap<>();
+        
+        try {
+            Optional<Utilisateur> student = userRepository.findById(id);
+            if (student.isEmpty()) {
+                response.put("success", false);
+                response.put("message", "Student not found");
+                return ResponseEntity.notFound().build();
+            }
+            
+            String studentName = student.get().getName();
+            userRepository.deleteById(id);
+            
+            activityService.saveActivity(new Activity(
+                "USER_DELETED",
+                "deleted student account: " + studentName,
+                "Admin",
+                "ADMIN"
+            ));
+            
+            response.put("success", true);
+            response.put("message", "Student deleted successfully");
+            System.out.println("🗑 Student deleted: " + studentName);
+            
+        } catch (Exception e) {
+            response.put("success", false);
+            response.put("message", e.getMessage());
+        }
+        
+        return ResponseEntity.ok(response);
+    }
+    
+    /**
+     * Supprimer un enseignant
+     */
+    @DeleteMapping("/api/teacher/{id}")
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> deleteTeacher(@PathVariable Long id) {
+        Map<String, Object> response = new HashMap<>();
+        
+        try {
+            Optional<Teacher> teacher = teacherRepository.findById(id);
+            if (teacher.isEmpty()) {
+                response.put("success", false);
+                response.put("message", "Teacher not found");
+                return ResponseEntity.notFound().build();
+            }
+            
+            String teacherName = teacher.get().getName();
+            teacherRepository.deleteById(id);
+            
+            activityService.saveActivity(new Activity(
+                "USER_DELETED",
+                "deleted teacher account: " + teacherName,
+                "Admin",
+                "ADMIN"
+            ));
+            
+            response.put("success", true);
+            response.put("message", "Teacher deleted successfully");
+            System.out.println("🗑 Teacher deleted: " + teacherName);
+            
+        } catch (Exception e) {
+            response.put("success", false);
+            response.put("message", e.getMessage());
+        }
+        
+        return ResponseEntity.ok(response);
+    }
+    
+    /**
+     * Modifier un étudiant
+     */
+    @PutMapping("/api/student/{id}")
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> updateStudent(@PathVariable Long id, @RequestBody Map<String, String> userData) {
+        Map<String, Object> response = new HashMap<>();
+        
+        try {
+            Optional<Utilisateur> studentOpt = userRepository.findById(id);
+            if (studentOpt.isEmpty()) {
+                response.put("success", false);
+                response.put("message", "Student not found");
+                return ResponseEntity.notFound().build();
+            }
+            
+            Utilisateur student = studentOpt.get();
+            String name = userData.get("name");
+            String email = userData.get("email");
+            
+            if (name != null && !name.trim().isEmpty()) {
+                student.setName(name);
+            }
+            
+            if (email != null && !email.trim().isEmpty()) {
+                Optional<Utilisateur> existingUser = userRepository.findByEmail(email);
+                if (existingUser.isPresent() && !existingUser.get().getId().equals(id)) {
+                    response.put("success", false);
+                    response.put("message", "Email already in use");
+                    return ResponseEntity.badRequest().body(response);
+                }
+                student.setEmail(email);
+            }
+            
+            userRepository.save(student);
+            
+            activityService.saveActivity(new Activity(
+                "USER_UPDATED",
+                "updated student account: " + student.getName(),
+                "Admin",
+                "ADMIN"
+            ));
+            
+            response.put("success", true);
+            response.put("message", "Student updated successfully");
+            response.put("student", student);
+            System.out.println("✏️ Student updated: " + student.getName());
+            
+        } catch (Exception e) {
+            response.put("success", false);
+            response.put("message", e.getMessage());
+        }
+        
+        return ResponseEntity.ok(response);
+    }
+    
+    /**
+     * Modifier un enseignant
+     */
+    @PutMapping("/api/teacher/{id}")
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> updateTeacher(@PathVariable Long id, @RequestBody Map<String, String> teacherData) {
+        Map<String, Object> response = new HashMap<>();
+        
+        try {
+            Optional<Teacher> teacherOpt = teacherRepository.findById(id);
+            if (teacherOpt.isEmpty()) {
+                response.put("success", false);
+                response.put("message", "Teacher not found");
+                return ResponseEntity.notFound().build();
+            }
+            
+            Teacher teacher = teacherOpt.get();
+            String name = teacherData.get("name");
+            String email = teacherData.get("email");
+            String department = teacherData.get("department");
+            String phone = teacherData.get("phone");
+            
+            if (name != null && !name.trim().isEmpty()) {
+                teacher.setName(name);
+            }
+            
+            if (email != null && !email.trim().isEmpty()) {
+                Optional<Teacher> existingTeacher = teacherRepository.findByEmail(email);
+                if (existingTeacher.isPresent() && !existingTeacher.get().getId().equals(id)) {
+                    response.put("success", false);
+                    response.put("message", "Email already in use");
+                    return ResponseEntity.badRequest().body(response);
+                }
+                teacher.setEmail(email);
+            }
+            
+            if (department != null) {
+                teacher.setDepartment(department);
+            }
+            
+            if (phone != null) {
+                teacher.setPhone(phone);
+            }
+            
+            teacherRepository.save(teacher);
+            
+            activityService.saveActivity(new Activity(
+                "USER_UPDATED",
+                "updated teacher account: " + teacher.getName(),
+                "Admin",
+                "ADMIN"
+            ));
+            
+            response.put("success", true);
+            response.put("message", "Teacher updated successfully");
+            response.put("teacher", teacher);
+            System.out.println("✏️ Teacher updated: " + teacher.getName());
+            
+        } catch (Exception e) {
+            response.put("success", false);
+            response.put("message", e.getMessage());
+        }
+        
         return ResponseEntity.ok(response);
     }
     

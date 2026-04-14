@@ -2,6 +2,7 @@ package com.votredomaine.modelememoire.model;
 
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
+import java.time.Duration;
 
 @Entity
 @Table(name = "activities")
@@ -12,16 +13,16 @@ public class Activity {
     private Long id;
     
     @Column(nullable = false)
-    private String type; // "COURSE_PUBLISHED", "USER_REGISTERED", "COURSE_UPDATED", "COURSE_DOWNLOADED"
+    private String type;
     
-    @Column(nullable = false)
+    @Column(nullable = false, columnDefinition = "TEXT")
     private String message;
     
     @Column(name = "user_name")
     private String userName;
     
     @Column(name = "user_role")
-    private String userRole; // "TEACHER", "STUDENT", "ADMIN"
+    private String userRole;
     
     @Column(name = "target_id")
     private Long targetId;
@@ -44,36 +45,31 @@ public class Activity {
         this.createdAt = LocalDateTime.now();
     }
     
-    // Getters et Setters
+    // Getters
     public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
-    
     public String getType() { return type; }
-    public void setType(String type) { this.type = type; }
-    
     public String getMessage() { return message; }
-    public void setMessage(String message) { this.message = message; }
-    
     public String getUserName() { return userName; }
-    public void setUserName(String userName) { this.userName = userName; }
-    
     public String getUserRole() { return userRole; }
-    public void setUserRole(String userRole) { this.userRole = userRole; }
-    
     public Long getTargetId() { return targetId; }
-    public void setTargetId(Long targetId) { this.targetId = targetId; }
-    
     public String getTargetName() { return targetName; }
-    public void setTargetName(String targetName) { this.targetName = targetName; }
-    
     public LocalDateTime getCreatedAt() { return createdAt; }
+    
+    // Setters
+    public void setId(Long id) { this.id = id; }
+    public void setType(String type) { this.type = type; }
+    public void setMessage(String message) { this.message = message; }
+    public void setUserName(String userName) { this.userName = userName; }
+    public void setUserRole(String userRole) { this.userRole = userRole; }
+    public void setTargetId(Long targetId) { this.targetId = targetId; }
+    public void setTargetName(String targetName) { this.targetName = targetName; }
     public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
     
     public String getTimeAgo() {
-        if (createdAt == null) return "Récemment";
+        if (createdAt == null) return "Recently";
         
         LocalDateTime now = LocalDateTime.now();
-        java.time.Duration duration = java.time.Duration.between(createdAt, now);
+        Duration duration = Duration.between(createdAt, now);
         
         long seconds = duration.getSeconds();
         long minutes = seconds / 60;
@@ -81,13 +77,13 @@ public class Activity {
         long days = hours / 24;
         
         if (days > 0) {
-            return days == 1 ? "Il y a 1 jour" : "Il y a " + days + " jours";
+            return days == 1 ? "1 day ago" : days + " days ago";
         } else if (hours > 0) {
-            return hours == 1 ? "Il y a 1 heure" : "Il y a " + hours + " heures";
+            return hours == 1 ? "1 hour ago" : hours + " hours ago";
         } else if (minutes > 0) {
-            return minutes == 1 ? "Il y a 1 minute" : "Il y a " + minutes + " minutes";
+            return minutes == 1 ? "1 minute ago" : minutes + " minutes ago";
         } else {
-            return "À l'instant";
+            return "Just now";
         }
     }
 }

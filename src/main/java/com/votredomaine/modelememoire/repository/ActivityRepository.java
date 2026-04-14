@@ -8,7 +8,7 @@ import java.util.List;
 @Repository
 public interface ActivityRepository extends JpaRepository<Activity, Long> {
     
-    List<Activity> findTop10ByOrderByCreatedAtDesc();
-    
     List<Activity> findTop5ByOrderByCreatedAtDesc();
+    
+    List<Activity> findTop10ByOrderByCreatedAtDesc();
 }

@@ -1,117 +1,232 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 
 <head>
     <meta charset="UTF-8">
-    <title>Users</title>
+    <title>Users Management - BrainLearning</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <link rel="stylesheet" href="dashboard.css">
-    <link rel="stylesheet" href="user.css">
-
+    <link th:href="@{/cssadmin/dashboard.css}" rel="stylesheet">
+    <link th:href="@{/cssadmin/user.css}" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
 
 <body>
-
-    <!-- SIDEBAR -->
-    <div class="sidebar" id="sidebar">
-        <div class="top">
-            <h2>Admin Panel</h2>
-            <i class="fas fa-bars" id="toggleBtn"></i>
-        </div>
-
-        <ul class="menu">
-
-            <li>
-                <a href="dashboard.html">
-                    <i class="fas fa-th-large"></i>
-                    <span>Dashboard</span>
-                </a>
-            </li>
-
-            <li class="active">
-                <a href="user.html">
-                    <i class="fas fa-users"></i>
-                    <span>Users Management</span>
-                </a>
-            </li>
-
-            <li>
-                <a href="level.html">
-                    <i class="fas fa-graduation-cap"></i>
-                    <span>Educational Levels</span>
-                </a>
-            </li>
-
-            <li>
-                <a href="valid.html">
-                    <i class="fas fa-check-square"></i>
-                    <span>Course Verification</span>
-                </a>
-            </li>
-
-        </ul>
-    </div>
-
-    <!-- MAIN -->
-    <div class="main">
-
-        <div class="header">
-            <h1>Users Management</h1>
-            <p>Manage platform users</p>
-        </div>
-
-        <!-- TABLE -->
-        <div class="table-card">
-
-            <div class="table-header">
-                <input id="search" placeholder="Search user...">
-
-                <button onclick="openModal()" class="add-btn">
-                    <i class="fas fa-plus"></i> Add User
+    <div class="dashboard-container">
+        <!-- SIDEBAR -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">
+                    <i class="fas fa-brain"></i>
+                    <span>Brain<span>Learning</span></span>
+                </div>
+                <button class="toggle-btn" id="toggleBtn">
+                    <i class="fas fa-bars"></i>
                 </button>
             </div>
 
-            <table>
-                <thead>
-                    <tr>
-                        <th>User</th>
-                        <th>Role</th>
-                        <th>Status</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
+            <div class="admin-profile">
+                <div class="admin-avatar">
+                    <span th:text="${#strings.substring(adminName, 0, 1)}">A</span>
+                </div>
+                <div class="admin-info">
+                    <h4 th:text="${adminName}">Administrator</h4>
+                    <p th:text="${adminEmail}">admin@brainlearning.com</p>
+                </div>
+            </div>
 
-                <tbody id="userTable"></tbody>
-            </table>
+            <nav class="sidebar-nav">
+                <ul class="nav-menu">
+                    <li class="nav-item">
+                        <a th:href="@{/admin/dashboard}">
+                            <i class="fas fa-th-large"></i>
+                            <span>Dashboard</span>
+                        </a>
+                    </li>
+                    <li class="nav-item active">
+                        <a th:href="@{/admin/users}">
+                            <i class="fas fa-users"></i>
+                            <span>Users Management</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a th:href="@{/admin/levels}">
+                            <i class="fas fa-graduation-cap"></i>
+                            <span>Educational Levels</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a th:href="@{/admin/course-verification}">
+                            <i class="fas fa-check-square"></i>
+                            <span>Course Verification</span>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
 
-        </div>
+            <div class="sidebar-footer">
+                <a href="/logout" class="logout-btn">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span>Logout</span>
+                </a>
+            </div>
+        </aside>
 
+        <!-- MAIN CONTENT -->
+        <main class="main-content">
+            <div class="top-bar">
+                <div class="page-title">
+                    <h1>Users Management</h1>
+                    <p>Manage platform users</p>
+                </div>
+            </div>
+
+            <!-- STATS ROW -->
+            <div class="stats-row">
+                <div class="stat-card-small">
+                    <div class="stat-icon green">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3 th:text="${totalStudents}">0</h3>
+                        <p>Total Students</p>
+                    </div>
+                </div>
+                <div class="stat-card-small">
+                    <div class="stat-icon purple">
+                        <i class="fas fa-chalkboard-user"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3 th:text="${totalTeachers}">0</h3>
+                        <p>Total Teachers</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- STUDENTS TABLE -->
+            <div class="table-card">
+                <div class="table-header">
+                    <h3><i class="fas fa-graduation-cap"></i> Students</h3>
+                    <input type="text" id="searchStudents" placeholder="Search student..." class="search-input">
+                </div>
+                <div class="table-responsive">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Email</th>
+                                <th>Role</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="studentsTableBody">
+                            <tr th:each="student : ${students}">
+                                <td th:text="${student.name}">John Doe</td>
+                                <td th:text="${student.email}">john@example.com</td>
+                                <td>Student</td>
+                                <td><span class="badge status-active">Active</span></td>
+                                <td class="actions">
+                                    <div class="action-buttons">
+                                        <i class="fas fa-edit action-icon edit-icon edit-student" 
+                                           th:data-id="${student.id}" 
+                                           th:data-name="${student.name}" 
+                                           th:data-email="${student.email}"></i>
+                                        <i class="fas fa-trash action-icon delete-icon delete-student" 
+                                           th:data-id="${student.id}" 
+                                           th:data-name="${student.name}"></i>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr th:if="${students.isEmpty()}">
+                                <td colspan="5" style="text-align: center;">No students found</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- TEACHERS TABLE -->
+            <div class="table-card">
+                <div class="table-header">
+                    <h3><i class="fas fa-chalkboard-user"></i> Teachers</h3>
+                    <input type="text" id="searchTeachers" placeholder="Search teacher..." class="search-input">
+                </div>
+                <div class="table-responsive">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Email</th>
+                                <th>Department</th>
+                                <th>Role</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="teachersTableBody">
+                            <tr th:each="teacher : ${teachers}">
+                                <td th:text="${teacher.name}">Prof. Name</td>
+                                <td th:text="${teacher.email}">teacher@example.com</td>
+                                <td th:text="${teacher.department}">Computer Science</td>
+                                <td>Teacher</td>
+                                <td><span class="badge status-active">Active</span></td>
+                                <td class="actions">
+                                    <div class="action-buttons">
+                                        <i class="fas fa-edit action-icon edit-icon edit-teacher" 
+                                           th:data-id="${teacher.id}" 
+                                           th:data-name="${teacher.name}" 
+                                           th:data-email="${teacher.email}"
+                                           th:data-department="${teacher.department}"
+                                           th:data-phone="${teacher.phone}"></i>
+                                        <i class="fas fa-trash action-icon delete-icon delete-teacher" 
+                                           th:data-id="${teacher.id}" 
+                                           th:data-name="${teacher.name}"></i>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr th:if="${teachers.isEmpty()}">
+                                <td colspan="6" style="text-align: center;">No teachers found</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
     </div>
 
-    <!-- MODAL -->
-    <div class="modal" id="modal">
+    <!-- MODAL EDIT STUDENT -->
+    <div id="editStudentModal" class="modal">
         <div class="modal-content">
-            <h3>Add User</h3>
-
-            <input id="name" placeholder="Name">
-            <input id="email" placeholder="Email">
-
-            <select id="role">
-                <option>Student</option>
-                <option>Teacher</option>
-                <option>Admin</option>
-            </select>
-
-            <button onclick="addUser()">Save</button>
-            <button onclick="closeModal()">Cancel</button>
+            <h3><i class="fas fa-user-edit"></i> Edit Student</h3>
+            <input type="hidden" id="editStudentId">
+            <input type="text" id="editStudentName" placeholder="Full Name">
+            <input type="email" id="editStudentEmail" placeholder="Email Address">
+            <div class="modal-actions">
+                <button class="btn-cancel" onclick="closeEditStudentModal()">Cancel</button>
+                <button class="btn-save" onclick="saveEditStudent()">Save Changes</button>
+            </div>
         </div>
     </div>
 
-    <script src="dashboard.js"></script>
-    <script src="user.js"></script>
+    <!-- MODAL EDIT TEACHER -->
+    <div id="editTeacherModal" class="modal">
+        <div class="modal-content">
+            <h3><i class="fas fa-chalkboard-user"></i> Edit Teacher</h3>
+            <input type="hidden" id="editTeacherId">
+            <input type="text" id="editTeacherName" placeholder="Full Name">
+            <input type="email" id="editTeacherEmail" placeholder="Email Address">
+            <input type="text" id="editTeacherDepartment" placeholder="Department">
+            <input type="text" id="editTeacherPhone" placeholder="Phone Number">
+            <div class="modal-actions">
+                <button class="btn-cancel" onclick="closeEditTeacherModal()">Cancel</button>
+                <button class="btn-save" onclick="saveEditTeacher()">Save Changes</button>
+            </div>
+        </div>
+    </div>
 
+    <script th:src="@{/jsadmin/dashboard.js}"></script>
+    <script th:src="@{/jsadmin/user.js}"></script>
 </body>
-
 </html>

@@ -13,7 +13,6 @@
 
 <body>
     <div class="dashboard-container">
-        <!-- SIDEBAR -->
         <aside class="sidebar" id="sidebar">
             <div class="sidebar-header">
                 <div class="logo">
@@ -38,25 +37,25 @@
             <nav class="sidebar-nav">
                 <ul class="nav-menu">
                     <li class="nav-item active">
-                        <a href="#">
+                        <a th:href="@{/admin/dashboard}">
                             <i class="fas fa-th-large"></i>
                             <span>Dashboard</span>
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a href="#">
+                        <a th:href="@{/admin/users}">
                             <i class="fas fa-users"></i>
                             <span>Users Management</span>
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a href="#">
+                        <a th:href="@{/admin/levels}">
                             <i class="fas fa-graduation-cap"></i>
                             <span>Educational Levels</span>
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a href="#">
+                        <a th:href="@{/admin/course-verification}">
                             <i class="fas fa-check-square"></i>
                             <span>Course Verification</span>
                         </a>
@@ -72,7 +71,6 @@
             </div>
         </aside>
 
-        <!-- MAIN CONTENT -->
         <main class="main-content">
             <div class="top-bar">
                 <div class="page-title">
@@ -136,9 +134,8 @@
                 </div>
             </div>
 
-            <!-- Content Grid - DYNAMIC CONTENT ONLY -->
+            <!-- Content Grid -->
             <div class="content-grid">
-                <!-- Recent Activities - Loaded dynamically -->
                 <div class="activity-section">
                     <div class="section-header">
                         <h3><i class="fas fa-history"></i> Recent Activities</h3>
@@ -151,7 +148,6 @@
                     </div>
                 </div>
 
-                <!-- Pending Courses - Loaded dynamically -->
                 <div class="pending-section">
                     <div class="section-header">
                         <h3><i class="fas fa-clock"></i> Pending Courses</h3>

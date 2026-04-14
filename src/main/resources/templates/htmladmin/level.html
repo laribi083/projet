@@ -1,102 +1,159 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 
 <head>
     <meta charset="UTF-8">
-    <title>Levels</title>
+    <title>Educational Levels - BrainLearning</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <link rel="stylesheet" href="dashboard.css">
-    <link rel="stylesheet" href="level.css">
-
+    <link th:href="@{/cssadmin/dashboard.css}" rel="stylesheet">
+    <link th:href="@{/cssadmin/level.css}" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
 
 <body>
+    <div class="dashboard-container">
+        <!-- SIDEBAR -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">
+                    <i class="fas fa-brain"></i>
+                    <span>Brain<span>Learning</span></span>
+                </div>
+                <button class="toggle-btn" id="toggleBtn">
+                    <i class="fas fa-bars"></i>
+                </button>
+            </div>
 
-    <!-- SIDEBAR -->
-    <div class="sidebar" id="sidebar">
-        <div class="top">
-            <h2>Admin Panel</h2>
-            <i class="fas fa-bars" id="toggleBtn"></i>
-        </div>
+            <div class="admin-profile">
+                <div class="admin-avatar">
+                    <span th:text="${#strings.substring(adminName, 0, 1)}">A</span>
+                </div>
+                <div class="admin-info">
+                    <h4 th:text="${adminName}">Administrator</h4>
+                    <p th:text="${adminEmail}">admin@brainlearning.com</p>
+                </div>
+            </div>
 
-        <ul class="menu">
+            <nav class="sidebar-nav">
+                <ul class="nav-menu">
+                    <li class="nav-item">
+                        <a th:href="@{/admin/dashboard}">
+                            <i class="fas fa-th-large"></i>
+                            <span>Dashboard</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a th:href="@{/admin/users}">
+                            <i class="fas fa-users"></i>
+                            <span>Users Management</span>
+                        </a>
+                    </li>
+                    <li class="nav-item active">
+                        <a th:href="@{/admin/levels}">
+                            <i class="fas fa-graduation-cap"></i>
+                            <span>Educational Levels</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a th:href="@{/admin/course-verification}">
+                            <i class="fas fa-check-square"></i>
+                            <span>Course Verification</span>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
 
-            <li>
-                <a href="dashboard.html">
-                    <i class="fas fa-th-large"></i>
-                    <span>Dashboard</span>
+            <div class="sidebar-footer">
+                <a href="/logout" class="logout-btn">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span>Logout</span>
                 </a>
-            </li>
+            </div>
+        </aside>
 
-            <li class="active">
-                <a href="user.html">
-                    <i class="fas fa-users"></i>
-                    <span>Users Management</span>
-                </a>
-            </li>
+        <!-- MAIN CONTENT -->
+        <main class="main-content">
+            <div class="top-bar">
+                <div class="page-title">
+                    <h1>Educational Levels</h1>
+                    <p>Manage levels, semesters and modules</p>
+                </div>
+            </div>
 
-            <li class="active">
-                <a href="level.html">
-                    <i class="fas fa-graduation-cap"></i>
-                    <span>Educational Levels</span>
-                </a>
-            </li>
+            <!-- STATS CARDS -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon blue">
+                        <i class="fas fa-layer-group"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3 th:text="${firstYearCount + secondYearCount + thirdYearCount}">0</h3>
+                        <p>Total Levels</p>
+                    </div>
+                </div>
 
-            <li>
-                <a href="valid.html">
-                    <i class="fas fa-check-square"></i>
-                    <span>Course Verification</span>
-                </a>
-            </li>
+                <div class="stat-card">
+                    <div class="stat-icon green">
+                        <i class="fas fa-calendar"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3>6</h3>
+                        <p>Semesters</p>
+                    </div>
+                </div>
 
-        </ul>
+                <div class="stat-card">
+                    <div class="stat-icon purple">
+                        <i class="fas fa-book"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3>30</h3>
+                        <p>Modules</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- LEVELS GRID -->
+            <div class="levels-grid">
+                <div class="level-card first-year">
+                    <div class="level-icon">
+                        <i class="fas fa-star-of-life"></i>
+                    </div>
+                    <div class="level-info">
+                        <h2>1st Year</h2>
+                        <p class="level-count" th:text="${firstYearCount}">0</p>
+                        <p>Courses</p>
+                    </div>
+                </div>
+
+                <div class="level-card second-year">
+                    <div class="level-icon">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <div class="level-info">
+                        <h2>2nd Year</h2>
+                        <p class="level-count" th:text="${secondYearCount}">0</p>
+                        <p>Courses</p>
+                    </div>
+                </div>
+
+                <div class="level-card third-year">
+                    <div class="level-icon">
+                        <i class="fas fa-rocket"></i>
+                    </div>
+                    <div class="level-info">
+                        <h2>3rd Year</h2>
+                        <p class="level-count" th:text="${thirdYearCount}">0</p>
+                        <p>Courses</p>
+                    </div>
+                </div>
+            </div>
+        </main>
     </div>
 
-    <!-- MAIN -->
-    <div class="main">
-
-        <div class="header">
-            <h1>Educational Levels</h1>
-            <p>Manage levels, semesters and modules</p>
-        </div>
-
-        <!-- CARDS -->
-        <div class="cards">
-            <div class="card">
-                <div class="icon blue"><i class="fas fa-layer-group"></i></div>
-                <div>
-                    <p>Levels</p>
-                    <h2>3</h2>
-                </div>
-            </div>
-
-            <div class="card">
-                <div class="icon greenBg"><i class="fas fa-calendar"></i></div>
-                <div>
-                    <p>Semesters</p>
-                    <h2>6</h2>
-                </div>
-            </div>
-
-            <div class="card">
-                <div class="icon yellow"><i class="fas fa-book"></i></div>
-                <div>
-                    <p>Modules</p>
-                    <h2>12</h2>
-                </div>
-            </div>
-        </div>
-
-        <!-- LEVELS -->
-        <div class="levels-container" id="levelsContainer"></div>
-
-    </div>
-
-    <script src="dashboard.js"></script>
-    <script src="level.js"></script>
-
+    <script th:src="@{/jsadmin/dashboard.js}"></script>
+    <script th:src="@{/jsadmin/level.js}"></script>
 </body>
-
 </html>

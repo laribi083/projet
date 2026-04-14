@@ -22,6 +22,10 @@ public interface courserepository extends JpaRepository<Course, Long> {
     
     long countByTeacherId(Long teacherId);
     
+    long countByStatus(String status);
+    
+    long countByNiveau(String niveau);
+    
     List<Course> findByModuleAndNiveau(String module, String niveau);
     
     List<Course> findByModuleAndNiveauAndStatus(String module, String niveau, String status);
@@ -32,14 +36,11 @@ public interface courserepository extends JpaRepository<Course, Long> {
     
     List<Course> findByTeacherNameContainingIgnoreCase(String teacherName);
     
-    // ⭐ NOUVELLE MÉTHODE POUR COMPTER PAR STATUT ⭐
-    long countByStatus(String status);
+    // ========== REQUÊTES PERSONNALISÉES ==========
     
-    // ⭐ MÉTHODE POUR LES COURS ACTIFS TRIÉS
     @Query("SELECT c FROM Course c WHERE c.status = 'ACTIVE' ORDER BY c.createdAt DESC")
     List<Course> findAllActiveCoursesOrderByDate();
     
-    // ⭐ MÉTHODE POUR LA RECHERCHE AVANCÉE
     @Query("SELECT c FROM Course c WHERE " +
            "(:status IS NULL OR c.status = :status) AND " +
            "(:niveau IS NULL OR c.niveau = :niveau) AND " +

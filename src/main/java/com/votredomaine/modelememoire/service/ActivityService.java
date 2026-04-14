@@ -27,50 +27,50 @@ public class ActivityService {
     public void logCoursePublished(String teacherName, String courseTitle, Long courseId) {
         Activity activity = new Activity(
             "COURSE_PUBLISHED",
-            "a publié le cours \"" + courseTitle + "\"",
+            "published course: \"" + courseTitle + "\"",
             teacherName,
             "TEACHER"
         );
         activity.setTargetId(courseId);
         activity.setTargetName(courseTitle);
         activityRepository.save(activity);
-        System.out.println("📝 Activité enregistrée: " + teacherName + " a publié un cours");
+        System.out.println("📝 Activity: " + teacherName + " published a course");
     }
     
     public void logUserRegistered(String userName, String role) {
         Activity activity = new Activity(
             "USER_REGISTERED",
-            "s'est inscrit comme " + role.toLowerCase(),
+            "registered as " + role.toLowerCase(),
             userName,
             role
         );
         activityRepository.save(activity);
-        System.out.println("📝 Activité enregistrée: " + userName + " s'est inscrit");
+        System.out.println("📝 Activity: " + userName + " registered");
     }
     
     public void logCourseUpdated(String teacherName, String courseTitle, Long courseId) {
         Activity activity = new Activity(
             "COURSE_UPDATED",
-            "a mis à jour le cours \"" + courseTitle + "\"",
+            "updated course: \"" + courseTitle + "\"",
             teacherName,
             "TEACHER"
         );
         activity.setTargetId(courseId);
         activity.setTargetName(courseTitle);
         activityRepository.save(activity);
-        System.out.println("📝 Activité enregistrée: " + teacherName + " a mis à jour un cours");
+        System.out.println("📝 Activity: " + teacherName + " updated a course");
     }
     
     public void logCourseDownloaded(String studentName, String courseTitle, Long courseId) {
         Activity activity = new Activity(
             "COURSE_DOWNLOADED",
-            "a téléchargé le cours \"" + courseTitle + "\"",
+            "downloaded course: \"" + courseTitle + "\"",
             studentName,
             "STUDENT"
         );
         activity.setTargetId(courseId);
         activity.setTargetName(courseTitle);
         activityRepository.save(activity);
-        System.out.println("📝 Activité enregistrée: " + studentName + " a téléchargé un cours");
+        System.out.println("📝 Activity: " + studentName + " downloaded a course");
     }
 }

@@ -23,12 +23,7 @@ public class QuizController {
     private QuizService quizService;
     
     private final ObjectMapper objectMapper = new ObjectMapper();
-    
-    // ==================== PARTIE TEACHER ====================
-    
-    /**
-     * Affiche le formulaire de création de quiz pour un enseignant
-     */
+  
     @GetMapping("/teacher/create-quiz")
     public String showCreateQuizFormTeacher(@RequestParam Long courseId, 
                                              @RequestParam String courseModule, 
@@ -39,10 +34,7 @@ public class QuizController {
         model.addAttribute("courseNiveau", courseNiveau);
         return "htmlTeacher/create-quiz";
     }
-    
-    /**
-     * Affiche la liste des quiz d'un cours pour un enseignant
-     */
+  
     @GetMapping("/teacher/course/{courseId}/quizzes")
     public String getCourseQuizzes(@PathVariable Long courseId, Model model, HttpSession session) {
         Long teacherId = (Long) session.getAttribute("teacherId");
@@ -54,10 +46,7 @@ public class QuizController {
         model.addAttribute("courseId", courseId);
         return "htmlTeacher/quiz-list";
     }
-    
-    /**
-     * Affiche les questions d'un quiz pour un enseignant
-     */
+   
     @GetMapping("/teacher/quiz/{quizId}/questions")
     public String getQuizQuestions(@PathVariable Long quizId, Model model, HttpSession session) {
         Long teacherId = (Long) session.getAttribute("teacherId");
@@ -75,12 +64,7 @@ public class QuizController {
         model.addAttribute("questions", questions);
         return "htmlTeacher/quiz-questions";
     }
-    
-    // ==================== API QUIZ (TEACHER) ====================
-    
-    /**
-     * API pour créer un quiz complet avec ses questions
-     */
+   
     @PostMapping("/teacher/api/quizzes/create")
     @ResponseBody
     public ResponseEntity<Map<String, Object>> createQuiz(
@@ -178,10 +162,7 @@ public class QuizController {
         
         return ResponseEntity.ok(response);
     }
-    
-    /**
-     * API pour récupérer un quiz par son ID
-     */
+   
     @GetMapping("/teacher/api/quizzes/{quizId}")
     @ResponseBody
     public ResponseEntity<Quiz> getQuizById(@PathVariable Long quizId, HttpSession session) {
@@ -197,10 +178,7 @@ public class QuizController {
         
         return ResponseEntity.ok(quiz);
     }
-    
-    /**
-     * API pour récupérer les questions d'un quiz
-     */
+  
     @GetMapping("/teacher/api/quizzes/{quizId}/questions")
     @ResponseBody
     public ResponseEntity<List<Question>> getQuizQuestionsApi(@PathVariable Long quizId, HttpSession session) {
@@ -217,10 +195,7 @@ public class QuizController {
         List<Question> questions = quizService.getQuestionsByQuizId(quizId);
         return ResponseEntity.ok(questions);
     }
-    
-    /**
-     * API pour ajouter une question à un quiz
-     */
+  
     @PostMapping("/teacher/api/quizzes/{quizId}/questions")
     @ResponseBody
     public ResponseEntity<Map<String, Object>> addQuestionToQuiz(
@@ -284,10 +259,7 @@ public class QuizController {
         
         return ResponseEntity.ok(response);
     }
-    
-    /**
-     * API pour supprimer un quiz
-     */
+  
     @DeleteMapping("/teacher/api/quizzes/{quizId}")
     @ResponseBody
     public ResponseEntity<Map<String, Object>> deleteQuiz(@PathVariable Long quizId, HttpSession session) {
@@ -319,10 +291,7 @@ public class QuizController {
             return ResponseEntity.status(500).body(response);
         }
     }
-    
-    /**
-     * API pour supprimer une question d'un quiz
-     */
+  
     @DeleteMapping("/teacher/api/quizzes/{quizId}/questions/{questionId}")
     @ResponseBody
     public ResponseEntity<Map<String, Object>> deleteQuestion(@PathVariable Long quizId, @PathVariable Long questionId, HttpSession session) {
@@ -354,12 +323,7 @@ public class QuizController {
             return ResponseEntity.status(500).body(response);
         }
     }
-    
-    // ==================== PARTIE STUDENT ====================
-    
-    /**
-     * Affiche la page avec tous les quiz disponibles pour l'étudiant
-     */
+  
     @GetMapping("/student/quizzes")
     public String showStudentQuizzes(Model model, HttpSession session) {
         String userName = (String) session.getAttribute("userName");
@@ -386,10 +350,7 @@ public class QuizController {
         
         return "htmlstudent/quizzes";
     }
-    
-    /**
-     * Affiche la page pour passer un quiz
-     */
+   
     @GetMapping("/quiz/take/{quizId}")
     public String takeQuiz(@PathVariable Long quizId, Model model, HttpSession session) {
         String userName = (String) session.getAttribute("userName");
@@ -411,10 +372,7 @@ public class QuizController {
         
         return "htmlstudent/take-quiz";
     }
-    
-    /**
-     * API pour soumettre les réponses d'un quiz
-     */
+   
     @PostMapping("/quiz/submit/{quizId}")
     @ResponseBody
     public ResponseEntity<Map<String, Object>> submitQuiz(
@@ -479,10 +437,7 @@ public class QuizController {
         
         return ResponseEntity.ok(response);
     }
-    
-    /**
-     * Affiche la page des résultats d'un quiz
-     */
+   
     @GetMapping("/quiz/result/{quizId}")
     public String showResult(@PathVariable Long quizId, Model model, HttpSession session) {
         String userName = (String) session.getAttribute("userName");

@@ -39,11 +39,11 @@ public class Courseservice {
     }
     
     public List<Course> getCoursesByNiveau(String niveau) {
-        return courseRepository.findByNiveauAndStatus(niveau, "ACTIVE");
+        return courseRepository.findByNiveauAndStatus(niveau, "PUBLISHED");
     }
     
     public List<Course> getAllActiveCourses() {
-        return courseRepository.findByStatus("ACTIVE");
+        return courseRepository.findByStatus("PUBLISHED");
     }
     
     public List<Course> findAll() {
@@ -76,9 +76,9 @@ public class Courseservice {
     
     public List<Course> findByModuleAndNiveau(String module, String niveau) {
         if (module == null || module.trim().isEmpty() || module.equals("all")) {
-            return courseRepository.findByNiveau(niveau);
+            return courseRepository.findByNiveauAndStatus(niveau, "PUBLISHED");
         }
-        return courseRepository.findByModuleAndNiveau(module, niveau);
+        return courseRepository.findByModuleAndNiveauAndStatus(module, niveau, "PUBLISHED");
     }
     
     public List<Course> findByModuleAndNiveauAndStatus(String module, String niveau, String status) {
@@ -89,7 +89,7 @@ public class Courseservice {
     }
     
     public List<Course> getAllCoursesForReceive() {
-        return courseRepository.findAllActiveCoursesOrderByDate();
+        return courseRepository.findAllPublishedCoursesOrderByDate();
     }
     
     public List<Course> searchCourses(String status, String niveau, String module, String search) {
@@ -228,7 +228,7 @@ public class Courseservice {
     }
     
     public long countPublishedCourses() {
-        return courseRepository.countByStatus("ACTIVE");
+        return courseRepository.countByStatus("PUBLISHED");
     }
     
     public long countPendingCourses() {
@@ -257,6 +257,22 @@ public class Courseservice {
             return courseRepository.save(course);
         }
         return null;
+    }
+    
+    public Course validateCourse(Long id) {
+        return updateCourseStatus(id, "VALIDATED");
+    }
+    
+    public Course publishCourse(Long id) {
+        return updateCourseStatus(id, "PUBLISHED");
+    }
+    
+    public List<Course> getCoursesByTeacherAndStatus(Long teacherId, String status) {
+        return courseRepository.findByTeacherIdAndStatus(teacherId, status);
+    }
+    
+    public List<Course> getTeacherCoursesWithStatus(Long teacherId) {
+        return courseRepository.findByTeacherId(teacherId);
     }
     
     // ========== CONTENU DES COURS ==========
@@ -313,8 +329,7 @@ public class Courseservice {
                "<p>This file cannot be displayed directly in the browser.</p>" +
                "<button onclick=\"window.location.href='/course/" + courseId + "/download'\" " +
                "style='background: #667eea; color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; margin-top: 20px;'>" +
-               "⬇️ Download file" +
-               "</button>" +
+               "⬇️ Download file</button>" +
                "</div>";
     }
     

@@ -30,7 +30,7 @@ public class Course {
     
     private String duration;
     
-    private String status;
+    private String status = "PENDING";
     
     @Column(name = "last_downloaded_at")
     private LocalDateTime lastDownloadedAt;
@@ -65,7 +65,6 @@ public class Course {
     @Transient
     private Integer quizCount = 0;
     
-    // ⭐ AJOUTER CE CHAMP
     @Transient
     private Integer totalStudents = 0;
     
@@ -81,7 +80,7 @@ public class Course {
         this.module = module;
         this.teacherName = teacherName;
         this.teacherId = teacherId;
-        this.status = "ACTIVE";
+        this.status = "PENDING";
         this.createdAt = LocalDateTime.now();
         this.updatedAt = LocalDateTime.now();
         this.downloadCount = 0;
@@ -162,7 +161,6 @@ public class Course {
     public Integer getQuizCount() { return quizCount; }
     public void setQuizCount(Integer quizCount) { this.quizCount = quizCount; }
     
-    // ⭐ GETTER ET SETTER POUR totalStudents
     public Integer getTotalStudents() { return totalStudents; }
     public void setTotalStudents(Integer totalStudents) { this.totalStudents = totalStudents; }
     
@@ -210,6 +208,10 @@ public class Course {
         this.lastDownloadedAt = LocalDateTime.now();
     }
     
+    public boolean isPending() { return "PENDING".equals(status); }
+    public boolean isValidated() { return "VALIDATED".equals(status); }
+    public boolean isPublished() { return "PUBLISHED".equals(status); }
+    
     @Override
     public String toString() {
         return "Course{" +
@@ -219,7 +221,6 @@ public class Course {
                 ", module='" + module + '\'' +
                 ", teacherName='" + teacherName + '\'' +
                 ", status='" + status + '\'' +
-                ", downloadCount=" + downloadCount +
                 '}';
     }
 }

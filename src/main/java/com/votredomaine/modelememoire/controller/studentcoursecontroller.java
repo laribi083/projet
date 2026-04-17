@@ -24,20 +24,42 @@ public class studentcoursecontroller {
     
     // ========== PAGES HTML ==========
     
+    /**
+     * Page qui affiche tous les cours disponibles pour l'étudiant
+     * ⭐ UTILISE LA SOLUTION 1 : UNE SEULE REQUÊTE POUR LES IDs TÉLÉCHARGÉS
+     */
     @GetMapping("/receive-courses")
     public String receiveCourses(Model model, HttpSession session) {
         String userName = (String) session.getAttribute("userName");
         String niveau = (String) session.getAttribute("niveau");
+        Long userId = (Long) session.getAttribute("userId");
         
-        System.out.println("🔍 [receiveCourses] userName: " + userName);
+        System.out.println("🔍 [receiveCourses] userName: " + userName + ", niveau: " + niveau + ", userId: " + userId);
         
         if (userName == null) {
             return "redirect:/login";
         }
         
+        // Récupérer tous les cours PUBLISHED
         List<Course> allCourses = courseService.getAllActiveCourses();
         
+        // Filtrer par niveau si nécessaire
+        if (niveau != null && !niveau.isEmpty() && !"all".equals(niveau)) {
+            allCourses = courseService.getCoursesByNiveau(niveau);
+        }
+        
+        // ⭐⭐⭐ SOLUTION 1 : UNE SEULE REQUÊTE POUR RÉCUPÉRER TOUS LES IDs DES COURS TÉLÉCHARGÉS ⭐⭐⭐
+        List<Long> downloadedIds = enrollmentService.getDownloadedCourseIds(userId);
+        
+        System.out.println("========================================");
+        System.out.println("📊 RÉCAPITULATIF:");
+        System.out.println("   - Cours disponibles: " + allCourses.size());
+        System.out.println("   - Cours déjà téléchargés: " + downloadedIds.size());
+        System.out.println("   - IDs téléchargés: " + downloadedIds);
+        System.out.println("========================================");
+        
         model.addAttribute("courses", allCourses);
+        model.addAttribute("downloadedIds", downloadedIds);
         model.addAttribute("totalCourses", allCourses.size());
         model.addAttribute("userName", userName);
         model.addAttribute("niveau", niveau);
@@ -46,7 +68,7 @@ public class studentcoursecontroller {
     }
     
     /**
-     * PAGE DÉTAIL D'UN COURS - Avec enregistrement du téléchargement
+     * Page de détail d'un cours
      */
     @GetMapping("/course/{id}")
     public String viewCourse(@PathVariable Long id, Model model, HttpSession session) {
@@ -77,7 +99,13 @@ public class studentcoursecontroller {
             return "redirect:/student/receive-courses";
         }
         
-        // ⭐⭐⭐ POINT CRITIQUE : Enregistrer le téléchargement ⭐⭐⭐
+        // Vérifier que le cours est publié
+        if (!"PUBLISHED".equals(course.getStatus())) {
+            System.out.println("⚠️ Cours non publié, accès refusé: " + course.getStatus());
+            return "redirect:/student/receive-courses";
+        }
+        
+        // Enregistrer le téléchargement
         System.out.println("📝 Appel de enrollmentService.registerDownload()...");
         try {
             boolean isNew = enrollmentService.registerDownload(userId, userName, id);
@@ -95,6 +123,9 @@ public class studentcoursecontroller {
     
     // ========== API REST POUR AJAX ==========
     
+    /**
+     * API pour récupérer les cours par niveau (AJAX)
+     */
     @GetMapping("/api/courses/{niveau}")
     @ResponseBody
     public ResponseEntity<List<Course>> getCoursesByNiveau(@PathVariable String niveau) {
@@ -102,6 +133,9 @@ public class studentcoursecontroller {
         return ResponseEntity.ok(courses);
     }
     
+    /**
+     * API pour récupérer tous les cours (AJAX)
+     */
     @GetMapping("/api/courses")
     @ResponseBody
     public ResponseEntity<List<Course>> getAllCourses() {
@@ -109,9 +143,42 @@ public class studentcoursecontroller {
         return ResponseEntity.ok(courses);
     }
     
+    /**
+     * API pour récupérer tous les cours (alias)
+     */
     @GetMapping("/api/courses/all")
     @ResponseBody
     public ResponseEntity<List<Course>> getAllCoursesAlias() {
         return getAllCourses();
+    }
+    
+    /**
+     * ⭐ API pour récupérer les IDs des cours déjà téléchargés (AJAX)
+     * Utilise la Solution 1
+     */
+    @GetMapping("/api/downloaded-ids")
+    @ResponseBody
+    public ResponseEntity<List<Long>> getDownloadedCourseIds(HttpSession session) {
+        Long userId = (Long) session.getAttribute("userId");
+        List<Long> downloadedIds = enrollmentService.getDownloadedCourseIds(userId);
+        return ResponseEntity.ok(downloadedIds);
+    }
+    
+    /**
+     * API pour vérifier si un étudiant a déjà téléchargé un cours spécifique (AJAX)
+     */
+    @GetMapping("/api/check-downloaded/{courseId}")
+    @ResponseBody
+    public ResponseEntity<Boolean> checkDownloaded(@PathVariable Long courseId, HttpSession session) {
+        Long userId = (Long) session.getAttribute("userId");
+        if (userId == null || courseId == null) {
+            return ResponseEntity.ok(false);
+        }
+        
+        // Utilise la liste des IDs pour vérifier (optimisé)
+        List<Long> downloadedIds = enrollmentService.getDownloadedCourseIds(userId);
+        boolean hasDownloaded = downloadedIds.contains(courseId);
+        
+        return ResponseEntity.ok(hasDownloaded);
     }
 }

@@ -22,51 +22,33 @@ public class EnrollmentService {
     @Autowired
     private Courseservice courseService;
     
-    /**
-     * Enregistre le téléchargement d'un cours par un étudiant
-     * @param studentId ID de l'étudiant
-     * @param studentName Nom de l'étudiant
-     * @param courseId ID du cours
-     * @return true si l'inscription est nouvelle, false si déjà existante
-     */
     @Transactional
     public boolean registerDownload(Long studentId, String studentName, Long courseId) {
-        System.out.println("========================================");
-        System.out.println("🚨 [EnrollmentService] registerDownload CALLED");
-        System.out.println("   studentId: " + studentId);
-        System.out.println("   studentName: " + studentName);
-        System.out.println("   courseId: " + courseId);
-        System.out.println("========================================");
+        System.out.println("=== registerDownload ===");
+        System.out.println("studentId: " + studentId);
+        System.out.println("courseId: " + courseId);
         
-        // Vérifier si studentId est null
         if (studentId == null) {
-            System.err.println("❌ ERREUR: studentId est NULL !");
+            System.err.println("❌ studentId est NULL !");
             return false;
         }
         
-        // Vérifier si l'étudiant est déjà inscrit à ce cours
         Optional<Enrollment> existing = enrollmentRepository.findByStudentIdAndCourseId(studentId, courseId);
         
         if (existing.isPresent()) {
-            System.out.println("⚠️ Étudiant déjà inscrit, mise à jour de la date");
+            System.out.println("⚠️ Étudiant déjà inscrit");
             Enrollment enrollment = existing.get();
             enrollment.setDownloadedAt(LocalDateTime.now());
             enrollmentRepository.save(enrollment);
-            return false; // Pas nouveau
+            return false;
         }
         
-        // Récupérer les informations du cours
         Course course = courseService.getCourseById(courseId);
         if (course == null) {
-            System.err.println("❌ Cours non trouvé avec ID: " + courseId);
-            throw new RuntimeException("Cours non trouvé avec l'ID: " + courseId);
+            System.err.println("❌ Cours non trouvé: " + courseId);
+            return false;
         }
         
-        System.out.println("📚 Cours trouvé: " + course.getTitle());
-        System.out.println("   Teacher ID: " + course.getTeacherId());
-        System.out.println("   Teacher Name: " + course.getTeacherName());
-        
-        // Créer une nouvelle inscription
         Enrollment enrollment = new Enrollment();
         enrollment.setStudentId(studentId);
         enrollment.setCourseId(courseId);
@@ -76,137 +58,83 @@ public class EnrollmentService {
         enrollment.setTeacherName(course.getTeacherName());
         enrollment.setDownloadedAt(LocalDateTime.now());
         
-        System.out.println("💾 Sauvegarde de l'inscription...");
-        Enrollment saved = enrollmentRepository.save(enrollment);
-        System.out.println("✅ Inscription sauvegardée avec ID: " + saved.getId());
-        
-        return true; // Nouvelle inscription
+        enrollmentRepository.save(enrollment);
+        System.out.println("✅ Inscription sauvegardée");
+        return true;
     }
     
-    // ========== ⭐ MÉTHODE PRINCIPALE POUR LA SOLUTION 1 ==========
+    // ========== MÉTHODES AJOUTÉES ==========
     
-    /**
-     * ⭐ Récupère les IDs des cours déjà téléchargés par un étudiant
-     * (UNE SEULE REQUÊTE - TRÈS PERFORMANT)
-     * @param studentId ID de l'étudiant
-     * @return Liste des IDs des cours
-     */
-    public List<Long> getDownloadedCourseIds(Long studentId) {
-        System.out.println("🔍 [getDownloadedCourseIds] studentId: " + studentId);
-        
+    public List<Enrollment> findByStudentId(Long studentId) {
         if (studentId == null) {
-            System.out.println("⚠️ studentId est null, retourne liste vide");
             return List.of();
         }
-        
-        List<Long> courseIds = enrollmentRepository.findCourseIdsByStudentId(studentId);
-        System.out.println("📚 IDs des cours trouvés: " + (courseIds != null ? courseIds.size() : 0));
-        
-        return courseIds != null ? courseIds : List.of();
-    }
-    
-    // ========== MÉTHODES COMPLÉMENTAIRES ==========
-    
-    /**
-     * Récupère tous les enrollments (inscriptions) d'un étudiant
-     * @param studentId ID de l'étudiant
-     * @return Liste des enrollments
-     */
-    public List<Enrollment> getEnrollmentsByStudent(Long studentId) {
-        System.out.println("🔍 [getEnrollmentsByStudent] studentId: " + studentId);
         List<Enrollment> enrollments = enrollmentRepository.findByStudentId(studentId);
-        System.out.println("📚 Nombre d'enrollments trouvés: " + (enrollments != null ? enrollments.size() : 0));
+        System.out.println("findByStudentId(" + studentId + ") -> " + (enrollments != null ? enrollments.size() : 0) + " résultats");
         return enrollments != null ? enrollments : List.of();
     }
     
-    /**
-     * Récupère tous les cours téléchargés par un étudiant (objets Course complets)
-     * @param studentId ID de l'étudiant
-     * @return Liste des cours
-     */
-    public List<Course> getCoursesByStudent(Long studentId) {
-        System.out.println("🔍 [getCoursesByStudent] studentId: " + studentId);
-        
-        if (studentId == null) {
-            return List.of();
-        }
-        
-        List<Course> courses = enrollmentRepository.findCoursesByStudentId(studentId);
-        System.out.println("📚 Cours trouvés: " + (courses != null ? courses.size() : 0));
-        return courses != null ? courses : List.of();
-    }
-    
-    /**
-     * Compte le nombre d'étudiants inscrits à un cours
-     * @param courseId ID du cours
-     * @return nombre d'étudiants uniques
-     */
     public long countStudentsByCourse(Long courseId) {
-        long count = enrollmentRepository.countByCourseId(courseId);
-        System.out.println("📊 [countStudentsByCourse] courseId=" + courseId + ", count=" + count);
-        return count;
-    }
-    
-    /**
-     * Compte le nombre total d'étudiants inscrits aux cours d'un teacher
-     * @param teacherId ID du teacher
-     * @return nombre d'étudiants uniques
-     */
-    public long countTotalStudentsByTeacher(Long teacherId) {
-        long count = enrollmentRepository.countDistinctStudentsByTeacherId(teacherId);
-        System.out.println("📊 [countTotalStudentsByTeacher] teacherId=" + teacherId + ", count=" + count);
-        return count;
-    }
-    
-    /**
-     * Vérifie si un étudiant a déjà téléchargé un cours
-     * @param studentId ID de l'étudiant
-     * @param courseId ID du cours
-     * @return true si déjà téléchargé
-     */
-    public boolean hasDownloaded(Long studentId, Long courseId) {
-        if (studentId == null || courseId == null) {
-            return false;
+        if (courseId == null) {
+            return 0;
         }
+        long count = enrollmentRepository.countByCourseId(courseId);
+        System.out.println("countStudentsByCourse(" + courseId + ") -> " + count);
+        return count;
+    }
+    
+    public long countTotalStudentsByTeacher(Long teacherId) {
+        if (teacherId == null) {
+            return 0;
+        }
+        long count = enrollmentRepository.countDistinctStudentsByTeacherId(teacherId);
+        System.out.println("countTotalStudentsByTeacher(" + teacherId + ") -> " + count);
+        return count;
+    }
+    
+    // ========== MÉTHODES EXISTANTES ==========
+    
+    public List<Long> getDownloadedCourseIds(Long studentId) {
+        if (studentId == null) return List.of();
+        return enrollmentRepository.findCourseIdsByStudentId(studentId);
+    }
+    
+    public List<Enrollment> getEnrollmentsByStudent(Long studentId) {
+        if (studentId == null) return List.of();
+        return enrollmentRepository.findByStudentId(studentId);
+    }
+    
+    public List<Course> getCoursesByStudent(Long studentId) {
+        if (studentId == null) return List.of();
+        return enrollmentRepository.findCoursesByStudentId(studentId);
+    }
+    
+    public boolean hasDownloaded(Long studentId, Long courseId) {
+        if (studentId == null || courseId == null) return false;
         return enrollmentRepository.existsByStudentIdAndCourseId(studentId, courseId);
     }
     
-    /**
-     * Récupère les statistiques des téléchargements pour un cours
-     * @param courseId ID du cours
-     * @return nombre de téléchargements
-     */
     public long getDownloadCountByCourse(Long courseId) {
+        if (courseId == null) return 0;
         return enrollmentRepository.countByCourseId(courseId);
     }
     
-    /**
-     * Récupère les derniers téléchargements
-     * @param limit Nombre maximum de résultats
-     * @return Liste des derniers enrollments
-     */
     public List<Enrollment> getRecentDownloads(int limit) {
         Pageable pageable = PageRequest.of(0, limit);
         return enrollmentRepository.findTopNByOrderByDownloadedAtDesc(pageable);
     }
     
-    /**
-     * Supprime toutes les inscriptions d'un étudiant
-     * @param studentId ID de l'étudiant
-     */
     @Transactional
     public void deleteEnrollmentsByStudent(Long studentId) {
-        System.out.println("🗑️ [deleteEnrollmentsByStudent] studentId: " + studentId);
-        enrollmentRepository.deleteByStudentId(studentId);
+        if (studentId != null) {
+            enrollmentRepository.deleteByStudentId(studentId);
+        }
     }
     
-    /**
-     * Supprime toutes les inscriptions d'un cours
-     * @param courseId ID du cours
-     */
     @Transactional
     public void deleteEnrollmentsByCourse(Long courseId) {
-        System.out.println("🗑️ [deleteEnrollmentsByCourse] courseId: " + courseId);
-        enrollmentRepository.deleteByCourseId(courseId);
+        if (courseId != null) {
+            enrollmentRepository.deleteByCourseId(courseId);
+        }
     }
 }

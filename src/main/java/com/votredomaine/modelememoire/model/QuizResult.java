@@ -11,21 +11,44 @@ public class QuizResult {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     
+    @Column(name = "quiz_id", nullable = false)
     private Long quizId;
     
+    @Column(name = "quiz_title")
     private String quizTitle;
     
+    @Column(name = "student_id")
+    private Long studentId;
+    
+    @Column(name = "student_name")
     private String studentName;
     
     private Integer score;
     
+    @Column(name = "total_points")
     private Integer totalPoints;
     
     private Integer percentage;
     
     private Boolean passed;
     
+    @Column(name = "completed_at")
     private LocalDateTime completedAt;
+    
+    public QuizResult() {}
+    
+    public QuizResult(Long quizId, String quizTitle, Long studentId, String studentName, 
+                      Integer score, Integer totalPoints, Integer percentage, Boolean passed) {
+        this.quizId = quizId;
+        this.quizTitle = quizTitle;
+        this.studentId = studentId;
+        this.studentName = studentName;
+        this.score = score;
+        this.totalPoints = totalPoints;
+        this.percentage = percentage;
+        this.passed = passed;
+        this.completedAt = LocalDateTime.now();
+    }
     
     // Getters et Setters
     public Long getId() { return id; }
@@ -36,6 +59,9 @@ public class QuizResult {
     
     public String getQuizTitle() { return quizTitle; }
     public void setQuizTitle(String quizTitle) { this.quizTitle = quizTitle; }
+    
+    public Long getStudentId() { return studentId; }
+    public void setStudentId(Long studentId) { this.studentId = studentId; }
     
     public String getStudentName() { return studentName; }
     public void setStudentName(String studentName) { this.studentName = studentName; }

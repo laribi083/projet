@@ -1,5 +1,6 @@
 package com.votredomaine.modelememoire.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -13,7 +14,7 @@ public class Question {
     private Long id;
     
     @Column(name = "quiz_id", nullable = false)
-    private Long quizId;  // ← Ce champ existe, mais Hibernate a du mal avec la requête DELETE
+    private Long quizId;
     
     @Column(name = "question_text", nullable = false, columnDefinition = "TEXT")
     private String questionText;
@@ -28,7 +29,8 @@ public class Question {
     
     @ElementCollection
     @CollectionTable(name = "question_options", joinColumns = @JoinColumn(name = "question_id"))
-    @Column(name = "option_text")
+    @Column(name = "option_text", columnDefinition = "TEXT")
+    @OrderColumn(name = "option_order")
     private List<String> options = new ArrayList<>();
     
     @Column(name = "correct_answer")
@@ -36,6 +38,7 @@ public class Question {
     
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "quiz_id", insertable = false, updatable = false)
+    @JsonIgnore
     private Quiz quiz;
     
     // Constructeurs

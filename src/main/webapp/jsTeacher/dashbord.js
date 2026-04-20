@@ -42,11 +42,11 @@ function loadUserData() {
     const teacherEmail = document.getElementById('teacherEmail')?.value;
     
     if (teacherName) {
-        document.getElementById('userName').textContent = teacherName;
+        const userNameElement = document.getElementById('userName');
+        if (userNameElement) userNameElement.textContent = teacherName;
     }
-    if (teacherEmail) {
-        document.getElementById('userEmail')?.setAttribute('value', teacherEmail);
-    }
+    
+    console.log('📋 Données enseignant:', { teacherId, teacherName, teacherEmail });
 }
 
 // ========== FONCTIONS UTILITAIRES ==========
@@ -242,25 +242,52 @@ function createCourseCard(course) {
     return div;
 }
 
-// ========== CHARGEMENT DES QUIZZES ==========
+// ========== CHARGEMENT DES QUIZZES (CORRIGÉ) ==========
 async function loadQuizzes() {
+    console.log("=== CHARGEMENT DES QUIZ ===");
+    
     try {
         const response = await fetch('/teacher/api/quizzes');
-        if (!response.ok) throw new Error('Failed to fetch quizzes');
+        console.log("Statut réponse:", response.status);
         
-        allQuizzes = await response.json();
+        if (!response.ok) {
+            throw new Error('Failed to fetch quizzes: ' + response.status);
+        }
+        
+        const data = await response.json();
+        console.log("Données reçues:", data);
+        
         const quizzesGrid = document.getElementById('quizzesGrid');
         const quizzesCount = document.getElementById('quizzesCount');
         
-        if (!quizzesGrid) return;
+        if (!quizzesGrid) {
+            console.error("Element quizzesGrid non trouvé");
+            return;
+        }
         
-        if (quizzesCount) quizzesCount.textContent = allQuizzes.length;
+        // ⭐ CORRECTION : extraire le tableau quizzes de la réponse
+        let quizzes = [];
+        if (data.success && Array.isArray(data.quizzes)) {
+            quizzes = data.quizzes;
+        } else if (Array.isArray(data)) {
+            quizzes = data;
+        } else {
+            console.warn("Format de données inattendu:", data);
+            quizzes = [];
+        }
         
-        if (allQuizzes.length === 0) {
+        console.log("Nombre de quiz à afficher:", quizzes.length);
+        
+        if (quizzesCount) {
+            quizzesCount.textContent = quizzes.length;
+        }
+        
+        if (quizzes.length === 0) {
             quizzesGrid.innerHTML = `
-                <div class="empty-message" style="grid-column: 1/-1;">
-                    <i class="fas fa-question-circle"></i>
-                    <p>You have not created any quiz yet</p>
+                <div class="empty-message" style="grid-column: 1/-1; text-align: center; padding: 3rem;">
+                    <i class="fas fa-question-circle" style="font-size: 3rem; color: #cbd5e1;"></i>
+                    <h3>No quizzes created yet</h3>
+                    <p>You haven't created any quiz for your courses.</p>
                     <button class="btn-add-course" onclick="showCoursesSection()" style="margin-top: 1rem;">
                         Go to My Courses to create a quiz
                     </button>
@@ -269,33 +296,71 @@ async function loadQuizzes() {
             return;
         }
         
+        // Afficher les quiz
         quizzesGrid.innerHTML = '';
-        allQuizzes.forEach(quiz => {
-            quizzesGrid.appendChild(createQuizCard(quiz));
+        quizzes.forEach(quiz => {
+            const quizCard = createQuizCard(quiz);
+            quizzesGrid.appendChild(quizCard);
         });
+        
+        console.log("✅ Quiz affichés avec succès");
         
     } catch (error) {
         console.error('Error loading quizzes:', error);
-        showNotification('Error loading quizzes', 'error');
+        const quizzesGrid = document.getElementById('quizzesGrid');
+        if (quizzesGrid) {
+            quizzesGrid.innerHTML = `
+                <div class="empty-message" style="grid-column: 1/-1; text-align: center; padding: 3rem;">
+                    <i class="fas fa-exclamation-triangle" style="font-size: 3rem; color: #ef4444;"></i>
+                    <h3>Error loading quizzes</h3>
+                    <p>${error.message}</p>
+                    <button onclick="loadQuizzes()" style="margin-top: 1rem; padding: 0.5rem 1rem; background: #6366f1; color: white; border: none; border-radius: 8px;">
+                        Retry
+                    </button>
+                </div>
+            `;
+        }
+        showNotification('Error loading quizzes: ' + error.message, 'error');
     }
 }
 
+// ========== CRÉATION D'UNE CARTE QUIZ ==========
 function createQuizCard(quiz) {
     const div = document.createElement('div');
     div.className = 'course-card published';
+    div.setAttribute('data-quiz-id', quiz.id);
+    
+    // Valeurs par défaut avec gestion des null
+    const title = quiz.title || 'Sans titre';
+    const description = quiz.description ? quiz.description.substring(0, 100) : 'Aucune description';
+    const courseTitle = quiz.courseTitle || 'Cours inconnu';
+    const timeLimit = quiz.timeLimit || 30;
+    const totalQuestions = quiz.totalQuestions || 0;
+    const passingScore = quiz.passingScore || 70;
+    const module = quiz.module || 'Non défini';
+    
     div.innerHTML = `
-        <h3>${escapeHtml(quiz.title)} <span class="status-badge status-published">📝 QUIZ</span></h3>
-        <p>${escapeHtml(quiz.description ? quiz.description.substring(0, 100) : 'No description')}</p>
+        <h3>
+            ${escapeHtml(title)} 
+            <span class="status-badge status-published">
+                <i class="fas fa-question-circle"></i> QUIZ
+            </span>
+        </h3>
+        <p>${escapeHtml(description)}</p>
         <div class="course-meta">
-            <span>📚 ${escapeHtml(quiz.courseTitle || 'N/A')}</span>
-            <span>🎓 ${escapeHtml(quiz.module || 'N/A')}</span>
-            <span>⏱️ ${quiz.timeLimit || 30} min</span>
-            <span>❓ ${quiz.totalQuestions || 0} questions</span>
-            <span>✅ Score: ${quiz.passingScore || 70}%</span>
+            <span><i class="fas fa-book"></i> ${escapeHtml(courseTitle)}</span>
+            <span><i class="fas fa-folder"></i> ${escapeHtml(module)}</span>
+            <span><i class="fas fa-clock"></i> ${timeLimit} min</span>
+            <span><i class="fas fa-question-circle"></i> ${totalQuestions} questions</span>
+            <span><i class="fas fa-trophy"></i> ${passingScore}% requis</span>
         </div>
         <div class="course-actions">
-            <button class="btn-view" onclick="previewQuiz(${quiz.id})"><i class="fas fa-eye"></i> Preview</button>
-            <button class="btn-delete" onclick="showDeleteQuizModal(${quiz.id}, '${escapeHtml(quiz.title)}')"><i class="fas fa-trash"></i> Delete</button>
+            <button class="btn-view" onclick="previewQuiz(${quiz.id})">
+                <i class="fas fa-eye"></i> Preview
+            </button>
+            <button class="btn-delete" onclick="showDeleteQuizModal(${quiz.id}, '${escapeHtml(title)}')">
+                <i class="fas fa-trash"></i> Delete
+            </button>
         </div>
     `;
     return div;
@@ -783,23 +848,24 @@ function updateQuestionsDisplay() {
     `).join('');
 }
 
+// ========== SAVE QUIZ MODAL ==========
 async function saveQuizModal(event) {
     event.preventDefault();
     
     const title = document.getElementById('quizTitle')?.value.trim();
     if (!title) {
-        showNotification('Please enter a quiz title', 'error');
+        showNotification('Veuillez entrer un titre pour le quiz', 'error');
         return;
     }
     
     if (tempQuestionsList.length === 0) {
-        showNotification('Please add at least one question', 'error');
+        showNotification('Veuillez ajouter au moins une question', 'error');
         return;
     }
     
     const saveBtn = document.getElementById('saveQuizBtn');
     saveBtn.disabled = true;
-    saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
+    saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Création en cours...';
     
     const quizData = {
         courseId: parseInt(document.getElementById('quizCourseId')?.value || 0),
@@ -811,7 +877,10 @@ async function saveQuizModal(event) {
         courseNiveau: document.getElementById('quizCourseNiveau')?.value || ''
     };
     
+    console.log('📤 Envoi du quiz:', quizData);
+    
     try {
+        // 1. Créer le quiz
         const quizResponse = await fetch('/teacher/api/create-quiz', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -819,13 +888,17 @@ async function saveQuizModal(event) {
         });
         
         const quizResult = await quizResponse.json();
+        console.log('📥 Réponse création quiz:', quizResult);
         
         if (!quizResult.success) {
-            throw new Error(quizResult.message || 'Failed to create quiz');
+            throw new Error(quizResult.message || 'Erreur lors de la création du quiz');
         }
         
         const quizId = quizResult.quizId;
+        console.log('✅ Quiz créé avec ID:', quizId);
         
+        // 2. Ajouter chaque question
+        let questionsAdded = 0;
         for (const question of tempQuestionsList) {
             const questionData = {
                 text: question.text,
@@ -836,26 +909,42 @@ async function saveQuizModal(event) {
                 correctAnswer: question.correctAnswer
             };
             
-            await fetch(`/teacher/api/quizzes/${quizId}/questions`, {
+            console.log(`📤 Ajout question ${questionsAdded + 1}/${tempQuestionsList.length}:`, questionData);
+            
+            const questionResponse = await fetch(`/teacher/api/quizzes/${quizId}/questions`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(questionData)
             });
+            
+            if (!questionResponse.ok) {
+                const errorText = await questionResponse.text();
+                console.error('❌ Erreur réponse:', questionResponse.status, errorText);
+                throw new Error(`Erreur lors de l'ajout de la question: ${questionResponse.status}`);
+            }
+            
+            const questionResult = await questionResponse.json();
+            console.log(`✅ Question ${questionsAdded + 1} ajoutée:`, questionResult);
+            questionsAdded++;
         }
         
-        showNotification(`Quiz "${title}" created with ${tempQuestionsList.length} questions!`, 'success');
+        showNotification(`✅ Quiz "${title}" créé avec ${questionsAdded} question(s)!`, 'success');
         closeQuizModal();
         
+        // Recharger les données
         await loadCourses();
         await loadQuizzes();
         await loadStats();
         
+        // Afficher la section des quizzes
+        showQuizzesSection();
+        
     } catch (error) {
-        console.error('Error:', error);
-        showNotification('Error: ' + error.message, 'error');
+        console.error('❌ Erreur:', error);
+        showNotification('Erreur: ' + error.message, 'error');
     } finally {
         saveBtn.disabled = false;
-        saveBtn.innerHTML = '<i class="fas fa-save"></i> Save Quiz';
+        saveBtn.innerHTML = '<i class="fas fa-save"></i> Enregistrer le Quiz';
     }
 }
 
@@ -873,6 +962,7 @@ function logout() {
 
 // ========== INITIALISATION ==========
 document.addEventListener('DOMContentLoaded', function() {
+    console.log('🚀 Dashboard initialisé');
     initUserProfile();
     loadCourses();
     loadStats();

@@ -10,6 +10,7 @@
 </head>
 <body>
 
+    <!-- ==================== INPUTS CACHÉS POUR LES DONNÉES ENSEIGNANT ==================== -->
     <input type="hidden" id="teacherId" th:value="${teacherId}" />
     <input type="hidden" id="teacherName" th:value="${teacherName}" />
     <input type="hidden" id="teacherEmail" th:value="${teacherEmail}" />
@@ -18,12 +19,13 @@
     <div class="sidebar">
         <div class="logo">Brain<span>learning</span></div>
         
+        <!-- ==================== USER PROFILE AVEC LES BONS ID ==================== -->
         <div class="user-profile">
             <div class="user-avatar">
-                <i class="fas fa-user-circle" style="font-size: 50px; color: #667eea;"></i>
+                <img id="userAvatar" src="" alt="User Avatar">
             </div>
-            <h3 th:text="${teacherName}">Professor</h3>
-            <p th:text="${teacherEmail}">email@example.com</p>
+            <h3 id="userName">Professor</h3>
+            <p th:text="${teacherEmail}" id="userEmailDisplay" class="user-email">email@example.com</p>
             <p class="user-role">👨‍🏫 Teacher</p>
         </div>
         
@@ -59,7 +61,7 @@
         <div class="stats-grid">
             <div class="stat-card">
                 <div class="stat-info">
-                    <h3 th:text="${totalCourses}">0</h3>
+                    <h3 id="totalCoursesDisplay" th:text="${totalCourses}">0</h3>
                     <p>Total Courses</p>
                 </div>
                 <div class="stat-icon">📚</div>
@@ -189,7 +191,9 @@
         </div>
     </div>
 
-    <!-- Modals -->
+    <!-- ==================== MODALS ==================== -->
+    
+    <!-- Modal Suppression Cours -->
     <div id="deleteModal" class="modal">
         <div class="modal-content">
             <h3>🗑️ Delete Course</h3>
@@ -202,6 +206,7 @@
         </div>
     </div>
 
+    <!-- Modal Suppression Quiz -->
     <div id="deleteQuizModal" class="modal">
         <div class="modal-content">
             <h3>🗑️ Delete Quiz</h3>
@@ -213,6 +218,7 @@
         </div>
     </div>
 
+    <!-- Modal Ajout Cours -->
     <div id="addCourseModal" class="modal-overlay">
         <div class="modal-container">
             <div class="modal-header">
@@ -294,6 +300,7 @@
         </div>
     </div>
 
+    <!-- Modal Modification Cours -->
     <div id="editCourseModal" class="modal-overlay" style="display: none;">
         <div class="modal-container">
             <div class="modal-header">
@@ -347,6 +354,7 @@
         </div>
     </div>
 
+    <!-- Modal Création Quiz -->
     <div id="createQuizModal" class="modal-overlay" style="display: none;">
         <div class="modal-container" style="max-width: 750px;">
             <div class="modal-header">

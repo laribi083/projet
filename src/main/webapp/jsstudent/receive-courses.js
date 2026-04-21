@@ -12,7 +12,6 @@ async function downloadCourse(btn) {
         return;
     }
     
-    // Désactiver le bouton et afficher le chargement
     const originalText = btn.innerHTML;
     btn.disabled = true;
     btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Téléchargement...';
@@ -49,8 +48,8 @@ async function downloadCourse(btn) {
         showNotification('✅ Cours "' + courseTitle + '" téléchargé avec succès !', 'success');
         
         setTimeout(() => {
-            window.location.href = '/niveux';
-        }, 2000);
+            location.reload();
+        }, 1500);
         
     } catch (error) {
         console.error('Erreur:', error);

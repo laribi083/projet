@@ -87,10 +87,19 @@
 
                 <!-- Liste des cours -->
                 <div class="courses-grid" id="coursesGrid">
-                    <div th:each="course : ${courses}" class="course-card">
+                    <div th:each="course : ${courses}" class="course-card" 
+                         th:classappend="${downloadedCourseIds != null and downloadedCourseIds.contains(course.id)} ? 'downloaded' : ''">
+                        
+                        <!-- Badge de niveau -->
                         <div class="course-badge" th:attr="data-level=${course.niveau}">
                             <span th:text="${course.niveau}">Level</span>
                         </div>
+                        
+                        <!-- Badge "Déjà téléchargé" -->
+                        <div th:if="${downloadedCourseIds != null and downloadedCourseIds.contains(course.id)}" class="downloaded-badge">
+                            <i class="fas fa-check-circle"></i> Downloaded
+                        </div>
+                        
                         <div class="course-header">
                             <i class="fas fa-book-open"></i>
                             <h3 th:text="${course.title}">Course Title</h3>
@@ -102,8 +111,12 @@
                                 <span><i class="fas fa-folder"></i> <span th:text="${course.module}">Module</span></span>
                                 <span><i class="fas fa-graduation-cap"></i> <span th:text="${course.niveau}">Level</span></span>
                             </div>
+                            
+                            <!-- Bouton Download -->
                             <button class="btn-download" th:data-id="${course.id}" th:data-title="${course.title}" onclick="downloadCourse(this)">
-                                <i class="fas fa-download"></i> Download Course
+                                <i class="fas fa-download"></i> 
+                                <span th:if="${downloadedCourseIds != null and downloadedCourseIds.contains(course.id)}">Download Again</span>
+                                <span th:unless="${downloadedCourseIds != null and downloadedCourseIds.contains(course.id)}">Download Course</span>
                             </button>
                         </div>
                     </div>

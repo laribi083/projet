@@ -38,11 +38,11 @@ public class ReceiveCoursesController {
             return "redirect:/login";
         }
         
-        // Récupérer les IDs des cours déjà téléchargés par l'étudiant
+        // Récupérer les IDs des cours déjà téléchargés (pour afficher le badge)
         List<Long> downloadedCourseIds = enrollmentService.getDownloadedCourseIds(userId);
         System.out.println("Cours déjà téléchargés: " + downloadedCourseIds);
         
-        // Récupérer TOUS les cours avec status PUBLISHED
+        // Récupérer TOUS les cours PUBLISHED (sans filtrer ceux déjà téléchargés)
         List<Course> allPublishedCourses = courseService.findByStatus("PUBLISHED");
         System.out.println("Tous les cours PUBLISHED: " + allPublishedCourses.size());
         
@@ -63,14 +63,13 @@ public class ReceiveCoursesController {
             System.out.println("Après recherche: " + filteredCourses.size());
         }
         
-        // Enlever les cours déjà téléchargés
-        List<Course> availableCourses = filteredCourses.stream()
-            .filter(course -> !downloadedCourseIds.contains(course.getId()))
-            .collect(Collectors.toList());
+        // Ne PAS enlever les cours déjà téléchargés - ils restent affichés
+        List<Course> availableCourses = filteredCourses;
         
-        System.out.println("Cours disponibles à afficher: " + availableCourses.size());
+        System.out.println("Cours à afficher: " + availableCourses.size());
         
         model.addAttribute("courses", availableCourses);
+        model.addAttribute("downloadedCourseIds", downloadedCourseIds);
         model.addAttribute("userName", userName);
         model.addAttribute("selectedModule", module != null ? module : "all");
         model.addAttribute("searchTerm", search != null ? search : "");

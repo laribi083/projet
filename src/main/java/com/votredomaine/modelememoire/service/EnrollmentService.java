@@ -10,6 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class EnrollmentService {
@@ -55,41 +56,25 @@ public class EnrollmentService {
         enrollment.setTeacherId(course.getTeacherId());
         enrollment.setTeacherName(course.getTeacherName());
         enrollment.setDownloadedAt(LocalDateTime.now());
+        enrollment.setProgress(0);
         
         enrollmentRepository.save(enrollment);
         System.out.println("✅ Inscription sauvegardée");
         return true;
     }
     
-    // ⭐ Méthode principale pour récupérer les IDs des cours téléchargés
     public List<Long> getDownloadedCourseIds(Long studentId) {
         if (studentId == null) {
             return List.of();
         }
-        List<Long> courseIds = enrollmentRepository.findCourseIdsByStudentId(studentId);
-        System.out.println("getDownloadedCourseIds(" + studentId + ") -> " + (courseIds != null ? courseIds.size() : 0) + " cours");
-        return courseIds != null ? courseIds : List.of();
+        return enrollmentRepository.findCourseIdsByStudentId(studentId);
     }
     
-    public List<Enrollment> findByStudentId(Long studentId) {
+    public List<Enrollment> getEnrollmentsByStudent(Long studentId) {
         if (studentId == null) {
             return List.of();
         }
         return enrollmentRepository.findByStudentId(studentId);
-    }
-    
-    public long countStudentsByCourse(Long courseId) {
-        if (courseId == null) {
-            return 0;
-        }
-        return enrollmentRepository.countByCourseId(courseId);
-    }
-    
-    public long countTotalStudentsByTeacher(Long teacherId) {
-        if (teacherId == null) {
-            return 0;
-        }
-        return enrollmentRepository.countDistinctStudentsByTeacherId(teacherId);
     }
     
     public List<Course> getCoursesByStudent(Long studentId) {
@@ -97,13 +82,45 @@ public class EnrollmentService {
         return enrollmentRepository.findCoursesByStudentId(studentId);
     }
     
+    // ========== NOUVELLES MÉTHODES POUR LE DASHBOARD ==========
+    
+    /**
+     * Récupère les cours récents d'un étudiant (limitée à un nombre)
+     */
+    public List<Course> getRecentCoursesByStudent(Long studentId, int limit) {
+        if (studentId == null) return List.of();
+        
+        List<Enrollment> recentEnrollments = enrollmentRepository.findByStudentIdOrderByDownloadedAtDesc(studentId);
+        
+        return recentEnrollments.stream()
+            .limit(limit)
+            .map(e -> courseService.getCourseById(e.getCourseId()))
+            .filter(c -> c != null)
+            .collect(Collectors.toList());
+    }
+    
     public boolean hasDownloaded(Long studentId, Long courseId) {
         if (studentId == null || courseId == null) return false;
         return enrollmentRepository.existsByStudentIdAndCourseId(studentId, courseId);
     }
     
-    public long getDownloadCountByCourse(Long courseId) {
+    public long countStudentsByCourse(Long courseId) {
         if (courseId == null) return 0;
         return enrollmentRepository.countByCourseId(courseId);
+    }
+    
+    public long countTotalStudentsByTeacher(Long teacherId) {
+        if (teacherId == null) return 0;
+        return enrollmentRepository.countDistinctStudentsByTeacherId(teacherId);
+    }
+    
+    @Transactional
+    public void updateProgress(Long studentId, Long courseId, int progress) {
+        Optional<Enrollment> enrollment = enrollmentRepository.findByStudentIdAndCourseId(studentId, courseId);
+        if (enrollment.isPresent()) {
+            Enrollment e = enrollment.get();
+            e.setProgress(progress);
+            enrollmentRepository.save(e);
+        }
     }
 }

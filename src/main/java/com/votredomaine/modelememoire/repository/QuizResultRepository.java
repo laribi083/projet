@@ -25,4 +25,17 @@ public interface QuizResultRepository extends JpaRepository<QuizResult, Long> {
     
     @Query("SELECT AVG(qr.percentage) FROM QuizResult qr WHERE qr.quizId = :quizId")
     Double getAveragePercentageByQuizId(@Param("quizId") Long quizId);
+    
+    // ========== NOUVELLES MÉTHODES POUR LE DASHBOARD ==========
+    
+    List<QuizResult> findByStudentIdOrderByCompletedAtDesc(Long studentId);
+    
+    @Query("SELECT AVG(qr.percentage) FROM QuizResult qr WHERE qr.studentId = :studentId")
+    Double getAveragePercentageByStudentId(@Param("studentId") Long studentId);
+    
+    @Query("SELECT MAX(qr.percentage) FROM QuizResult qr WHERE qr.studentId = :studentId")
+    Integer getMaxPercentageByStudentId(@Param("studentId") Long studentId);
+    
+    @Query("SELECT COUNT(qr) FROM QuizResult qr WHERE qr.studentId = :studentId AND qr.passed = true")
+    long countPassedQuizzesByStudentId(@Param("studentId") Long studentId);
 }

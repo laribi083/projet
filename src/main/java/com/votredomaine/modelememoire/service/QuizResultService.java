@@ -4,7 +4,6 @@ import com.votredomaine.modelememoire.model.QuizResult;
 import com.votredomaine.modelememoire.repository.QuizResultRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -14,11 +13,7 @@ public class QuizResultService {
     @Autowired
     private QuizResultRepository quizResultRepository;
     
-    @Transactional
     public QuizResult saveResult(QuizResult result) {
-        if (result.getCompletedAt() == null) {
-            result.setCompletedAt(java.time.LocalDateTime.now());
-        }
         return quizResultRepository.save(result);
     }
     
@@ -63,5 +58,51 @@ public class QuizResultService {
     public List<QuizResult> getTopScoresForQuiz(Long quizId, int limit) {
         if (quizId == null) return List.of();
         return quizResultRepository.findTop5ByQuizIdOrderByPercentageDesc(quizId);
+    }
+    
+    // ========== NOUVELLES MÉTHODES POUR LE DASHBOARD ==========
+    
+    /**
+     * Calcule la moyenne des scores pour un étudiant (sur 20)
+     */
+    public double getAverageScoreForStudent(Long studentId) {
+        if (studentId == null) return 0;
+        
+        List<QuizResult> results = quizResultRepository.findByStudentId(studentId);
+        if (results.isEmpty()) return 0;
+        
+        double sum = results.stream().mapToInt(QuizResult::getPercentage).sum();
+        double average = sum / results.size();
+        
+        // Convertir en note sur 20 (le pourcentage est sur 100)
+        return (average / 100) * 20;
+    }
+    
+    /**
+     * Récupère le meilleur score d'un étudiant
+     */
+    public double getBestScoreForStudent(Long studentId) {
+        if (studentId == null) return 0;
+        
+        List<QuizResult> results = quizResultRepository.findByStudentId(studentId);
+        if (results.isEmpty()) return 0;
+        
+        int bestPercentage = results.stream()
+            .mapToInt(QuizResult::getPercentage)
+            .max()
+            .orElse(0);
+        
+        // Convertir en note sur 20
+        return (bestPercentage / 100) * 20;
+    }
+    
+    /**
+     * Récupère le dernier quiz complété par un étudiant
+     */
+    public QuizResult getLastQuizResultForStudent(Long studentId) {
+        if (studentId == null) return null;
+        
+        List<QuizResult> results = quizResultRepository.findByStudentIdOrderByCompletedAtDesc(studentId);
+        return results.isEmpty() ? null : results.get(0);
     }
 }

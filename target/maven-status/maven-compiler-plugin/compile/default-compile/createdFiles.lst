@@ -1,5 +1,6 @@
 com\votredomaine\modelememoire\service\QuizService.class
 com\votredomaine\modelememoire\service\ActivityService.class
+com\votredomaine\modelememoire\controller\DashboardController.class
 com\votredomaine\modelememoire\model\Activity.class
 com\votredomaine\modelememoire\repository\RatingRepository.class
 com\votredomaine\modelememoire\repository\ActivityRepository.class

@@ -27,7 +27,6 @@ public interface EnrollmentRepository extends JpaRepository<Enrollment, Long> {
     
     long countByTeacherId(Long teacherId);
     
-    // ⭐ Méthode pour récupérer les IDs des cours d'un étudiant
     @Query("SELECT e.courseId FROM Enrollment e WHERE e.studentId = :studentId")
     List<Long> findCourseIdsByStudentId(@Param("studentId") Long studentId);
     
@@ -36,4 +35,11 @@ public interface EnrollmentRepository extends JpaRepository<Enrollment, Long> {
     
     @Query("SELECT COUNT(DISTINCT e.studentId) FROM Enrollment e WHERE e.teacherId = :teacherId")
     long countDistinctStudentsByTeacherId(@Param("teacherId") Long teacherId);
+    
+    // ========== NOUVELLES MÉTHODES POUR LE DASHBOARD ==========
+    
+    List<Enrollment> findByStudentIdOrderByDownloadedAtDesc(Long studentId);
+    
+    @Query("SELECT e FROM Enrollment e WHERE e.studentId = :studentId ORDER BY e.downloadedAt DESC")
+    List<Enrollment> findTopNByStudentIdOrderByDownloadedAtDesc(@Param("studentId") Long studentId, org.springframework.data.domain.Pageable pageable);
 }

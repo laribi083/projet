@@ -4,26 +4,24 @@ import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "enrollments", uniqueConstraints = {
-    @UniqueConstraint(columnNames = {"student_id", "course_id"})
-})
+@Table(name = "enrollments")
 public class Enrollment {
     
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     
-    @Column(name = "student_id", nullable = false)
+    @Column(name = "student_id")
     private Long studentId;
     
-    @Column(name = "course_id", nullable = false)
+    @Column(name = "student_name")
+    private String studentName;
+    
+    @Column(name = "course_id")
     private Long courseId;
     
     @Column(name = "course_title")
     private String courseTitle;
-    
-    @Column(name = "student_name")
-    private String studentName;
     
     @Column(name = "teacher_id")
     private Long teacherId;
@@ -34,18 +32,11 @@ public class Enrollment {
     @Column(name = "downloaded_at")
     private LocalDateTime downloadedAt;
     
+    @Column(name = "progress")
+    private Integer progress = 0;
+    
     // Constructeurs
     public Enrollment() {}
-    
-    public Enrollment(Long studentId, Long courseId, String courseTitle, String studentName, Long teacherId, String teacherName) {
-        this.studentId = studentId;
-        this.courseId = courseId;
-        this.courseTitle = courseTitle;
-        this.studentName = studentName;
-        this.teacherId = teacherId;
-        this.teacherName = teacherName;
-        this.downloadedAt = LocalDateTime.now();
-    }
     
     // Getters et Setters
     public Long getId() { return id; }
@@ -54,14 +45,14 @@ public class Enrollment {
     public Long getStudentId() { return studentId; }
     public void setStudentId(Long studentId) { this.studentId = studentId; }
     
+    public String getStudentName() { return studentName; }
+    public void setStudentName(String studentName) { this.studentName = studentName; }
+    
     public Long getCourseId() { return courseId; }
     public void setCourseId(Long courseId) { this.courseId = courseId; }
     
     public String getCourseTitle() { return courseTitle; }
     public void setCourseTitle(String courseTitle) { this.courseTitle = courseTitle; }
-    
-    public String getStudentName() { return studentName; }
-    public void setStudentName(String studentName) { this.studentName = studentName; }
     
     public Long getTeacherId() { return teacherId; }
     public void setTeacherId(Long teacherId) { this.teacherId = teacherId; }
@@ -71,4 +62,7 @@ public class Enrollment {
     
     public LocalDateTime getDownloadedAt() { return downloadedAt; }
     public void setDownloadedAt(LocalDateTime downloadedAt) { this.downloadedAt = downloadedAt; }
+    
+    public Integer getProgress() { return progress; }
+    public void setProgress(Integer progress) { this.progress = progress; }
 }

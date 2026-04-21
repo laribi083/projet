@@ -1,6 +1,6 @@
 /* ============================================
    NIVEAUX.CSS - Page de sélection du niveau
-   Version complète
+   Version optimisée avec dégradé de bleu
    ============================================ */
 
 /* Import Google Fonts */
@@ -15,7 +15,7 @@
 
 body {
     font-family: 'Inter', sans-serif;
-    background: #f5f7fa;
+    background: #0a1628;
     min-height: 100vh;
 }
 
@@ -108,7 +108,6 @@ body {
     gap: 0.75rem;
     font-size: 0.95rem;
     font-weight: 500;
-    position: relative;
 }
 
 .nav-item i {
@@ -163,19 +162,25 @@ body {
     transform: translateY(-2px);
 }
 
-/* ========== MAIN CONTENT ========== */
+/* ========== MAIN CONTENT - DÉGRADÉ DE BLEU ========== */
 .main-content {
     flex: 1;
     margin-left: 280px;
     min-height: 100vh;
-    background: linear-gradient(135deg, #0f2027 0%, #203a43 50%, #2c5364 100%);
+    background: linear-gradient(135deg, 
+        #0f2b4d 0%,
+        #0a2442 15%,
+        #071c36 30%,
+        #05152a 50%,
+        #030e1f 70%,
+        #020a18 85%,
+        #010612 100%);
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
     padding: 2rem;
     position: relative;
-    overflow-x: hidden;
 }
 
 /* Animation de fond */
@@ -186,10 +191,10 @@ body {
     left: 0;
     right: 0;
     bottom: 0;
-    background: radial-gradient(circle at 20% 50%, rgba(52, 152, 219, 0.15) 0%, transparent 50%),
-                radial-gradient(circle at 80% 80%, rgba(41, 128, 185, 0.1) 0%, transparent 60%);
+    background: radial-gradient(circle at 20% 40%, rgba(52, 152, 219, 0.12) 0%, transparent 50%),
+                radial-gradient(circle at 80% 70%, rgba(41, 128, 185, 0.1) 0%, transparent 60%);
     pointer-events: none;
-    animation: bgPulse 10s ease-in-out infinite;
+    animation: bgPulse 12s ease-in-out infinite;
 }
 
 @keyframes bgPulse {
@@ -222,6 +227,7 @@ body {
     color: white;
     margin-bottom: 0.5rem;
     letter-spacing: -0.5px;
+    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
 }
 
 .welcome-message h1 span {
@@ -229,12 +235,11 @@ body {
     -webkit-background-clip: text;
     background-clip: text;
     color: transparent;
-    position: relative;
     display: inline-block;
 }
 
 .welcome-message p {
-    color: rgba(255, 255, 255, 0.9);
+    color: rgba(255, 255, 255, 0.85);
     font-size: 1.1rem;
     font-weight: 400;
 }
@@ -254,7 +259,8 @@ body {
 
 /* ========== LEVEL CARDS ========== */
 .level-card {
-    background: white;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
     border-radius: 28px;
     padding: 2rem 1.5rem;
     text-align: center;
@@ -264,16 +270,16 @@ body {
     cursor: pointer;
     position: relative;
     overflow: hidden;
-    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.2);
     z-index: 2;
 }
 
 .level-card:hover {
     transform: translateY(-15px) scale(1.02);
+    background: white;
 }
 
-/* Card Icon */
 .level-icon {
     font-size: 4rem;
     margin-bottom: 1rem;
@@ -285,7 +291,6 @@ body {
     transform: scale(1.1) rotate(5deg);
 }
 
-/* Card Title */
 .level-card h2 {
     font-size: 1.8rem;
     font-weight: 700;
@@ -293,7 +298,6 @@ body {
     transition: all 0.3s ease;
 }
 
-/* Card Description */
 .level-card p {
     color: #6b7280;
     font-size: 0.9rem;
@@ -301,7 +305,12 @@ body {
     line-height: 1.5;
 }
 
-/* Level Badge */
+.level-description {
+    font-size: 0.8rem;
+    color: #94a3b8;
+    margin: 0.5rem 0;
+}
+
 .level-badge {
     display: inline-block;
     padding: 0.35rem 1.2rem;
@@ -316,82 +325,40 @@ body {
     transform: scale(1.05);
 }
 
-/* ========== LEVEL 1 - 1st YEAR ========== */
+/* Level 1 - 1st Year */
 .level-1 {
-    background: linear-gradient(135deg, #ffffff 0%, #f0f9ff 100%);
-    border-bottom: 4px solid #2980b9;
+    border-bottom: 4px solid #3b82f6;
 }
-
-.level-1 h2 {
-    color: #2980b9;
-}
-
+.level-1 h2 { color: #2563eb; }
 .level-1 .level-badge {
-    background: linear-gradient(135deg, #2980b9, #3498db);
+    background: linear-gradient(135deg, #3b82f6, #60a5fa);
     color: white;
-    box-shadow: 0 2px 10px rgba(41, 128, 185, 0.3);
 }
+.level-1:hover { box-shadow: 0 25px 50px rgba(59, 130, 246, 0.4); }
 
-.level-1:hover {
-    box-shadow: 0 25px 50px rgba(41, 128, 185, 0.4);
-    border-bottom: 4px solid #3498db;
-}
-
-.level-1:hover h2 {
-    color: #3498db;
-}
-
-/* ========== LEVEL 2 - 2nd YEAR ========== */
+/* Level 2 - 2nd Year */
 .level-2 {
-    background: linear-gradient(135deg, #ffffff 0%, #f5f3ff 100%);
-    border-bottom: 4px solid #2c3e50;
+    border-bottom: 4px solid #2563eb;
 }
-
-.level-2 h2 {
-    color: #2c3e50;
-}
-
+.level-2 h2 { color: #1d4ed8; }
 .level-2 .level-badge {
-    background: linear-gradient(135deg, #2c3e50, #4a627a);
+    background: linear-gradient(135deg, #2563eb, #3b82f6);
     color: white;
-    box-shadow: 0 2px 10px rgba(44, 62, 80, 0.3);
 }
+.level-2:hover { box-shadow: 0 25px 50px rgba(37, 99, 235, 0.4); }
 
-.level-2:hover {
-    box-shadow: 0 25px 50px rgba(44, 62, 80, 0.4);
-    border-bottom: 4px solid #4a627a;
-}
-
-.level-2:hover h2 {
-    color: #4a627a;
-}
-
-/* ========== LEVEL 3 - 3rd YEAR ========== */
+/* Level 3 - 3rd Year */
 .level-3 {
-    background: linear-gradient(135deg, #ffffff 0%, #f0fdf4 100%);
-    border-bottom: 4px solid #16a085;
+    border-bottom: 4px solid #1e40af;
 }
-
-.level-3 h2 {
-    color: #16a085;
-}
-
+.level-3 h2 { color: #1e3a8a; }
 .level-3 .level-badge {
-    background: linear-gradient(135deg, #16a085, #1abc9c);
+    background: linear-gradient(135deg, #1e40af, #2563eb);
     color: white;
-    box-shadow: 0 2px 10px rgba(22, 160, 133, 0.3);
 }
+.level-3:hover { box-shadow: 0 25px 50px rgba(30, 64, 175, 0.4); }
 
-.level-3:hover {
-    box-shadow: 0 25px 50px rgba(22, 160, 133, 0.4);
-    border-bottom: 4px solid #1abc9c;
-}
-
-.level-3:hover h2 {
-    color: #1abc9c;
-}
-
-/* Effet de brillance sur les cartes */
+/* Effet de brillance */
 .level-card::before {
     content: '';
     position: absolute;
@@ -399,10 +366,7 @@ body {
     left: -100%;
     width: 100%;
     height: 100%;
-    background: linear-gradient(90deg, 
-        transparent, 
-        rgba(255, 255, 255, 0.4), 
-        transparent);
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
     transition: left 0.6s ease;
     pointer-events: none;
 }
@@ -411,287 +375,76 @@ body {
     left: 100%;
 }
 
-/* Effet de ripple au clic */
-.level-card:active {
-    transform: translateY(-5px) scale(0.98);
-    transition: transform 0.1s ease;
+/* Animations des cartes */
+.level-card {
+    opacity: 0;
+    animation-duration: 0.6s;
+    animation-fill-mode: forwards;
 }
 
-/* ========== ANIMATIONS ========== */
-@keyframes fadeInUp {
-    from {
-        opacity: 0;
-        transform: translateY(40px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
+.level-card:nth-child(1) { animation-name: fadeInLeft; animation-delay: 0.1s; }
+.level-card:nth-child(2) { animation-name: fadeInUp; animation-delay: 0.3s; }
+.level-card:nth-child(3) { animation-name: fadeInRight; animation-delay: 0.5s; }
 
 @keyframes fadeInLeft {
-    from {
-        opacity: 0;
-        transform: translateX(-30px);
-    }
-    to {
-        opacity: 1;
-        transform: translateX(0);
-    }
+    from { opacity: 0; transform: translateX(-30px); }
+    to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(30px); }
+    to { opacity: 1; transform: translateY(0); }
 }
 
 @keyframes fadeInRight {
-    from {
-        opacity: 0;
-        transform: translateX(30px);
-    }
-    to {
-        opacity: 1;
-        transform: translateX(0);
-    }
+    from { opacity: 0; transform: translateX(30px); }
+    to { opacity: 1; transform: translateX(0); }
 }
 
-.level-card {
-    opacity: 0;
+/* Mobile Menu Toggle */
+.mobile-menu-toggle {
+    display: none;
+    position: fixed;
+    top: 20px;
+    left: 20px;
+    width: 45px;
+    height: 45px;
+    background: #3b82f6;
+    border-radius: 12px;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 1.5rem;
+    cursor: pointer;
+    z-index: 1001;
+    box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4);
 }
 
-.level-card:nth-child(1) { 
-    animation: fadeInLeft 0.6s ease forwards;
-    animation-delay: 0.1s; 
-}
+/* Scrollbar */
+::-webkit-scrollbar { width: 8px; }
+::-webkit-scrollbar-track { background: #1e293b; border-radius: 10px; }
+::-webkit-scrollbar-thumb { background: #3b82f6; border-radius: 10px; }
+::-webkit-scrollbar-thumb:hover { background: #60a5fa; }
 
-.level-card:nth-child(2) { 
-    animation: fadeInUp 0.6s ease forwards;
-    animation-delay: 0.3s; 
-}
-
-.level-card:nth-child(3) { 
-    animation: fadeInRight 0.6s ease forwards;
-    animation-delay: 0.5s; 
-}
-
-/* ========== SCROLLBAR STYLES ========== */
-::-webkit-scrollbar {
-    width: 8px;
-}
-
-::-webkit-scrollbar-track {
-    background: #f1f1f1;
-    border-radius: 10px;
-}
-
-::-webkit-scrollbar-thumb {
-    background: #667eea;
-    border-radius: 10px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-    background: #5a67d8;
-}
-
-/* ========== RESPONSIVE DESIGN ========== */
+/* Responsive */
 @media (max-width: 1024px) {
-    .level-card {
-        width: 260px;
-        padding: 1.5rem;
-    }
-    
-    .level-card h2 {
-        font-size: 1.5rem;
-    }
-    
-    .level-icon {
-        font-size: 3rem;
-    }
+    .level-card { width: 260px; padding: 1.5rem; }
+    .level-card h2 { font-size: 1.5rem; }
+    .level-icon { font-size: 3rem; }
 }
 
 @media (max-width: 768px) {
-    .sidebar {
-        width: 80px;
-        transform: translateX(-100%);
-        position: fixed;
-        transition: transform 0.3s ease;
-        z-index: 1000;
-    }
-    
-    .sidebar.active {
-        transform: translateX(0);
-    }
-    
-    .sidebar .logo,
-    .user-profile h3,
-    .user-role,
-    .nav-item span,
-    .logout-btn span {
-        display: none;
-    }
-    
-    .nav-item i {
-        margin: 0;
-    }
-    
-    .nav-item {
-        justify-content: center;
-        padding: 0.75rem;
-    }
-    
-    .main-content {
-        margin-left: 0;
-        padding: 1rem;
-    }
-    
-    .welcome-message h1 {
-        font-size: 1.8rem;
-    }
-    
-    .welcome-message p {
-        font-size: 0.9rem;
-    }
-    
-    .levels-container {
-        gap: 1rem;
-    }
-    
-    .level-card {
-        width: 240px;
-        padding: 1.2rem;
-    }
-    
-    .level-card h2 {
-        font-size: 1.3rem;
-    }
-    
-    .level-icon {
-        font-size: 2.5rem;
-    }
-    
-    .level-badge {
-        font-size: 0.7rem;
-        padding: 0.25rem 0.8rem;
-    }
-    
-    /* Menu toggle button */
-    .menu-toggle {
-        display: flex;
-        position: fixed;
-        bottom: 20px;
-        left: 20px;
-        width: 50px;
-        height: 50px;
-        background: #667eea;
-        border-radius: 50%;
-        align-items: center;
-        justify-content: center;
-        color: white;
-        font-size: 1.5rem;
-        cursor: pointer;
-        box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
-        z-index: 1001;
-        transition: all 0.3s ease;
-    }
-    
-    .menu-toggle:hover {
-        transform: scale(1.1);
-        background: #5a67d8;
-    }
+    .sidebar { transform: translateX(-100%); position: fixed; }
+    .sidebar.mobile-open { transform: translateX(0); }
+    .main-content { margin-left: 0; padding: 1rem; }
+    .mobile-menu-toggle { display: flex; }
+    .welcome-message h1 { font-size: 1.8rem; }
+    .levels-container { gap: 1rem; }
+    .level-card { width: 280px; }
 }
 
 @media (max-width: 480px) {
-    .levels-container {
-        flex-direction: column;
-        gap: 1rem;
-    }
-    
-    .level-card {
-        width: 100%;
-        max-width: 280px;
-    }
-    
-    .welcome-message h1 {
-        font-size: 1.5rem;
-    }
-    
-    .main-content {
-        padding: 1rem;
-    }
-}
-
-/* ========== ACCESSIBILITÉ ========== */
-.level-card:focus-visible {
-    outline: 3px solid #667eea;
-    outline-offset: 4px;
-    transform: scale(1.02);
-}
-
-.nav-item:focus-visible,
-.logout-btn:focus-visible {
-    outline: 2px solid #667eea;
-    outline-offset: 2px;
-}
-
-/* ========== MENU TOGGLE (mobile) ========== */
-.menu-toggle {
-    display: none;
-}
-
-@media (max-width: 768px) {
-    .menu-toggle {
-        display: flex;
-    }
-}
-
-/* ========== LOADING STATE ========== */
-.loading {
-    position: relative;
-    opacity: 0.6;
-    pointer-events: none;
-}
-
-.loading::after {
-    content: '';
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    width: 30px;
-    height: 30px;
-    border: 3px solid #e2e8f0;
-    border-top-color: #667eea;
-    border-radius: 50%;
-    animation: spin 0.8s linear infinite;
-    transform: translate(-50%, -50%);
-}
-
-@keyframes spin {
-    to {
-        transform: translate(-50%, -50%) rotate(360deg);
-    }
-}
-
-/* ========== TOOLTIP ========== */
-.level-card {
-    position: relative;
-}
-
-.level-card::after {
-    content: attr(data-tooltip);
-    position: absolute;
-    bottom: -30px;
-    left: 50%;
-    transform: translateX(-50%);
-    background: #1f2937;
-    color: white;
-    padding: 4px 8px;
-    border-radius: 6px;
-    font-size: 0.7rem;
-    white-space: nowrap;
-    opacity: 0;
-    visibility: hidden;
-    transition: all 0.3s ease;
-    pointer-events: none;
-}
-
-.level-card:hover::after {
-    opacity: 1;
-    visibility: visible;
-    bottom: -40px;
+    .levels-container { flex-direction: column; align-items: center; }
+    .level-card { width: 100%; max-width: 280px; }
+    .welcome-message h1 { font-size: 1.5rem; }
 }

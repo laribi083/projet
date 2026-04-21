@@ -10,7 +10,8 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import jakarta.servlet.http.HttpSession;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Controller
 @RequestMapping("/student")
@@ -22,11 +23,157 @@ public class studentcoursecontroller {
     @Autowired
     private EnrollmentService enrollmentService;
     
-    // ========== PAGES HTML ==========
+    // ========== MÉTHODE UTILITAIRE POUR GROUPER LES COURS PAR MODULE ==========
+    
+    /**
+     * Groupe les cours par module pour l'affichage dans les templates
+     */
+    private Map<String, List<Course>> groupCoursesByModule(List<Course> courses) {
+        if (courses == null || courses.isEmpty()) {
+            return new HashMap<>();
+        }
+        
+        return courses.stream()
+            .filter(course -> course.getModule() != null && !course.getModule().isEmpty())
+            .collect(Collectors.groupingBy(
+                course -> course.getModule(),
+                LinkedHashMap::new,
+                Collectors.toList()
+            ));
+    }
+    
+    // ========== PAGE DASHBOARD PRINCIPAL ==========
+    // ⚠️ SUPPRIMÉE - Conflit avec DashboardController
+    // La méthode studentDashboard() est déjà dans DashboardController
+    
+    // ========== PAGES DES NIVEAUX ==========
+    
+    /**
+     * Page de sélection des niveaux (My Courses)
+     */
+    @GetMapping("/niveux")
+    public String showLevelSelection(Model model, HttpSession session) {
+        String userName = (String) session.getAttribute("userName");
+        if (userName == null) {
+            return "redirect:/login";
+        }
+        model.addAttribute("userName", userName);
+        return "htmlstudent/niveux";
+    }
+    
+    /**
+     * Page des cours - 1ère année
+     */
+    @GetMapping("/interface1er")
+    public String getFirstYearCourses(Model model, HttpSession session) {
+        String userName = (String) session.getAttribute("userName");
+        if (userName == null) {
+            return "redirect:/login";
+        }
+        
+        List<Course> courses = courseService.getCoursesByNiveauAndStatus("1year", "PUBLISHED");
+        System.out.println("📚 1ère année - Nombre de cours trouvés: " + (courses != null ? courses.size() : 0));
+        
+        Map<String, List<Course>> coursesByModule = groupCoursesByModule(courses);
+        
+        System.out.println("📦 Modules disponibles en 1ère année:");
+        for (String module : coursesByModule.keySet()) {
+            System.out.println("   - " + module + " (" + coursesByModule.get(module).size() + " cours)");
+        }
+        
+        model.addAttribute("courses", courses);
+        model.addAttribute("coursesByModule", coursesByModule);
+        model.addAttribute("level", "1st Year Fundamental");
+        model.addAttribute("levelCode", "1year");
+        model.addAttribute("userName", userName);
+        
+        return "htmlstudent/1year/interface1er";
+    }
+    
+    /**
+     * Page des cours - 2ème année
+     */
+    @GetMapping("/interface2eme")
+    public String getSecondYearCourses(Model model, HttpSession session) {
+        String userName = (String) session.getAttribute("userName");
+        if (userName == null) {
+            return "redirect:/login";
+        }
+        
+        List<Course> courses = courseService.getCoursesByNiveauAndStatus("2year", "PUBLISHED");
+        System.out.println("📚 2ème année - Nombre de cours trouvés: " + (courses != null ? courses.size() : 0));
+        
+        Map<String, List<Course>> coursesByModule = groupCoursesByModule(courses);
+        
+        System.out.println("📦 Modules disponibles en 2ème année:");
+        for (String module : coursesByModule.keySet()) {
+            System.out.println("   - " + module + " (" + coursesByModule.get(module).size() + " cours)");
+        }
+        
+        model.addAttribute("courses", courses);
+        model.addAttribute("coursesByModule", coursesByModule);
+        model.addAttribute("level", "2nd Year Fundamental");
+        model.addAttribute("levelCode", "2year");
+        model.addAttribute("userName", userName);
+        
+        return "htmlstudent/2year/interface2eme";
+    }
+    
+    /**
+     * Page des cours - 3ème année
+     */
+    @GetMapping("/interface3eme")
+    public String getThirdYearCourses(Model model, HttpSession session) {
+        String userName = (String) session.getAttribute("userName");
+        if (userName == null) {
+            return "redirect:/login";
+        }
+        
+        List<Course> courses = courseService.getCoursesByNiveauAndStatus("3year", "PUBLISHED");
+        System.out.println("📚 3ème année - Nombre de cours trouvés: " + (courses != null ? courses.size() : 0));
+        
+        Map<String, List<Course>> coursesByModule = groupCoursesByModule(courses);
+        
+        System.out.println("📦 Modules disponibles en 3ème année:");
+        for (String module : coursesByModule.keySet()) {
+            System.out.println("   - " + module + " (" + coursesByModule.get(module).size() + " cours)");
+        }
+        
+        model.addAttribute("courses", courses);
+        model.addAttribute("coursesByModule", coursesByModule);
+        model.addAttribute("level", "3rd Year Fundamental");
+        model.addAttribute("levelCode", "3year");
+        model.addAttribute("userName", userName);
+        
+        return "htmlstudent/3year/interface3eme";
+    }
+    
+    /**
+     * Page des cours - Master (optionnel)
+     */
+    @GetMapping("/interfaceMaster")
+    public String getMasterCourses(Model model, HttpSession session) {
+        String userName = (String) session.getAttribute("userName");
+        if (userName == null) {
+            return "redirect:/login";
+        }
+        
+        List<Course> courses = courseService.getCoursesByNiveauAndStatus("master", "PUBLISHED");
+        Map<String, List<Course>> coursesByModule = groupCoursesByModule(courses);
+        
+        model.addAttribute("courses", courses);
+        model.addAttribute("coursesByModule", coursesByModule);
+        model.addAttribute("level", "Master");
+        model.addAttribute("levelCode", "master");
+        model.addAttribute("userName", userName);
+        
+        return "htmlstudent/master/interfaceMaster";
+    }
+    
+    // ========== PAGES DES COURS ==========
     
     /**
      * Page qui affiche tous les cours disponibles pour l'étudiant
-     * ⭐ UTILISE LA SOLUTION 1 : UNE SEULE REQUÊTE POUR LES IDs TÉLÉCHARGÉS
      */
     @GetMapping("/receive-courses")
     public String receiveCourses(Model model, HttpSession session) {
@@ -40,22 +187,18 @@ public class studentcoursecontroller {
             return "redirect:/login";
         }
         
-        // Récupérer tous les cours PUBLISHED
         List<Course> allCourses = courseService.getAllActiveCourses();
         
-        // Filtrer par niveau si nécessaire
         if (niveau != null && !niveau.isEmpty() && !"all".equals(niveau)) {
-            allCourses = courseService.getCoursesByNiveau(niveau);
+            allCourses = courseService.getCoursesByNiveauAndStatus(niveau, "PUBLISHED");
         }
         
-        // ⭐⭐⭐ SOLUTION 1 : UNE SEULE REQUÊTE POUR RÉCUPÉRER TOUS LES IDs DES COURS TÉLÉCHARGÉS ⭐⭐⭐
         List<Long> downloadedIds = enrollmentService.getDownloadedCourseIds(userId);
         
         System.out.println("========================================");
         System.out.println("📊 RÉCAPITULATIF:");
         System.out.println("   - Cours disponibles: " + allCourses.size());
         System.out.println("   - Cours déjà téléchargés: " + downloadedIds.size());
-        System.out.println("   - IDs téléchargés: " + downloadedIds);
         System.out.println("========================================");
         
         model.addAttribute("courses", allCourses);
@@ -83,12 +226,10 @@ public class studentcoursecontroller {
         System.out.println("========================================");
         
         if (userName == null) {
-            System.out.println("⚠️ userName null, redirection login");
             return "redirect:/login";
         }
         
         if (userId == null) {
-            System.out.println("⚠️ userId null, redirection login");
             return "redirect:/login";
         }
         
@@ -99,14 +240,11 @@ public class studentcoursecontroller {
             return "redirect:/student/receive-courses";
         }
         
-        // Vérifier que le cours est publié
         if (!"PUBLISHED".equals(course.getStatus())) {
             System.out.println("⚠️ Cours non publié, accès refusé: " + course.getStatus());
             return "redirect:/student/receive-courses";
         }
         
-        // Enregistrer le téléchargement
-        System.out.println("📝 Appel de enrollmentService.registerDownload()...");
         try {
             boolean isNew = enrollmentService.registerDownload(userId, userName, id);
             System.out.println("📥 Résultat registerDownload: " + (isNew ? "NOUVELLE inscription" : "Déjà inscrit"));
@@ -121,21 +259,24 @@ public class studentcoursecontroller {
         return "htmlstudent/course-detail";
     }
     
+    /**
+     * Téléchargement d'un fichier de cours
+     */
+    @GetMapping("/course/{id}/download")
+    @ResponseBody
+    public ResponseEntity<byte[]> downloadCourseFile(@PathVariable Long id) {
+        return courseService.downloadCourseFile(id);
+    }
+    
     // ========== API REST POUR AJAX ==========
     
-    /**
-     * API pour récupérer les cours par niveau (AJAX)
-     */
     @GetMapping("/api/courses/{niveau}")
     @ResponseBody
     public ResponseEntity<List<Course>> getCoursesByNiveau(@PathVariable String niveau) {
-        List<Course> courses = courseService.getCoursesByNiveau(niveau);
+        List<Course> courses = courseService.getCoursesByNiveauAndStatus(niveau, "PUBLISHED");
         return ResponseEntity.ok(courses);
     }
     
-    /**
-     * API pour récupérer tous les cours (AJAX)
-     */
     @GetMapping("/api/courses")
     @ResponseBody
     public ResponseEntity<List<Course>> getAllCourses() {
@@ -143,19 +284,12 @@ public class studentcoursecontroller {
         return ResponseEntity.ok(courses);
     }
     
-    /**
-     * API pour récupérer tous les cours (alias)
-     */
     @GetMapping("/api/courses/all")
     @ResponseBody
     public ResponseEntity<List<Course>> getAllCoursesAlias() {
         return getAllCourses();
     }
     
-    /**
-     * ⭐ API pour récupérer les IDs des cours déjà téléchargés (AJAX)
-     * Utilise la Solution 1
-     */
     @GetMapping("/api/downloaded-ids")
     @ResponseBody
     public ResponseEntity<List<Long>> getDownloadedCourseIds(HttpSession session) {
@@ -164,9 +298,6 @@ public class studentcoursecontroller {
         return ResponseEntity.ok(downloadedIds);
     }
     
-    /**
-     * API pour vérifier si un étudiant a déjà téléchargé un cours spécifique (AJAX)
-     */
     @GetMapping("/api/check-downloaded/{courseId}")
     @ResponseBody
     public ResponseEntity<Boolean> checkDownloaded(@PathVariable Long courseId, HttpSession session) {
@@ -175,7 +306,6 @@ public class studentcoursecontroller {
             return ResponseEntity.ok(false);
         }
         
-        // Utilise la liste des IDs pour vérifier (optimisé)
         List<Long> downloadedIds = enrollmentService.getDownloadedCourseIds(userId);
         boolean hasDownloaded = downloadedIds.contains(courseId);
         

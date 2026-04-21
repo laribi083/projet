@@ -3,10 +3,16 @@ package com.votredomaine.modelememoire.service;
 import com.votredomaine.modelememoire.model.Course;
 import com.votredomaine.modelememoire.repository.courserepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.net.URLConnection;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -39,7 +45,12 @@ public class Courseservice {
     }
     
     public List<Course> getCoursesByNiveau(String niveau) {
-        return courseRepository.findByNiveauAndStatus(niveau, "PUBLISHED");
+        return courseRepository.findByNiveau(niveau);
+    }
+    
+    // ⭐ NOUVELLE MÉTHODE : Récupérer les cours par niveau ET statut
+    public List<Course> getCoursesByNiveauAndStatus(String niveau, String status) {
+        return courseRepository.findByNiveauAndStatus(niveau, status);
     }
     
     public List<Course> getAllActiveCourses() {
@@ -221,6 +232,39 @@ public class Courseservice {
         }
     }
     
+    // ⭐ NOUVELLE MÉTHODE : Téléchargement de fichier
+    public ResponseEntity<byte[]> downloadCourseFile(Long courseId) {
+        try {
+            Course course = getCourseById(courseId);
+            if (course == null || course.getFilePaths() == null || course.getFilePaths().isEmpty()) {
+                return ResponseEntity.notFound().build();
+            }
+            
+            Path filePath = Paths.get(course.getFilePaths().get(0));
+            if (!Files.exists(filePath)) {
+                return ResponseEntity.notFound().build();
+            }
+            
+            byte[] fileContent = Files.readAllBytes(filePath);
+            String fileName = course.getFileNames() != null && !course.getFileNames().isEmpty() 
+                              ? course.getFileNames().get(0) : "course_file";
+            
+            String mimeType = URLConnection.guessContentTypeFromName(fileName);
+            if (mimeType == null) {
+                mimeType = "application/octet-stream";
+            }
+            
+            return ResponseEntity.ok()
+                    .contentType(MediaType.parseMediaType(mimeType))
+                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + fileName + "\"")
+                    .body(fileContent);
+                    
+        } catch (IOException e) {
+            e.printStackTrace();
+            return ResponseEntity.internalServerError().build();
+        }
+    }
+    
     // ========== STATISTIQUES ==========
     
     public long getTotalCoursesByTeacher(Long teacherId) {
@@ -327,7 +371,7 @@ public class Courseservice {
                "<div style='font-size: 4rem;'>📄</div>" +
                "<h3>" + fileName + "</h3>" +
                "<p>This file cannot be displayed directly in the browser.</p>" +
-               "<button onclick=\"window.location.href='/course/" + courseId + "/download'\" " +
+               "<button onclick=\"window.location.href='/student/course/" + courseId + "/download'\" " +
                "style='background: #667eea; color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; margin-top: 20px;'>" +
                "⬇️ Download file</button>" +
                "</div>";

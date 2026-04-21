@@ -16,6 +16,7 @@ public interface courserepository extends JpaRepository<Course, Long> {
     
     List<Course> findByNiveau(String niveau);
     
+    // ⭐ MÉTHODE CORRIGÉE : findByNiveauAndStatus
     List<Course> findByNiveauAndStatus(String niveau, String status);
     
     List<Course> findByStatus(String status);
@@ -36,7 +37,7 @@ public interface courserepository extends JpaRepository<Course, Long> {
     
     List<Course> findByTeacherNameContainingIgnoreCase(String teacherName);
     
-    // ========== NOUVELLES MÉTHODES POUR LES STATUTS ==========
+    // ========== MÉTHODES POUR LES STATUTS ==========
     
     List<Course> findByTeacherIdAndStatus(Long teacherId, String status);
     

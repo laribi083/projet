@@ -1,9 +1,10 @@
 /**
  * dashbord.js - Teacher Dashboard Logic
- * Version complète avec toutes les fonctions (Courses, Quizzes, Ratings)
+ * Complete version with all functions (Courses, Quizzes, Ratings)
+ * All messages and displays are in English
  */
 
-// ========== VARIABLES GLOBALES ==========
+// ========== GLOBAL VARIABLES ==========
 let courseToDelete = null;
 let quizToDelete = null;
 let selectedFiles = [];
@@ -12,7 +13,7 @@ let allCourses = [];
 let allQuizzes = [];
 let tempQuestionsList = [];
 
-// ========== INITIALISATION PROFIL ==========
+// ========== PROFILE INITIALIZATION ==========
 function initUserProfile() {
     let teacherName = document.getElementById('teacherName')?.value;
     if (!teacherName || teacherName === 'null' || teacherName === '') {
@@ -46,10 +47,10 @@ function loadUserData() {
         if (userNameElement) userNameElement.textContent = teacherName;
     }
     
-    console.log('📋 Données enseignant:', { teacherId, teacherName, teacherEmail });
+    console.log('📋 Teacher data:', { teacherId, teacherName, teacherEmail });
 }
 
-// ========== FONCTIONS UTILITAIRES ==========
+// ========== UTILITY FUNCTIONS ==========
 function formatFileSize(bytes) {
     if (bytes === 0) return '0 Bytes';
     const k = 1024;
@@ -88,7 +89,7 @@ function showNotification(message, type) {
     setTimeout(() => notification.remove(), 3000);
 }
 
-// ========== FONCTIONS DE STATUT ==========
+// ========== STATUS FUNCTIONS ==========
 function getStatusClass(status) {
     if (status === 'PENDING') return 'pending';
     if (status === 'VALIDATED') return 'validated';
@@ -150,7 +151,7 @@ function showQuizzesSection() {
 }
 
 function showRatingsSection() {
-    console.log("=== AFFICHAGE DE LA SECTION DES RATINGS ===");
+    console.log("=== DISPLAYING RATINGS SECTION ===");
     
     const pageTitle = document.querySelector('.page-title');
     const addCourseBtn = document.querySelector('.btn-add-course');
@@ -181,7 +182,7 @@ function showRatingsSection() {
     loadStats();
 }
 
-// ========== CHARGEMENT DES COURS ==========
+// ========== LOAD COURSES ==========
 async function loadCourses() {
     try {
         const response = await fetch('/teacher/my-courses');
@@ -279,16 +280,16 @@ function createCourseCard(course) {
     return div;
 }
 
-// ========== CHARGEMENT DES QUIZZES ==========
+// ========== LOAD QUIZZES ==========
 async function loadQuizzes() {
-    console.log("=== CHARGEMENT DES QUIZ ===");
+    console.log("=== LOADING QUIZZES ===");
     
     try {
         const response = await fetch('/teacher/api/quizzes');
         if (!response.ok) throw new Error('Failed to fetch quizzes');
         
         const data = await response.json();
-        console.log("Données reçues:", data);
+        console.log("Data received:", data);
         
         const quizzesGrid = document.getElementById('quizzesGrid');
         const quizzesCount = document.getElementById('quizzesCount');
@@ -337,13 +338,13 @@ function createQuizCard(quiz) {
     div.className = 'course-card published';
     div.setAttribute('data-quiz-id', quiz.id);
     
-    const title = quiz.title || 'Sans titre';
-    const description = quiz.description ? quiz.description.substring(0, 100) : 'Aucune description';
-    const courseTitle = quiz.courseTitle || 'Cours inconnu';
+    const title = quiz.title || 'Untitled';
+    const description = quiz.description ? quiz.description.substring(0, 100) : 'No description';
+    const courseTitle = quiz.courseTitle || 'Unknown course';
     const timeLimit = quiz.timeLimit || 30;
     const totalQuestions = quiz.totalQuestions || 0;
     const passingScore = quiz.passingScore || 70;
-    const module = quiz.module || 'Non défini';
+    const module = quiz.module || 'Not defined';
     
     div.innerHTML = `
         <h3>
@@ -358,7 +359,7 @@ function createQuizCard(quiz) {
             <span><i class="fas fa-folder"></i> ${escapeHtml(module)}</span>
             <span><i class="fas fa-clock"></i> ${timeLimit} min</span>
             <span><i class="fas fa-question-circle"></i> ${totalQuestions} questions</span>
-            <span><i class="fas fa-trophy"></i> ${passingScore}% requis</span>
+            <span><i class="fas fa-trophy"></i> ${passingScore}% required</span>
         </div>
         <div class="course-actions">
             <button class="btn-view" onclick="previewQuiz(${quiz.id})">
@@ -372,9 +373,9 @@ function createQuizCard(quiz) {
     return div;
 }
 
-// ========== CHARGEMENT DES RATINGS ==========
+// ========== LOAD RATINGS ==========
 async function loadRatings() {
-    console.log("=== CHARGEMENT DES RATINGS ===");
+    console.log("=== LOADING RATINGS ===");
     
     try {
         const response = await fetch('/api/ratings/teacher/all');
@@ -384,7 +385,7 @@ async function loadRatings() {
         }
         
         const data = await response.json();
-        console.log("Données reçues:", data);
+        console.log("Data received:", data);
         
         const ratingsGrid = document.getElementById('ratingsGrid');
         const ratingsCount = document.getElementById('ratingsCount');
@@ -474,47 +475,51 @@ function displayRatingsByCourse(container, courseGroups) {
                 </span>
             </h3>
             <div class="course-meta" style="margin-bottom: 1rem;">
-                <span><i class="fas fa-users"></i> ${group.ratings.length} avis</span>
+                <span><i class="fas fa-users"></i> ${group.ratings.length} reviews</span>
             </div>
-            <table class="ratings-table">
-                <thead>
-                    <tr>
-                        <th>Étudiant</th>
-                        <th>Note</th>
-                        <th>Commentaire</th>
-                        <th>Date</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    ${group.ratings.map(r => `
-                        <tr>
-                            <td>${escapeHtml(r.studentName)}</td>
-                            <td>${generateStarsStatic(r.ratingValue)}</td>
-                            <td class="comment-cell">${r.comment ? `<div class="comment-text">${escapeHtml(r.comment)}</div>` : '<span style="color:#9ca3af;">Aucun commentaire</span>'}</td>
-                            <td>${new Date(r.createdAt).toLocaleDateString('fr-FR')}</td>
+            <div style="overflow-x: auto;">
+                <table class="ratings-table" style="width: 100%; border-collapse: collapse; font-size: 0.85rem;">
+                    <thead>
+                        <tr style="background: #f3f4f6;">
+                            <th style="padding: 0.5rem; text-align: left; width: 20%;">Student</th>
+                            <th style="padding: 0.5rem; text-align: left; width: 15%;">Rating</th>
+                            <th style="padding: 0.5rem; text-align: left; width: 45%;">Comment</th>
+                            <th style="padding: 0.5rem; text-align: left; width: 20%;">Date</th>
                         </tr>
-                    `).join('')}
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody>
+                        ${group.ratings.map(r => `
+                            <tr style="border-bottom: 1px solid #e5e7eb;">
+                                <td style="padding: 0.5rem;">${escapeHtml(r.studentName)}</td>
+                                <td style="padding: 0.5rem;">${generateStarsStatic(r.ratingValue)}</td>
+                                <td style="padding: 0.5rem; max-width: 250px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                                    ${r.comment ? `<span title="${escapeHtml(r.comment)}" style="cursor: help;">${escapeHtml(r.comment.length > 60 ? r.comment.substring(0, 60) + '...' : r.comment)}</span>` : '<span style="color:#9ca3af;">No comment</span>'}
+                                </td>
+                                <td style="padding: 0.5rem;">${new Date(r.createdAt).toLocaleDateString('en-US')}</td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            </div>
         `;
         container.appendChild(courseDiv);
     });
 }
 
 function generateStarsStatic(rating) {
-    let stars = '<div class="stars">';
+    let stars = '<div class="stars" style="display: flex; gap: 2px;">';
     for (let i = 1; i <= 5; i++) {
         if (i <= rating) {
-            stars += '<i class="fas fa-star filled"></i>';
+            stars += '<i class="fas fa-star" style="color: #fbbf24; font-size: 0.8rem;"></i>';
         } else {
-            stars += '<i class="far fa-star empty"></i>';
+            stars += '<i class="far fa-star" style="color: #d1d5db; font-size: 0.8rem;"></i>';
         }
     }
     stars += '</div>';
     return stars;
 }
 
-// ========== CHARGEMENT DES STATISTIQUES ==========
+// ========== LOAD STATISTICS ==========
 async function loadStats() {
     try {
         const response = await fetch('/teacher/api/stats');
@@ -532,7 +537,7 @@ async function loadStats() {
     }
 }
 
-// ========== ACTIONS SUR LES COURS ==========
+// ========== COURSE ACTIONS ==========
 function viewCourse(btn) {
     const courseId = btn.getAttribute('data-id');
     window.location.href = `/teacher/view-course/${courseId}`;
@@ -543,7 +548,7 @@ function editCourse(btn) {
     openEditCourseModal(courseId);
 }
 
-// ========== MODAL DE CRÉATION DE COURS ==========
+// ========== ADD COURSE MODAL ==========
 function openAddCourseModal() {
     document.getElementById('addCourseModal').style.display = 'flex';
     document.body.style.overflow = 'hidden';
@@ -636,7 +641,7 @@ async function submitCourseForm(event) {
     }
 }
 
-// ========== MODAL DE MODIFICATION DE COURS ==========
+// ========== EDIT COURSE MODAL ==========
 async function openEditCourseModal(courseId) {
     try {
         const response = await fetch(`/teacher/course/${courseId}`);
@@ -754,7 +759,7 @@ async function submitEditCourseForm(event) {
     }
 }
 
-// ========== MODAL DE SUPPRESSION ==========
+// ========== DELETE MODALS ==========
 function showDeleteModal(btn) {
     courseToDelete = btn.getAttribute('data-id');
     const courseTitle = btn.getAttribute('data-title');
@@ -820,7 +825,7 @@ async function confirmDeleteQuiz() {
     }
 }
 
-// ========== MODAL POUR CRÉER UN QUIZ ==========
+// ========== CREATE QUIZ MODAL ==========
 function openCreateQuizModal(btn) {
     const courseId = btn.getAttribute('data-id');
     const courseModule = btn.getAttribute('data-module');
@@ -996,24 +1001,24 @@ function updateQuestionsDisplay() {
     `).join('');
 }
 
-// ========== SAVE QUIZ MODAL ==========
+// ========== SAVE QUIZ ==========
 async function saveQuizModal(event) {
     event.preventDefault();
     
     const title = document.getElementById('quizTitle')?.value.trim();
     if (!title) {
-        showNotification('Veuillez entrer un titre pour le quiz', 'error');
+        showNotification('Please enter a quiz title', 'error');
         return;
     }
     
     if (tempQuestionsList.length === 0) {
-        showNotification('Veuillez ajouter au moins une question', 'error');
+        showNotification('Please add at least one question', 'error');
         return;
     }
     
     const saveBtn = document.getElementById('saveQuizBtn');
     saveBtn.disabled = true;
-    saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Création en cours...';
+    saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Creating...';
     
     const quizData = {
         courseId: parseInt(document.getElementById('quizCourseId')?.value || 0),
@@ -1035,7 +1040,7 @@ async function saveQuizModal(event) {
         const quizResult = await quizResponse.json();
         
         if (!quizResult.success) {
-            throw new Error(quizResult.message || 'Erreur lors de la création du quiz');
+            throw new Error(quizResult.message || 'Error creating quiz');
         }
         
         const quizId = quizResult.quizId;
@@ -1058,13 +1063,13 @@ async function saveQuizModal(event) {
             });
             
             if (!questionResponse.ok) {
-                throw new Error(`Erreur lors de l'ajout de la question: ${questionResponse.status}`);
+                throw new Error(`Error adding question: ${questionResponse.status}`);
             }
             
             questionsAdded++;
         }
         
-        showNotification(`✅ Quiz "${title}" créé avec ${questionsAdded} question(s)!`, 'success');
+        showNotification(`✅ Quiz "${title}" created with ${questionsAdded} question(s)!`, 'success');
         closeQuizModal();
         
         await loadCourses();
@@ -1073,11 +1078,11 @@ async function saveQuizModal(event) {
         showQuizzesSection();
         
     } catch (error) {
-        console.error('❌ Erreur:', error);
-        showNotification('Erreur: ' + error.message, 'error');
+        console.error('❌ Error:', error);
+        showNotification('Error: ' + error.message, 'error');
     } finally {
         saveBtn.disabled = false;
-        saveBtn.innerHTML = '<i class="fas fa-save"></i> Enregistrer le Quiz';
+        saveBtn.innerHTML = '<i class="fas fa-save"></i> Save Quiz';
     }
 }
 
@@ -1085,7 +1090,7 @@ function previewQuiz(quizId) {
     window.location.href = `/quiz/preview/${quizId}`;
 }
 
-// ========== DÉCONNEXION ==========
+// ========== LOGOUT ==========
 function logout() {
     if (confirm('Do you want to logout?')) {
         sessionStorage.clear();
@@ -1093,9 +1098,9 @@ function logout() {
     }
 }
 
-// ========== INITIALISATION ==========
+// ========== INITIALIZATION ==========
 document.addEventListener('DOMContentLoaded', function() {
-    console.log('🚀 Dashboard initialisé');
+    console.log('🚀 Dashboard initialized');
     initUserProfile();
     loadCourses();
     loadStats();

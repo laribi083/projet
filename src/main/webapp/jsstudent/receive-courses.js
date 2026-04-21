@@ -54,6 +54,7 @@ async function downloadCourse(btn) {
 
 // ========== OUVERTURE MODAL DE NOTATION ==========
 function openRatingModal(btn) {
+    console.log('openRatingModal appelé');
     currentCourseId = parseInt(btn.getAttribute('data-id'));
     currentCourseTitle = btn.getAttribute('data-title');
     selectedRating = 0;
@@ -77,16 +78,19 @@ function closeRatingModal() {
 }
 
 // ========== GESTION DES ÉTOILES DANS LE MODAL ==========
-document.querySelectorAll('#ratingStarsInput i').forEach(star => {
-    star.addEventListener('click', function() {
-        selectedRating = parseInt(this.dataset.value);
-        const stars = document.querySelectorAll('#ratingStarsInput i');
-        stars.forEach((s, index) => {
-            if (index < selectedRating) {
-                s.className = 'fas fa-star selected';
-            } else {
-                s.className = 'far fa-star';
-            }
+document.addEventListener('DOMContentLoaded', function() {
+    const stars = document.querySelectorAll('#ratingStarsInput i');
+    stars.forEach(star => {
+        star.addEventListener('click', function() {
+            selectedRating = parseInt(this.dataset.value);
+            const allStars = document.querySelectorAll('#ratingStarsInput i');
+            allStars.forEach((s, index) => {
+                if (index < selectedRating) {
+                    s.className = 'fas fa-star selected';
+                } else {
+                    s.className = 'far fa-star';
+                }
+            });
         });
     });
 });
@@ -101,6 +105,8 @@ window.onclick = function(event) {
 
 // ========== SOUMISSION DE LA NOTE ==========
 async function submitRating() {
+    console.log('submitRating appelé, selectedRating:', selectedRating);
+    
     if (selectedRating === 0) {
         showNotification('Veuillez sélectionner une note', 'error');
         return;
@@ -108,6 +114,8 @@ async function submitRating() {
     
     const courseId = document.getElementById('ratingCourseId').value;
     const comment = document.getElementById('ratingComment').value;
+    
+    console.log('Envoi de la note:', { courseId, selectedRating, comment });
     
     const formData = new FormData();
     formData.append('courseId', courseId);
@@ -121,6 +129,7 @@ async function submitRating() {
         });
         
         const result = await response.json();
+        console.log('Réponse:', result);
         
         if (result.success) {
             showNotification('✅ Note enregistrée avec succès !', 'success');

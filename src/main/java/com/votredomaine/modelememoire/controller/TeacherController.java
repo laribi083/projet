@@ -736,13 +736,10 @@ public class TeacherController {
         return ResponseEntity.ok(stats);
     }
     
-    // ==================== GESTION DES NOTES (RATINGS) ====================
+    // ==================== API POUR LES NOTES (RATINGS) ====================
     // ⚠️ NOTE: La méthode viewRatings() a été SUPPRIMÉE car elle existe déjà dans RatingController
     // L'API getTeacherRatings() est conservée pour les appels AJAX
     
-    /**
-     * API pour récupérer toutes les notes des cours de l'enseignant
-     */
     @GetMapping("/api/ratings/teacher/all")
     @ResponseBody
     public ResponseEntity<Map<String, Object>> getTeacherRatings(HttpSession session) {

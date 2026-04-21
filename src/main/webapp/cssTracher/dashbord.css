@@ -400,7 +400,86 @@ body {
     color: #667eea;
 }
 
-/* Quizzes Grid */
+/* ==================== RATINGS SECTION ==================== */
+.ratings-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 1rem;
+}
+
+.ratings-table th,
+.ratings-table td {
+    padding: 0.75rem;
+    text-align: left;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.ratings-table th {
+    background: #f9fafb;
+    font-weight: 600;
+    color: #1f2937;
+}
+
+.ratings-table tr:hover {
+    background: #f9fafb;
+}
+
+.stars {
+    display: inline-flex;
+    gap: 0.2rem;
+}
+
+.stars i {
+    font-size: 0.8rem;
+}
+
+.stars i.filled {
+    color: #f4b400;
+}
+
+.stars i.empty {
+    color: #d1d5db;
+}
+
+.comment-text {
+    font-size: 0.85rem;
+    color: #6b7280;
+    max-width: 300px;
+    word-wrap: break-word;
+}
+
+.rating-card {
+    margin-bottom: 1.5rem;
+    background: white;
+    border-radius: 12px;
+    padding: 1rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.rating-card h3 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.rating-stats {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1rem;
+    font-size: 0.85rem;
+    color: #6b7280;
+}
+
+.rating-stats i {
+    color: #f4b400;
+    margin-right: 0.2rem;
+}
+
+/* ==================== QUIZZES GRID ==================== */
 .quizzes-section {
     margin-top: 1rem;
 }
@@ -454,7 +533,7 @@ body {
     border-radius: 8px;
 }
 
-/* Modals */
+/* ==================== MODALS ==================== */
 .modal {
     display: none;
     position: fixed;
@@ -777,7 +856,7 @@ body {
     }
 }
 
-/* Responsive */
+/* ==================== RESPONSIVE ==================== */
 @media (max-width: 768px) {
     .sidebar {
         width: 80px;

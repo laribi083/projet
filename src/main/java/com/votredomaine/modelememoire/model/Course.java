@@ -78,7 +78,7 @@ public class Course {
     @Transient
     private Integer totalStudents = 0;
     
-    // ⭐ CHAMPS POUR LES NOTES (RATINGS) ⭐
+    // ⭐⭐⭐ CHAMPS POUR LES NOTES (RATINGS) - NON PERSISTANTS ⭐⭐⭐
     @Transient
     private Double averageRating;
     
@@ -200,10 +200,10 @@ public class Course {
     public Integer getTotalStudents() { return totalStudents != null ? totalStudents : 0; }
     public void setTotalStudents(Integer totalStudents) { this.totalStudents = totalStudents; }
     
-    // ==================== GETTERS/SETTERS POUR LES NOTES ====================
+    // ==================== GETTERS/SETTERS POUR LES NOTES (RATINGS) ====================
     
     public Double getAverageRating() { 
-        return averageRating != null ? averageRating : 0; 
+        return averageRating != null ? averageRating : 0.0; 
     }
     public void setAverageRating(Double averageRating) { 
         this.averageRating = averageRating; 
@@ -300,7 +300,8 @@ public class Course {
                 ", niveau='" + niveau + '\'' +
                 ", status='" + status + '\'' +
                 ", teacherName='" + teacherName + '\'' +
-                ", avgRating=" + averageRating +
+                ", averageRating=" + averageRating +
+                ", ratingCount=" + ratingCount +
                 '}';
     }
 }

@@ -40,6 +40,11 @@
                     <i class="fas fa-question-circle"></i> 📝 My Quizzes
                 </a>
             </li>
+            <li class="nav-item">
+                <a href="#" class="nav-link" id="myRatingsLink">
+                    <i class="fas fa-star"></i> ⭐ Course Ratings
+                </a>
+            </li>
         </ul>
         
         <div class="logout-btn-sidebar" onclick="logout()">
@@ -186,6 +191,19 @@
             <div class="courses-grid" id="quizzesGrid">
                 <div class="loading">
                     <i class="fas fa-spinner fa-spin"></i> Loading quizzes...
+                </div>
+            </div>
+        </div>
+
+        <!-- SECTION 5: COURSE RATINGS -->
+        <div class="courses-section" id="ratingsSection" style="display: none;">
+            <div class="section-header">
+                <h2>⭐ Course Ratings <span class="count" id="ratingsCount">0</span></h2>
+                <p>Ratings and feedback from students on your courses</p>
+            </div>
+            <div class="courses-grid" id="ratingsGrid">
+                <div class="loading">
+                    <i class="fas fa-spinner fa-spin"></i> Loading ratings...
                 </div>
             </div>
         </div>

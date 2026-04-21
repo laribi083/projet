@@ -1,6 +1,6 @@
 /**
  * dashbord.js - Teacher Dashboard Logic
- * Version complète avec toutes les fonctions
+ * Version complète avec toutes les fonctions (Courses, Quizzes, Ratings)
  */
 
 // ========== VARIABLES GLOBALES ==========
@@ -112,13 +112,15 @@ function showCoursesSection() {
     if (addCourseBtn) addCourseBtn.style.display = 'flex';
     
     document.querySelectorAll('.courses-section').forEach(section => {
-        if (section.id !== 'quizzesSection') {
+        if (section.id !== 'quizzesSection' && section.id !== 'ratingsSection') {
             section.style.display = 'block';
         }
     });
     
     const quizzesSection = document.getElementById('quizzesSection');
+    const ratingsSection = document.getElementById('ratingsSection');
     if (quizzesSection) quizzesSection.style.display = 'none';
+    if (ratingsSection) ratingsSection.style.display = 'none';
     
     loadCourses();
     loadStats();
@@ -140,7 +142,42 @@ function showQuizzesSection() {
     const quizzesSection = document.getElementById('quizzesSection');
     if (quizzesSection) quizzesSection.style.display = 'block';
     
+    const ratingsSection = document.getElementById('ratingsSection');
+    if (ratingsSection) ratingsSection.style.display = 'none';
+    
     loadQuizzes();
+    loadStats();
+}
+
+function showRatingsSection() {
+    console.log("=== AFFICHAGE DE LA SECTION DES RATINGS ===");
+    
+    const pageTitle = document.querySelector('.page-title');
+    const addCourseBtn = document.querySelector('.btn-add-course');
+    
+    if (pageTitle) pageTitle.innerHTML = '⭐ Course Ratings';
+    if (addCourseBtn) addCourseBtn.style.display = 'none';
+    
+    document.querySelectorAll('.courses-section').forEach(section => {
+        section.style.display = 'none';
+    });
+    
+    const ratingsSection = document.getElementById('ratingsSection');
+    if (ratingsSection) {
+        ratingsSection.style.display = 'block';
+        
+        const ratingsGrid = document.getElementById('ratingsGrid');
+        if (ratingsGrid) {
+            ratingsGrid.innerHTML = `
+                <div class="loading" style="text-align: center; padding: 3rem; grid-column: 1/-1;">
+                    <i class="fas fa-spinner fa-spin fa-2x"></i>
+                    <p>Loading ratings...</p>
+                </div>
+            `;
+        }
+    }
+    
+    loadRatings();
     loadStats();
 }
 
@@ -242,17 +279,13 @@ function createCourseCard(course) {
     return div;
 }
 
-// ========== CHARGEMENT DES QUIZZES (CORRIGÉ) ==========
+// ========== CHARGEMENT DES QUIZZES ==========
 async function loadQuizzes() {
     console.log("=== CHARGEMENT DES QUIZ ===");
     
     try {
         const response = await fetch('/teacher/api/quizzes');
-        console.log("Statut réponse:", response.status);
-        
-        if (!response.ok) {
-            throw new Error('Failed to fetch quizzes: ' + response.status);
-        }
+        if (!response.ok) throw new Error('Failed to fetch quizzes');
         
         const data = await response.json();
         console.log("Données reçues:", data);
@@ -260,27 +293,18 @@ async function loadQuizzes() {
         const quizzesGrid = document.getElementById('quizzesGrid');
         const quizzesCount = document.getElementById('quizzesCount');
         
-        if (!quizzesGrid) {
-            console.error("Element quizzesGrid non trouvé");
-            return;
-        }
+        if (!quizzesGrid) return;
         
-        // ⭐ CORRECTION : extraire le tableau quizzes de la réponse
         let quizzes = [];
         if (data.success && Array.isArray(data.quizzes)) {
             quizzes = data.quizzes;
         } else if (Array.isArray(data)) {
             quizzes = data;
         } else {
-            console.warn("Format de données inattendu:", data);
             quizzes = [];
         }
         
-        console.log("Nombre de quiz à afficher:", quizzes.length);
-        
-        if (quizzesCount) {
-            quizzesCount.textContent = quizzes.length;
-        }
+        if (quizzesCount) quizzesCount.textContent = quizzes.length;
         
         if (quizzes.length === 0) {
             quizzesGrid.innerHTML = `
@@ -296,41 +320,23 @@ async function loadQuizzes() {
             return;
         }
         
-        // Afficher les quiz
         quizzesGrid.innerHTML = '';
         quizzes.forEach(quiz => {
             const quizCard = createQuizCard(quiz);
             quizzesGrid.appendChild(quizCard);
         });
         
-        console.log("✅ Quiz affichés avec succès");
-        
     } catch (error) {
         console.error('Error loading quizzes:', error);
-        const quizzesGrid = document.getElementById('quizzesGrid');
-        if (quizzesGrid) {
-            quizzesGrid.innerHTML = `
-                <div class="empty-message" style="grid-column: 1/-1; text-align: center; padding: 3rem;">
-                    <i class="fas fa-exclamation-triangle" style="font-size: 3rem; color: #ef4444;"></i>
-                    <h3>Error loading quizzes</h3>
-                    <p>${error.message}</p>
-                    <button onclick="loadQuizzes()" style="margin-top: 1rem; padding: 0.5rem 1rem; background: #6366f1; color: white; border: none; border-radius: 8px;">
-                        Retry
-                    </button>
-                </div>
-            `;
-        }
         showNotification('Error loading quizzes: ' + error.message, 'error');
     }
 }
 
-// ========== CRÉATION D'UNE CARTE QUIZ ==========
 function createQuizCard(quiz) {
     const div = document.createElement('div');
     div.className = 'course-card published';
     div.setAttribute('data-quiz-id', quiz.id);
     
-    // Valeurs par défaut avec gestion des null
     const title = quiz.title || 'Sans titre';
     const description = quiz.description ? quiz.description.substring(0, 100) : 'Aucune description';
     const courseTitle = quiz.courseTitle || 'Cours inconnu';
@@ -364,6 +370,148 @@ function createQuizCard(quiz) {
         </div>
     `;
     return div;
+}
+
+// ========== CHARGEMENT DES RATINGS ==========
+async function loadRatings() {
+    console.log("=== CHARGEMENT DES RATINGS ===");
+    
+    try {
+        const response = await fetch('/api/ratings/teacher/all');
+        
+        if (!response.ok) {
+            throw new Error('Failed to fetch ratings: ' + response.status);
+        }
+        
+        const data = await response.json();
+        console.log("Données reçues:", data);
+        
+        const ratingsGrid = document.getElementById('ratingsGrid');
+        const ratingsCount = document.getElementById('ratingsCount');
+        
+        if (!ratingsGrid) return;
+        
+        let ratings = [];
+        if (data.success && Array.isArray(data.ratings)) {
+            ratings = data.ratings;
+        } else if (Array.isArray(data)) {
+            ratings = data;
+        } else {
+            ratings = [];
+        }
+        
+        if (ratingsCount) ratingsCount.textContent = ratings.length;
+        
+        if (ratings.length === 0) {
+            ratingsGrid.innerHTML = `
+                <div class="empty-message" style="grid-column: 1/-1; text-align: center; padding: 3rem;">
+                    <i class="fas fa-star" style="font-size: 3rem; color: #cbd5e1;"></i>
+                    <h3>No ratings yet</h3>
+                    <p>Your courses haven't received any ratings from students yet.</p>
+                </div>
+            `;
+            return;
+        }
+        
+        const ratingsByCourse = groupRatingsByCourse(ratings);
+        displayRatingsByCourse(ratingsGrid, ratingsByCourse);
+        
+    } catch (error) {
+        console.error('Error loading ratings:', error);
+        const ratingsGrid = document.getElementById('ratingsGrid');
+        if (ratingsGrid) {
+            ratingsGrid.innerHTML = `
+                <div class="empty-message" style="grid-column: 1/-1; text-align: center; padding: 3rem;">
+                    <i class="fas fa-exclamation-triangle" style="font-size: 3rem; color: #ef4444;"></i>
+                    <h3>Error loading ratings</h3>
+                    <p>${error.message}</p>
+                    <button onclick="loadRatings()" style="margin-top: 1rem; padding: 0.5rem 1rem; background: #6366f1; color: white; border: none; border-radius: 8px;">
+                        Retry
+                    </button>
+                </div>
+            `;
+        }
+        showNotification('Error loading ratings: ' + error.message, 'error');
+    }
+}
+
+function groupRatingsByCourse(ratings) {
+    const groups = new Map();
+    
+    ratings.forEach(rating => {
+        if (!groups.has(rating.courseId)) {
+            groups.set(rating.courseId, {
+                courseId: rating.courseId,
+                courseTitle: rating.courseTitle,
+                ratings: [],
+                averageRating: 0
+            });
+        }
+        groups.get(rating.courseId).ratings.push(rating);
+    });
+    
+    for (let group of groups.values()) {
+        const sum = group.ratings.reduce((acc, r) => acc + r.ratingValue, 0);
+        group.averageRating = (sum / group.ratings.length).toFixed(1);
+    }
+    
+    return Array.from(groups.values());
+}
+
+function displayRatingsByCourse(container, courseGroups) {
+    container.innerHTML = '';
+    
+    courseGroups.forEach(group => {
+        const courseDiv = document.createElement('div');
+        courseDiv.className = 'course-card published';
+        courseDiv.style.marginBottom = '1.5rem';
+        
+        courseDiv.innerHTML = `
+            <h3>
+                ${escapeHtml(group.courseTitle)}
+                <span class="status-badge status-published">
+                    <i class="fas fa-star"></i> ${group.averageRating}/5
+                </span>
+            </h3>
+            <div class="course-meta" style="margin-bottom: 1rem;">
+                <span><i class="fas fa-users"></i> ${group.ratings.length} avis</span>
+            </div>
+            <table class="ratings-table">
+                <thead>
+                    <tr>
+                        <th>Étudiant</th>
+                        <th>Note</th>
+                        <th>Commentaire</th>
+                        <th>Date</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${group.ratings.map(r => `
+                        <tr>
+                            <td>${escapeHtml(r.studentName)}</td>
+                            <td>${generateStarsStatic(r.ratingValue)}</td>
+                            <td class="comment-cell">${r.comment ? `<div class="comment-text">${escapeHtml(r.comment)}</div>` : '<span style="color:#9ca3af;">Aucun commentaire</span>'}</td>
+                            <td>${new Date(r.createdAt).toLocaleDateString('fr-FR')}</td>
+                        </tr>
+                    `).join('')}
+                </tbody>
+            </table>
+        `;
+        container.appendChild(courseDiv);
+    });
+}
+
+function generateStarsStatic(rating) {
+    let stars = '<div class="stars">';
+    for (let i = 1; i <= 5; i++) {
+        if (i <= rating) {
+            stars += '<i class="fas fa-star filled"></i>';
+        } else {
+            stars += '<i class="far fa-star empty"></i>';
+        }
+    }
+    stars += '</div>';
+    return stars;
 }
 
 // ========== CHARGEMENT DES STATISTIQUES ==========
@@ -877,10 +1025,7 @@ async function saveQuizModal(event) {
         courseNiveau: document.getElementById('quizCourseNiveau')?.value || ''
     };
     
-    console.log('📤 Envoi du quiz:', quizData);
-    
     try {
-        // 1. Créer le quiz
         const quizResponse = await fetch('/teacher/api/create-quiz', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -888,16 +1033,13 @@ async function saveQuizModal(event) {
         });
         
         const quizResult = await quizResponse.json();
-        console.log('📥 Réponse création quiz:', quizResult);
         
         if (!quizResult.success) {
             throw new Error(quizResult.message || 'Erreur lors de la création du quiz');
         }
         
         const quizId = quizResult.quizId;
-        console.log('✅ Quiz créé avec ID:', quizId);
         
-        // 2. Ajouter chaque question
         let questionsAdded = 0;
         for (const question of tempQuestionsList) {
             const questionData = {
@@ -909,8 +1051,6 @@ async function saveQuizModal(event) {
                 correctAnswer: question.correctAnswer
             };
             
-            console.log(`📤 Ajout question ${questionsAdded + 1}/${tempQuestionsList.length}:`, questionData);
-            
             const questionResponse = await fetch(`/teacher/api/quizzes/${quizId}/questions`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -918,25 +1058,18 @@ async function saveQuizModal(event) {
             });
             
             if (!questionResponse.ok) {
-                const errorText = await questionResponse.text();
-                console.error('❌ Erreur réponse:', questionResponse.status, errorText);
                 throw new Error(`Erreur lors de l'ajout de la question: ${questionResponse.status}`);
             }
             
-            const questionResult = await questionResponse.json();
-            console.log(`✅ Question ${questionsAdded + 1} ajoutée:`, questionResult);
             questionsAdded++;
         }
         
         showNotification(`✅ Quiz "${title}" créé avec ${questionsAdded} question(s)!`, 'success');
         closeQuizModal();
         
-        // Recharger les données
         await loadCourses();
         await loadQuizzes();
         await loadStats();
-        
-        // Afficher la section des quizzes
         showQuizzesSection();
         
     } catch (error) {
@@ -971,6 +1104,7 @@ document.addEventListener('DOMContentLoaded', function() {
     
     const myCoursesLink = document.getElementById('myCoursesLink');
     const myQuizzesLink = document.getElementById('myQuizzesLink');
+    const myRatingsLink = document.getElementById('myRatingsLink');
     
     if (myCoursesLink) {
         myCoursesLink.addEventListener('click', (e) => {
@@ -987,6 +1121,15 @@ document.addEventListener('DOMContentLoaded', function() {
             document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
             myQuizzesLink.classList.add('active');
             showQuizzesSection();
+        });
+    }
+    
+    if (myRatingsLink) {
+        myRatingsLink.addEventListener('click', (e) => {
+            e.preventDefault();
+            document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+            myRatingsLink.classList.add('active');
+            showRatingsSection();
         });
     }
     

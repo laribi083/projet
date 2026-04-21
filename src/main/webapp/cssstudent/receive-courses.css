@@ -264,14 +264,14 @@ body {
     background: #e2e8f0;
 }
 
-/* ========== COURSES GRID - BLOCS PLUS PETITS ========== */
+/* ========== COURSES GRID ========== */
 .courses-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
     gap: 1rem;
 }
 
-/* ========== COURSE CARD - TAILLE RÉDUITE ========== */
+/* ========== COURSE CARD ========== */
 .course-card {
     background: white;
     border-radius: 12px;
@@ -288,7 +288,6 @@ body {
     border-color: var(--primary);
 }
 
-/* Carte déjà téléchargée */
 .course-card.downloaded {
     border-left: 3px solid var(--success);
     opacity: 0.9;
@@ -298,7 +297,7 @@ body {
     background: linear-gradient(135deg, var(--success), var(--success-dark));
 }
 
-/* ========== BADGES - TAILLE RÉDUITE ========== */
+/* ========== BADGES ========== */
 .course-badge {
     position: absolute;
     top: 0.5rem;
@@ -323,7 +322,6 @@ body {
     background: linear-gradient(135deg, #ef4444, #dc2626);
 }
 
-/* Badge "Déjà téléchargé" - TAILLE RÉDUITE */
 .downloaded-badge {
     position: absolute;
     top: 0.5rem;
@@ -338,14 +336,13 @@ body {
     align-items: center;
     gap: 0.2rem;
     z-index: 1;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
 }
 
 .downloaded-badge i {
     font-size: 0.5rem;
 }
 
-/* ========== COURSE HEADER - TAILLE RÉDUITE ========== */
+/* ========== COURSE HEADER ========== */
 .course-header {
     background: var(--primary-gradient);
     padding: 1rem;
@@ -367,7 +364,7 @@ body {
     text-overflow: ellipsis;
 }
 
-/* ========== COURSE BODY - TAILLE RÉDUITE ========== */
+/* ========== COURSE BODY ========== */
 .course-body {
     padding: 0.8rem;
 }
@@ -407,7 +404,79 @@ body {
     font-size: 0.6rem;
 }
 
-/* ========== BOUTON DOWNLOAD - TAILLE RÉDUITE ========== */
+/* ========== SECTION NOTATION ========== */
+.course-rating-section {
+    margin: 0.5rem 0;
+    padding: 0.5rem 0;
+    border-top: 1px solid #e5e7eb;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.stars-display {
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+    margin-bottom: 0.5rem;
+}
+
+.stars-display i {
+    font-size: 0.8rem;
+}
+
+.stars-display i.filled {
+    color: #f4b400;
+}
+
+.stars-display i.empty {
+    color: #d1d5db;
+}
+
+.rating-value {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--dark);
+    margin-left: 0.3rem;
+}
+
+.rating-count {
+    font-size: 0.65rem;
+    color: var(--gray);
+    margin-left: 0.3rem;
+}
+
+.btn-rate {
+    width: 100%;
+    padding: 0.4rem;
+    background: #fef3c7;
+    color: #d97706;
+    border: none;
+    border-radius: 8px;
+    font-size: 0.7rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.3rem;
+    margin-top: 0.5rem;
+}
+
+.btn-rate:hover {
+    background: #fbbf24;
+    color: white;
+}
+
+.user-rating {
+    font-size: 0.65rem;
+    color: var(--success);
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+    margin-top: 0.3rem;
+}
+
+/* ========== BOUTON DOWNLOAD ========== */
 .btn-download {
     width: 100%;
     padding: 0.5rem;
@@ -437,6 +506,115 @@ body {
     transform: none;
 }
 
+/* ========== MODAL DE NOTATION ========== */
+.rating-modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 1000;
+    align-items: center;
+    justify-content: center;
+}
+
+.rating-modal-content {
+    background: white;
+    border-radius: 20px;
+    padding: 2rem;
+    max-width: 500px;
+    width: 90%;
+    animation: fadeInUp 0.3s ease;
+}
+
+.rating-modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.rating-modal-header h3 {
+    font-size: 1.2rem;
+    color: var(--dark);
+}
+
+.rating-modal-close {
+    cursor: pointer;
+    font-size: 1.5rem;
+    color: var(--gray);
+    transition: color 0.2s;
+}
+
+.rating-modal-close:hover {
+    color: var(--danger);
+}
+
+.modal-course-title {
+    margin-bottom: 1rem;
+    font-weight: 500;
+    color: var(--dark);
+    text-align: center;
+}
+
+.rating-stars-input {
+    display: flex;
+    gap: 0.5rem;
+    justify-content: center;
+    margin: 1rem 0;
+}
+
+.rating-stars-input i {
+    font-size: 2rem;
+    cursor: pointer;
+    color: #d1d5db;
+    transition: color 0.2s;
+}
+
+.rating-stars-input i.selected,
+.rating-stars-input i:hover {
+    color: #f4b400;
+}
+
+.rating-comment {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    resize: vertical;
+    margin-bottom: 1rem;
+    font-family: inherit;
+    font-size: 0.85rem;
+}
+
+.rating-comment:focus {
+    outline: none;
+    border-color: var(--primary);
+}
+
+.btn-submit-rating {
+    width: 100%;
+    padding: 0.75rem;
+    background: var(--primary-gradient);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+}
+
+.btn-submit-rating:hover {
+    background: var(--primary-gradient-hover);
+    transform: translateY(-1px);
+}
+
 /* ========== EMPTY STATE ========== */
 .empty-state {
     text-align: center;
@@ -461,6 +639,12 @@ body {
 .empty-state p {
     font-size: 0.8rem;
     color: var(--gray);
+}
+
+.empty-hint {
+    font-size: 0.7rem;
+    color: #9ca3af;
+    margin-top: 0.5rem;
 }
 
 /* ========== NOTIFICATIONS ========== */
@@ -564,6 +748,10 @@ body {
     .hero-section {
         padding: 1rem;
     }
+    
+    .rating-stars-input i {
+        font-size: 1.5rem;
+    }
 }
 
 @media (max-width: 480px) {
@@ -582,5 +770,9 @@ body {
     .btn-download {
         font-size: 0.7rem;
         padding: 0.4rem;
+    }
+    
+    .rating-modal-content {
+        padding: 1.5rem;
     }
 }

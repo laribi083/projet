@@ -26,33 +26,15 @@
             </div>
             
             <nav class="sidebar-nav">
-                <a th:href="@{/student/dashboard}" class="nav-item">
-                    <i class="fas fa-home"></i>
-                    <span>Home</span>
-                </a>
-                <a th:href="@{/niveux}" class="nav-item">
-                    <i class="fas fa-book"></i>
-                    <span>My courses</span>
-                </a>
-                <a href="#" class="nav-item active">
-                    <i class="fas fa-download"></i>
-                    <span>Receive Courses</span>
-                </a>
-                <a th:href="@{/student/quizzes}" class="nav-item">
-                    <i class="fas fa-question-circle"></i>
-                    <span>Quizzes</span>
-                </a>
-                <a th:href="@{/student/ratings}" class="nav-item">
-                    <i class="fas fa-star"></i>
-                    <span>Ratings</span>
-                </a>
+                <a th:href="@{/student/dashboard}" class="nav-item"><i class="fas fa-home"></i> Home</a>
+                <a th:href="@{/niveux}" class="nav-item"><i class="fas fa-book"></i> My courses</a>
+                <a href="#" class="nav-item active"><i class="fas fa-download"></i> Receive Courses</a>
+                <a th:href="@{/student/quizzes}" class="nav-item"><i class="fas fa-question-circle"></i> Quizzes</a>
+                <a th:href="@{/student/ratings}" class="nav-item"><i class="fas fa-star"></i> Ratings</a>
             </nav>
             
             <div class="sidebar-footer">
-                <a href="/logout" class="logout-btn">
-                    <i class="fas fa-sign-out-alt"></i>
-                    <span>Logout</span>
-                </a>
+                <a href="/logout" class="logout-btn"><i class="fas fa-sign-out-alt"></i> Logout</a>
             </div>
         </aside>
 
@@ -77,12 +59,8 @@
                             <option value="software quality test" th:selected="${selectedModule == 'software quality test'}">🧪 Software Quality Test</option>
                         </select>
                     </div>
-                    <button id="searchBtn" class="btn-search">
-                        <i class="fas fa-search"></i> Search
-                    </button>
-                    <button id="resetFilters" class="btn-reset">
-                        <i class="fas fa-undo-alt"></i> Reset
-                    </button>
+                    <button id="searchBtn" class="btn-search"><i class="fas fa-search"></i> Search</button>
+                    <button id="resetFilters" class="btn-reset"><i class="fas fa-undo-alt"></i> Reset</button>
                 </div>
 
                 <!-- Liste des cours -->
@@ -90,12 +68,10 @@
                     <div th:each="course : ${courses}" class="course-card" 
                          th:classappend="${downloadedCourseIds != null and downloadedCourseIds.contains(course.id)} ? 'downloaded' : ''">
                         
-                        <!-- Badge de niveau -->
                         <div class="course-badge" th:attr="data-level=${course.niveau}">
                             <span th:text="${course.niveau}">Level</span>
                         </div>
                         
-                        <!-- Badge "Déjà téléchargé" -->
                         <div th:if="${downloadedCourseIds != null and downloadedCourseIds.contains(course.id)}" class="downloaded-badge">
                             <i class="fas fa-check-circle"></i> Downloaded
                         </div>
@@ -112,6 +88,35 @@
                                 <span><i class="fas fa-graduation-cap"></i> <span th:text="${course.niveau}">Level</span></span>
                             </div>
                             
+                            <!-- Section Notation -->
+                            <div class="course-rating-section">
+                                <div class="stars-display">
+                                    <span th:each="i : ${#numbers.sequence(1, 5)}">
+                                        <i th:class="${i <= (course.averageRating != null ? course.averageRating : 0)} ? 'fas fa-star filled' : 'far fa-star empty'"></i>
+                                    </span>
+                                    <span class="rating-value" th:text="${#numbers.formatDecimal(course.averageRating != null ? course.averageRating : 0, 1, 1)}">0.0</span>
+                                    <span class="rating-count" th:text="'(' + (course.ratingCount != null ? course.ratingCount : 0) + ' avis)'">(0 avis)</span>
+                                </div>
+                                
+                                <!-- Si l'étudiant a déjà noté -->
+                                <div th:if="${course.userHasRated != null and course.userHasRated}" class="user-rating">
+                                    <i class="fas fa-check-circle"></i>
+                                    <span>You rated: 
+                                        <span th:each="i : ${#numbers.sequence(1, course.userRating != null ? course.userRating : 0)}">⭐</span>
+                                        <span th:if="${course.userRating != null and course.userRating < 5}">
+                                            <span th:each="i : ${#numbers.sequence(course.userRating + 1, 5)}">☆</span>
+                                        </span>
+                                    </span>
+                                </div>
+                                
+                                <!-- Si l'étudiant n'a pas noté -->
+                                <div th:unless="${course.userHasRated != null and course.userHasRated}">
+                                    <button class="btn-rate" th:data-id="${course.id}" th:data-title="${course.title}" onclick="openRatingModal(this)">
+                                        <i class="fas fa-star"></i> Rate this course
+                                    </button>
+                                </div>
+                            </div>
+                            
                             <!-- Bouton Download -->
                             <button class="btn-download" th:data-id="${course.id}" th:data-title="${course.title}" onclick="downloadCourse(this)">
                                 <i class="fas fa-download"></i> 
@@ -122,7 +127,6 @@
                     </div>
                 </div>
 
-                <!-- Message si aucun cours -->
                 <div th:if="${courses.isEmpty()}" class="empty-state">
                     <i class="fas fa-book-open"></i>
                     <h3>No courses available</h3>
@@ -131,6 +135,29 @@
                 </div>
             </div>
         </main>
+    </div>
+
+    <!-- Modal de notation -->
+    <div id="ratingModal" class="rating-modal">
+        <div class="rating-modal-content">
+            <div class="rating-modal-header">
+                <h3><i class="fas fa-star"></i> Rate this course</h3>
+                <span class="rating-modal-close" onclick="closeRatingModal()">&times;</span>
+            </div>
+            <p id="modalCourseTitle" class="modal-course-title"></p>
+            <div class="rating-stars-input" id="ratingStarsInput">
+                <i class="far fa-star" data-value="1"></i>
+                <i class="far fa-star" data-value="2"></i>
+                <i class="far fa-star" data-value="3"></i>
+                <i class="far fa-star" data-value="4"></i>
+                <i class="far fa-star" data-value="5"></i>
+            </div>
+            <textarea id="ratingComment" class="rating-comment" placeholder="Your comment (optional)" rows="3"></textarea>
+            <input type="hidden" id="ratingCourseId">
+            <button class="btn-submit-rating" onclick="submitRating()">
+                <i class="fas fa-paper-plane"></i> Submit Rating
+            </button>
+        </div>
     </div>
 
     <script th:src="@{/jsstudent/receive-courses.js}"></script>

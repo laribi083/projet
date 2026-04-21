@@ -1,7 +1,7 @@
-/* ratings.css - Styles pour la page des notes étudiant */
+/* ratings.css - Styles pour la page des notes enseignant */
 
 .ratings-container {
-    max-width: 1200px;
+    max-width: 1400px;
     margin: 0 auto;
     padding: 2rem;
 }
@@ -41,12 +41,6 @@
     flex: 1;
     min-width: 150px;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-    transition: transform 0.2s;
-}
-
-.stat-box:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
 .stat-box .number {
@@ -61,90 +55,105 @@
     margin-top: 0.25rem;
 }
 
-.stat-box .stars {
-    margin-top: 0.5rem;
-}
-
-.stat-box .stars i {
-    color: #f4b400;
-    font-size: 0.9rem;
-}
-
-/* Ratings Grid */
-.ratings-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-    gap: 1.5rem;
-}
-
-/* Rating Card */
-.rating-card {
+/* Course Group */
+.course-group {
     background: white;
     border-radius: 16px;
-    padding: 1.5rem;
+    overflow: hidden;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-    transition: transform 0.2s, box-shadow 0.2s;
+    margin-bottom: 2rem;
 }
 
-.rating-card:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+.course-header {
+    background: #f9fafb;
+    padding: 1rem 1.5rem;
+    border-bottom: 1px solid #e5e7eb;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1rem;
 }
 
 .course-title {
-    font-size: 1.1rem;
+    font-size: 1.2rem;
     font-weight: 600;
-    margin-bottom: 0.5rem;
     color: #1f2937;
 }
 
-.stars-display {
+.course-stats {
     display: flex;
+    gap: 1rem;
+}
+
+.course-stats span {
+    font-size: 0.85rem;
+    color: #6b7280;
+}
+
+.course-stats i {
+    color: #f4b400;
+    margin-right: 0.2rem;
+}
+
+/* Ratings Table */
+.ratings-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.ratings-table th,
+.ratings-table td {
+    padding: 0.75rem 1rem;
+    text-align: left;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.ratings-table th {
+    background: #f9fafb;
+    font-weight: 600;
+    color: #1f2937;
+}
+
+.ratings-table tr:hover {
+    background: #f9fafb;
+}
+
+/* Stars */
+.stars {
+    display: inline-flex;
     gap: 0.2rem;
-    margin-bottom: 0.5rem;
 }
 
-.stars-display i {
-    font-size: 1rem;
+.stars i {
+    font-size: 0.8rem;
 }
 
-.stars-display i.filled {
+.stars i.filled {
     color: #f4b400;
 }
 
-.stars-display i.empty {
+.stars i.empty {
     color: #d1d5db;
 }
 
-.rating-value {
-    font-size: 0.9rem;
-    font-weight: 600;
-    color: #1f2937;
-    margin-left: 0.5rem;
+/* Comment */
+.comment-cell {
+    max-width: 300px;
 }
 
-.comment {
-    color: #6b7280;
+.comment-text {
     font-size: 0.85rem;
-    margin-top: 0.75rem;
-    padding: 0.75rem;
-    background: #f9fafb;
-    border-radius: 8px;
+    color: #6b7280;
     line-height: 1.4;
-}
-
-.rating-date {
-    font-size: 0.7rem;
-    color: #9ca3af;
-    margin-top: 0.75rem;
-    text-align: right;
 }
 
 /* Loading Spinner */
 .loading-spinner {
     text-align: center;
     padding: 3rem;
-    grid-column: 1 / -1;
+    background: white;
+    border-radius: 16px;
 }
 
 .loading-spinner i {
@@ -153,17 +162,12 @@
     margin-bottom: 1rem;
 }
 
-.loading-spinner p {
-    color: #6b7280;
-}
-
 /* Empty State */
 .empty-state {
     text-align: center;
     padding: 4rem;
     background: white;
     border-radius: 16px;
-    grid-column: 1 / -1;
 }
 
 .empty-state i {
@@ -181,35 +185,19 @@
     color: #6b7280;
 }
 
-.btn-primary {
+.btn-retry {
+    margin-top: 1rem;
+    padding: 0.5rem 1rem;
     background: #6366f1;
     color: white;
-    padding: 0.5rem 1rem;
+    border: none;
     border-radius: 8px;
-    text-decoration: none;
-    display: inline-block;
-    margin-top: 1rem;
+    cursor: pointer;
     transition: background 0.2s;
 }
 
-.btn-primary:hover {
+.btn-retry:hover {
     background: #4f46e5;
-}
-
-/* Animations */
-@keyframes fadeInUp {
-    from {
-        opacity: 0;
-        transform: translateY(20px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-.rating-card {
-    animation: fadeInUp 0.3s ease forwards;
 }
 
 /* Responsive */
@@ -222,15 +210,29 @@
         gap: 1rem;
     }
     
-    .stat-box {
-        padding: 1rem;
+    .course-header {
+        flex-direction: column;
+        align-items: flex-start;
     }
     
-    .stat-box .number {
-        font-size: 1.5rem;
+    .ratings-table,
+    .ratings-table tbody,
+    .ratings-table tr,
+    .ratings-table td {
+        display: block;
     }
     
-    .ratings-grid {
-        grid-template-columns: 1fr;
+    .ratings-table thead {
+        display: none;
+    }
+    
+    .ratings-table td {
+        padding: 0.5rem;
+        border-bottom: none;
+        position: relative;
+    }
+    
+    .comment-cell {
+        max-width: 100%;
     }
 }

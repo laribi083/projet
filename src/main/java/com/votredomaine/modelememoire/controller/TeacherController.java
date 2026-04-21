@@ -3,10 +3,12 @@ package com.votredomaine.modelememoire.controller;
 import com.votredomaine.modelememoire.model.Course;
 import com.votredomaine.modelememoire.model.Question;
 import com.votredomaine.modelememoire.model.Quiz;
+import com.votredomaine.modelememoire.model.Rating;
 import com.votredomaine.modelememoire.model.Teacher;
 import com.votredomaine.modelememoire.service.Courseservice;
 import com.votredomaine.modelememoire.service.EnrollmentService;
 import com.votredomaine.modelememoire.service.QuizService;
+import com.votredomaine.modelememoire.service.RatingService;
 import com.votredomaine.modelememoire.service.TeacherService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
@@ -26,6 +28,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Controller
 @RequestMapping("/teacher")
@@ -42,6 +45,9 @@ public class TeacherController {
     
     @Autowired
     private EnrollmentService enrollmentService;
+    
+    @Autowired
+    private RatingService ratingService;
    
     // ==================== GESTION DES ENSEIGNANTS (API) ====================
     
@@ -264,6 +270,11 @@ public class TeacherController {
                 
                 long studentCount = enrollmentService.countStudentsByCourse(course.getId());
                 course.setTotalStudents((int) studentCount);
+                
+                double avgRating = ratingService.getAverageRatingForCourse(course.getId());
+                long ratingCount = ratingService.getRatingCountForCourse(course.getId());
+                course.setAverageRating(avgRating);
+                course.setRatingCount(ratingCount);
             }
         }
         
@@ -282,6 +293,11 @@ public class TeacherController {
         if (course == null || !course.getTeacherId().equals(teacherId)) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
+        
+        double avgRating = ratingService.getAverageRatingForCourse(courseId);
+        long ratingCount = ratingService.getRatingCountForCourse(courseId);
+        course.setAverageRating(avgRating);
+        course.setRatingCount(ratingCount);
         
         return ResponseEntity.ok(course);
     }
@@ -482,10 +498,13 @@ public class TeacherController {
             long quizCount = quizService.countQuizzesByCourse(course.getId());
             course.setQuizCount((int) quizCount);
             
-            if ("PUBLISHED".equals(status) || "ACTIVE".equals(status)) {
-                long studentCount = enrollmentService.countStudentsByCourse(course.getId());
-                course.setTotalStudents((int) studentCount);
-            }
+            long studentCount = enrollmentService.countStudentsByCourse(course.getId());
+            course.setTotalStudents((int) studentCount);
+            
+            double avgRating = ratingService.getAverageRatingForCourse(course.getId());
+            long ratingCount = ratingService.getRatingCountForCourse(course.getId());
+            course.setAverageRating(avgRating);
+            course.setRatingCount(ratingCount);
         }
         
         System.out.println("📊 Summary - Pending: " + pendingCourses.size() + 
@@ -602,7 +621,6 @@ public class TeacherController {
         return ResponseEntity.ok(response);
     }
     
-    // ⭐⭐⭐ MÉTHODE AJOUTÉE POUR LES QUESTIONS ⭐⭐⭐
     @PostMapping("/api/quizzes/{quizId}/questions")
     @ResponseBody
     public ResponseEntity<Map<String, Object>> addQuestionToQuiz(
@@ -696,12 +714,18 @@ public class TeacherController {
             List<Quiz> quizzes = quizService.getQuizzesByTeacher(teacherId);
             long totalStudents = enrollmentService.countTotalStudentsByTeacher(teacherId);
             
+            List<Rating> ratings = ratingService.getRatingsByTeacher(teacherId);
+            double avgRating = ratings.stream().mapToInt(Rating::getRatingValue).average().orElse(0);
+            
             stats.put("success", true);
             stats.put("totalCourses", courses.size());
             stats.put("totalQuizzes", quizzes.size());
             stats.put("totalStudents", totalStudents);
+            stats.put("totalRatings", ratings.size());
+            stats.put("averageRating", Math.round(avgRating * 10) / 10.0);
             
-            System.out.println("Stats - Cours: " + courses.size() + ", Quiz: " + quizzes.size() + ", Étudiants: " + totalStudents);
+            System.out.println("Stats - Cours: " + courses.size() + ", Quiz: " + quizzes.size() + 
+                               ", Étudiants: " + totalStudents + ", Notes: " + ratings.size());
             
         } catch (Exception e) {
             e.printStackTrace();
@@ -710,6 +734,46 @@ public class TeacherController {
         }
         
         return ResponseEntity.ok(stats);
+    }
+    
+    // ==================== GESTION DES NOTES (RATINGS) ====================
+    // ⚠️ NOTE: La méthode viewRatings() a été SUPPRIMÉE car elle existe déjà dans RatingController
+    // L'API getTeacherRatings() est conservée pour les appels AJAX
+    
+    /**
+     * API pour récupérer toutes les notes des cours de l'enseignant
+     */
+    @GetMapping("/api/ratings/teacher/all")
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> getTeacherRatings(HttpSession session) {
+        Map<String, Object> response = new HashMap<>();
+        
+        try {
+            Long teacherId = (Long) session.getAttribute("teacherId");
+            
+            System.out.println("=== API RÉCUPÉRATION NOTES ENSEIGNANT ===");
+            System.out.println("Teacher ID: " + teacherId);
+            
+            if (teacherId == null) {
+                response.put("success", false);
+                response.put("message", "Non authentifié");
+                return ResponseEntity.status(401).body(response);
+            }
+            
+            List<Rating> ratings = ratingService.getRatingsByTeacher(teacherId);
+            System.out.println("Nombre de notes trouvées: " + ratings.size());
+            
+            response.put("success", true);
+            response.put("ratings", ratings);
+            response.put("count", ratings.size());
+            
+        } catch (Exception e) {
+            e.printStackTrace();
+            response.put("success", false);
+            response.put("message", e.getMessage());
+        }
+        
+        return ResponseEntity.ok(response);
     }
     
     // ==================== GESTION DES FICHIERS ====================

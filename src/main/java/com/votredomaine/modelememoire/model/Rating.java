@@ -4,9 +4,7 @@ import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "ratings", uniqueConstraints = {
-    @UniqueConstraint(columnNames = {"course_id", "student_id"})
-})
+@Table(name = "ratings")
 public class Rating {
     
     @Id
@@ -16,16 +14,19 @@ public class Rating {
     @Column(name = "course_id", nullable = false)
     private Long courseId;
     
+    @Column(name = "course_title")
+    private String courseTitle;
+    
     @Column(name = "student_id", nullable = false)
     private Long studentId;
     
     @Column(name = "student_name")
     private String studentName;
     
-    @Column(nullable = false)
-    private Integer rating;
+    @Column(name = "rating_value", nullable = false)
+    private Integer ratingValue;
     
-    @Column(length = 1000)
+    @Column(name = "comment", columnDefinition = "TEXT")
     private String comment;
     
     @Column(name = "created_at")
@@ -39,34 +40,32 @@ public class Rating {
         this.updatedAt = LocalDateTime.now();
     }
     
-    public Rating(Long courseId, Long studentId, String studentName, Integer rating, String comment) {
-        this.courseId = courseId;
-        this.studentId = studentId;
-        this.studentName = studentName;
-        this.rating = rating;
-        this.comment = comment;
-        this.createdAt = LocalDateTime.now();
-        this.updatedAt = LocalDateTime.now();
-    }
-    
-    // Getters
+    // Getters et Setters
     public Long getId() { return id; }
-    public Long getCourseId() { return courseId; }
-    public Long getStudentId() { return studentId; }
-    public String getStudentName() { return studentName; }
-    public Integer getRating() { return rating; }
-    public String getComment() { return comment; }
-    public LocalDateTime getCreatedAt() { return createdAt; }
-    public LocalDateTime getUpdatedAt() { return updatedAt; }
-    
-    // Setters
     public void setId(Long id) { this.id = id; }
+    
+    public Long getCourseId() { return courseId; }
     public void setCourseId(Long courseId) { this.courseId = courseId; }
+    
+    public String getCourseTitle() { return courseTitle; }
+    public void setCourseTitle(String courseTitle) { this.courseTitle = courseTitle; }
+    
+    public Long getStudentId() { return studentId; }
     public void setStudentId(Long studentId) { this.studentId = studentId; }
+    
+    public String getStudentName() { return studentName; }
     public void setStudentName(String studentName) { this.studentName = studentName; }
-    public void setRating(Integer rating) { this.rating = rating; }
+    
+    public Integer getRatingValue() { return ratingValue; }
+    public void setRatingValue(Integer ratingValue) { this.ratingValue = ratingValue; }
+    
+    public String getComment() { return comment; }
     public void setComment(String comment) { this.comment = comment; }
+    
+    public LocalDateTime getCreatedAt() { return createdAt; }
     public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
+    
+    public LocalDateTime getUpdatedAt() { return updatedAt; }
     public void setUpdatedAt(LocalDateTime updatedAt) { this.updatedAt = updatedAt; }
     
     @PreUpdate

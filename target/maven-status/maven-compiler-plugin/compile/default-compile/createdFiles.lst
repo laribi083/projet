@@ -16,6 +16,7 @@ com\votredomaine\modelememoire\repository\TeacherRepository.class
 com\votredomaine\modelememoire\repository\QuizRepository.class
 com\votredomaine\modelememoire\service\forgetpassservice.class
 com\votredomaine\modelememoire\repository\QuizResultRepository.class
+com\votredomaine\modelememoire\controller\RatingController.class
 com\votredomaine\modelememoire\service\createservice.class
 com\votredomaine\modelememoire\Application.class
 com\votredomaine\modelememoire\controller\InscriptionController.class

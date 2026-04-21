@@ -6,6 +6,7 @@ import com.votredomaine.modelememoire.repository.RatingRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -21,32 +22,30 @@ public class RatingService {
     private Courseservice courseService;
     
     @Transactional
-    public Rating addOrUpdateRating(Long courseId, Long studentId, String studentName, Integer ratingValue, String comment) {
-        Optional<Rating> existingRating = ratingRepository.findByCourseIdAndStudentId(courseId, studentId);
+    public Rating saveOrUpdateRating(Long studentId, String studentName, Long courseId, Integer ratingValue, String comment) {
+        Optional<Rating> existingRating = ratingRepository.findByStudentIdAndCourseId(studentId, courseId);
         
+        Rating rating;
         if (existingRating.isPresent()) {
-            Rating rating = existingRating.get();
-            rating.setRating(ratingValue);
+            rating = existingRating.get();
+            rating.setRatingValue(ratingValue);
             rating.setComment(comment);
-            rating.setUpdatedAt(java.time.LocalDateTime.now());
-            return ratingRepository.save(rating);
+            rating.setUpdatedAt(LocalDateTime.now());
         } else {
-            Rating rating = new Rating(courseId, studentId, studentName, ratingValue, comment);
-            return ratingRepository.save(rating);
+            rating = new Rating();
+            rating.setStudentId(studentId);
+            rating.setStudentName(studentName);
+            rating.setCourseId(courseId);
+            rating.setRatingValue(ratingValue);
+            rating.setComment(comment);
+            
+            Course course = courseService.getCourseById(courseId);
+            if (course != null) {
+                rating.setCourseTitle(course.getTitle());
+            }
         }
-    }
-    
-    @Transactional
-    public void deleteRating(Long ratingId, Long studentId) {
-        Optional<Rating> rating = ratingRepository.findById(ratingId);
-        if (rating.isPresent() && rating.get().getStudentId().equals(studentId)) {
-            ratingRepository.deleteById(ratingId);
-        }
-    }
-    
-    @Transactional
-    public void deleteRatingsByCourse(Long courseId) {
-        ratingRepository.deleteByCourseId(courseId);
+        
+        return ratingRepository.save(rating);
     }
     
     public List<Rating> getRatingsByCourse(Long courseId) {
@@ -57,41 +56,57 @@ public class RatingService {
         return ratingRepository.findByStudentId(studentId);
     }
     
-    public double getAverageRating(Long courseId) {
-        Double avg = ratingRepository.getAverageRatingByCourseId(courseId);
-        return avg != null ? avg : 0.0;
+    public List<Rating> getRatingsByTeacher(Long teacherId) {
+        return ratingRepository.findByTeacherId(teacherId);
     }
     
-    public long getRatingCount(Long courseId) {
+    public Optional<Rating> getRatingByStudentAndCourse(Long studentId, Long courseId) {
+        return ratingRepository.findByStudentIdAndCourseId(studentId, courseId);
+    }
+    
+    public boolean hasRated(Long studentId, Long courseId) {
+        return ratingRepository.existsByStudentIdAndCourseId(studentId, courseId);
+    }
+    
+    public double getAverageRatingForCourse(Long courseId) {
+        Double avg = ratingRepository.getAverageRatingByCourseId(courseId);
+        return avg != null ? avg : 0;
+    }
+    
+    public long getRatingCountForCourse(Long courseId) {
         return ratingRepository.countByCourseId(courseId);
     }
     
-    public boolean hasRated(Long courseId, Long studentId) {
-        return ratingRepository.existsByCourseIdAndStudentId(courseId, studentId);
-    }
-    
-    public Optional<Rating> getStudentRating(Long courseId, Long studentId) {
-        return ratingRepository.findByCourseIdAndStudentId(courseId, studentId);
-    }
-    
-    public Map<String, Object> getRatingStats(Long courseId) {
+    public Map<String, Object> getRatingStatsForCourse(Long courseId) {
         Map<String, Object> stats = new HashMap<>();
-        List<Rating> ratings = ratingRepository.findByCourseId(courseId);
-        long totalRatings = ratings.size();
-        double average = getAverageRating(courseId);
+        double average = getAverageRatingForCourse(courseId);
+        long count = getRatingCountForCourse(courseId);
         
-        int[] distribution = new int[5];
-        for (Rating rating : ratings) {
-            int stars = rating.getRating();
-            if (stars >= 1 && stars <= 5) {
-                distribution[stars - 1]++;
-            }
-        }
-        
-        stats.put("totalRatings", totalRatings);
-        stats.put("averageRating", Math.round(average * 10) / 10.0);
-        stats.put("distribution", distribution);
+        stats.put("average", Math.round(average * 10) / 10.0);
+        stats.put("count", count);
+        stats.put("stars", getStarDistribution(courseId));
         
         return stats;
+    }
+    
+    private Map<Integer, Long> getStarDistribution(Long courseId) {
+        List<Rating> ratings = ratingRepository.findByCourseId(courseId);
+        Map<Integer, Long> distribution = new HashMap<>();
+        
+        for (int i = 1; i <= 5; i++) {
+            final int star = i;
+            long count = ratings.stream().filter(r -> r.getRatingValue() == star).count();
+            distribution.put(star, count);
+        }
+        
+        return distribution;
+    }
+    
+    @Transactional
+    public void deleteRating(Long ratingId, Long studentId) {
+        Optional<Rating> rating = ratingRepository.findById(ratingId);
+        if (rating.isPresent() && rating.get().getStudentId().equals(studentId)) {
+            ratingRepository.deleteById(ratingId);
+        }
     }
 }

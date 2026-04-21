@@ -15,18 +15,21 @@ public interface RatingRepository extends JpaRepository<Rating, Long> {
     
     List<Rating> findByStudentId(Long studentId);
     
-    Optional<Rating> findByCourseIdAndStudentId(Long courseId, Long studentId);
+    Optional<Rating> findByStudentIdAndCourseId(Long studentId, Long courseId);
     
-    long countByCourseId(Long courseId);
+    boolean existsByStudentIdAndCourseId(Long studentId, Long courseId);
     
-    boolean existsByCourseIdAndStudentId(Long courseId, Long studentId);
+    @Query("SELECT r FROM Rating r WHERE r.courseId IN (SELECT c.id FROM Course c WHERE c.teacherId = :teacherId)")
+    List<Rating> findByTeacherId(@Param("teacherId") Long teacherId);
     
-    @Query("SELECT AVG(r.rating) FROM Rating r WHERE r.courseId = :courseId")
+    @Query("SELECT AVG(r.ratingValue) FROM Rating r WHERE r.courseId = :courseId")
     Double getAverageRatingByCourseId(@Param("courseId") Long courseId);
     
-    @Query("SELECT r.courseId, AVG(r.rating) as avgRating, COUNT(r) as count FROM Rating r " +
-           "GROUP BY r.courseId ORDER BY avgRating DESC")
-    List<Object[]> findTopRatedCourses();
+    @Query("SELECT COUNT(r) FROM Rating r WHERE r.courseId = :courseId")
+    long countByCourseId(@Param("courseId") Long courseId);
     
-    void deleteByCourseId(Long courseId);
+    List<Rating> findTop5ByOrderByCreatedAtDesc();
+    
+    @Query("SELECT r.courseId, AVG(r.ratingValue), COUNT(r) FROM Rating r GROUP BY r.courseId")
+    List<Object[]> getAverageRatingsByCourse();
 }

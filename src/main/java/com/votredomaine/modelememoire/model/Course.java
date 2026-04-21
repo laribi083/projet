@@ -16,28 +16,51 @@ public class Course {
     @Column(nullable = false)
     private String title;
     
-    @Column(length = 2000)
+    @Column(columnDefinition = "TEXT")
     private String description;
     
-    private String niveau;
-    
     private String module;
-    
-    private String teacherName;
-    
-    @Column(nullable = false)
-    private Long teacherId;
-    
-    private String duration;
-    
+    private String niveau;
     private String status = "PENDING";
     
-    @Column(name = "last_downloaded_at")
-    private LocalDateTime lastDownloadedAt;
+    @Column(name = "teacher_id", nullable = false)
+    private Long teacherId;
+    
+    @Column(name = "teacher_name")
+    private String teacherName;
+    
+    @Column(name = "created_at")
+    private LocalDateTime createdAt;
+    
+    @Column(name = "updated_at")
+    private LocalDateTime updatedAt;
+    
+    // Champs pour les fichiers
+    @Column(name = "file_path")
+    private String filePath;
+    
+    @Column(name = "file_name")
+    private String fileName;
+    
+    @Column(name = "file_type")
+    private String fileType;
+    
+    @Column(name = "file_size")
+    private String fileSize;
+    
+    @Column(name = "duration")
+    private String duration;
+    
+    @Column(name = "html_content", columnDefinition = "LONGTEXT")
+    private String htmlContent;
     
     @Column(name = "download_count")
     private Integer downloadCount = 0;
     
+    @Column(name = "last_downloaded_at")
+    private LocalDateTime lastDownloadedAt;
+    
+    // Collections pour les chemins de fichiers multiples
     @ElementCollection
     @CollectionTable(name = "course_file_paths", joinColumns = @JoinColumn(name = "course_id"))
     @Column(name = "file_path")
@@ -48,32 +71,48 @@ public class Course {
     @Column(name = "file_name")
     private List<String> fileNames = new ArrayList<>();
     
-    @Column(columnDefinition = "TEXT")
-    private String htmlContent;
-    
-    private String filePath;
-    private String fileName;
-    private String fileType;
-    private String fileSize;
-    
-    @Column(name = "created_at")
-    private LocalDateTime createdAt;
-    
-    @Column(name = "updated_at")
-    private LocalDateTime updatedAt;
-    
+    // Champs pour les statistiques (non persistants)
     @Transient
     private Integer quizCount = 0;
     
     @Transient
     private Integer totalStudents = 0;
     
+    // ⭐ CHAMPS POUR LES NOTES (RATINGS) ⭐
+    @Transient
+    private Double averageRating;
+    
+    @Transient
+    private Long ratingCount;
+    
+    @Transient
+    private Boolean userHasRated;
+    
+    @Transient
+    private Integer userRating;
+    
     // ========== CONSTRUCTEURS ==========
     
-    public Course() {}
+    public Course() {
+        this.createdAt = LocalDateTime.now();
+        this.updatedAt = LocalDateTime.now();
+        this.downloadCount = 0;
+        this.filePaths = new ArrayList<>();
+        this.fileNames = new ArrayList<>();
+    }
+    
+    public Course(String title, String description, String module, String niveau) {
+        this();
+        this.title = title;
+        this.description = description;
+        this.module = module;
+        this.niveau = niveau;
+        this.status = "PENDING";
+    }
     
     public Course(String title, String description, String niveau, String module, 
                   String teacherName, Long teacherId) {
+        this();
         this.title = title;
         this.description = description;
         this.niveau = niveau;
@@ -81,12 +120,9 @@ public class Course {
         this.teacherName = teacherName;
         this.teacherId = teacherId;
         this.status = "PENDING";
-        this.createdAt = LocalDateTime.now();
-        this.updatedAt = LocalDateTime.now();
-        this.downloadCount = 0;
     }
     
-    // ========== GETTERS ET SETTERS ==========
+    // ==================== GETTERS ET SETTERS ====================
     
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
@@ -97,42 +133,26 @@ public class Course {
     public String getDescription() { return description; }
     public void setDescription(String description) { this.description = description; }
     
-    public String getNiveau() { return niveau; }
-    public void setNiveau(String niveau) { this.niveau = niveau; }
-    
     public String getModule() { return module; }
     public void setModule(String module) { this.module = module; }
     
-    public String getTeacherName() { return teacherName; }
-    public void setTeacherName(String teacherName) { this.teacherName = teacherName; }
-    
-    public Long getTeacherId() { return teacherId; }
-    public void setTeacherId(Long teacherId) { this.teacherId = teacherId; }
-    
-    public String getDuration() { return duration; }
-    public void setDuration(String duration) { this.duration = duration; }
+    public String getNiveau() { return niveau; }
+    public void setNiveau(String niveau) { this.niveau = niveau; }
     
     public String getStatus() { return status; }
     public void setStatus(String status) { this.status = status; }
     
-    public LocalDateTime getLastDownloadedAt() { return lastDownloadedAt; }
-    public void setLastDownloadedAt(LocalDateTime lastDownloadedAt) { this.lastDownloadedAt = lastDownloadedAt; }
+    public Long getTeacherId() { return teacherId; }
+    public void setTeacherId(Long teacherId) { this.teacherId = teacherId; }
     
-    public Integer getDownloadCount() { return downloadCount != null ? downloadCount : 0; }
-    public void setDownloadCount(Integer downloadCount) { this.downloadCount = downloadCount; }
+    public String getTeacherName() { return teacherName; }
+    public void setTeacherName(String teacherName) { this.teacherName = teacherName; }
     
-    public List<String> getFilePaths() { return filePaths; }
-    public void setFilePaths(List<String> filePaths) { 
-        this.filePaths = filePaths != null ? filePaths : new ArrayList<>();
-    }
+    public LocalDateTime getCreatedAt() { return createdAt; }
+    public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
     
-    public List<String> getFileNames() { return fileNames; }
-    public void setFileNames(List<String> fileNames) { 
-        this.fileNames = fileNames != null ? fileNames : new ArrayList<>();
-    }
-    
-    public String getHtmlContent() { return htmlContent; }
-    public void setHtmlContent(String htmlContent) { this.htmlContent = htmlContent; }
+    public LocalDateTime getUpdatedAt() { return updatedAt; }
+    public void setUpdatedAt(LocalDateTime updatedAt) { this.updatedAt = updatedAt; }
     
     public String getFilePath() { 
         if (filePaths != null && !filePaths.isEmpty()) return filePaths.get(0);
@@ -152,19 +172,65 @@ public class Course {
     public String getFileSize() { return fileSize; }
     public void setFileSize(String fileSize) { this.fileSize = fileSize; }
     
-    public LocalDateTime getCreatedAt() { return createdAt; }
-    public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
+    public String getDuration() { return duration; }
+    public void setDuration(String duration) { this.duration = duration; }
     
-    public LocalDateTime getUpdatedAt() { return updatedAt; }
-    public void setUpdatedAt(LocalDateTime updatedAt) { this.updatedAt = updatedAt; }
+    public String getHtmlContent() { return htmlContent; }
+    public void setHtmlContent(String htmlContent) { this.htmlContent = htmlContent; }
     
-    public Integer getQuizCount() { return quizCount; }
+    public Integer getDownloadCount() { return downloadCount != null ? downloadCount : 0; }
+    public void setDownloadCount(Integer downloadCount) { this.downloadCount = downloadCount; }
+    
+    public LocalDateTime getLastDownloadedAt() { return lastDownloadedAt; }
+    public void setLastDownloadedAt(LocalDateTime lastDownloadedAt) { this.lastDownloadedAt = lastDownloadedAt; }
+    
+    public List<String> getFilePaths() { return filePaths != null ? filePaths : new ArrayList<>(); }
+    public void setFilePaths(List<String> filePaths) { 
+        this.filePaths = filePaths != null ? filePaths : new ArrayList<>();
+    }
+    
+    public List<String> getFileNames() { return fileNames != null ? fileNames : new ArrayList<>(); }
+    public void setFileNames(List<String> fileNames) { 
+        this.fileNames = fileNames != null ? fileNames : new ArrayList<>();
+    }
+    
+    public Integer getQuizCount() { return quizCount != null ? quizCount : 0; }
     public void setQuizCount(Integer quizCount) { this.quizCount = quizCount; }
     
-    public Integer getTotalStudents() { return totalStudents; }
+    public Integer getTotalStudents() { return totalStudents != null ? totalStudents : 0; }
     public void setTotalStudents(Integer totalStudents) { this.totalStudents = totalStudents; }
     
-    // ========== MÉTHODES UTILITAIRES ==========
+    // ==================== GETTERS/SETTERS POUR LES NOTES ====================
+    
+    public Double getAverageRating() { 
+        return averageRating != null ? averageRating : 0; 
+    }
+    public void setAverageRating(Double averageRating) { 
+        this.averageRating = averageRating; 
+    }
+    
+    public Long getRatingCount() { 
+        return ratingCount != null ? ratingCount : 0L; 
+    }
+    public void setRatingCount(Long ratingCount) { 
+        this.ratingCount = ratingCount; 
+    }
+    
+    public Boolean getUserHasRated() { 
+        return userHasRated != null ? userHasRated : false; 
+    }
+    public void setUserHasRated(Boolean userHasRated) { 
+        this.userHasRated = userHasRated; 
+    }
+    
+    public Integer getUserRating() { 
+        return userRating != null ? userRating : 0; 
+    }
+    public void setUserRating(Integer userRating) { 
+        this.userRating = userRating; 
+    }
+    
+    // ==================== MÉTHODES UTILITAIRES ====================
     
     public String getFirstFilePath() {
         if (filePaths != null && !filePaths.isEmpty()) return filePaths.get(0);
@@ -208,19 +274,33 @@ public class Course {
         this.lastDownloadedAt = LocalDateTime.now();
     }
     
-    public boolean isPending() { return "PENDING".equals(status); }
-    public boolean isValidated() { return "VALIDATED".equals(status); }
-    public boolean isPublished() { return "PUBLISHED".equals(status); }
+    public boolean isPending() { 
+        return "PENDING".equals(status); 
+    }
+    
+    public boolean isValidated() { 
+        return "VALIDATED".equals(status); 
+    }
+    
+    public boolean isPublished() { 
+        return "PUBLISHED".equals(status) || "ACTIVE".equals(status); 
+    }
+    
+    @PreUpdate
+    protected void onUpdate() {
+        this.updatedAt = LocalDateTime.now();
+    }
     
     @Override
     public String toString() {
         return "Course{" +
                 "id=" + id +
                 ", title='" + title + '\'' +
-                ", niveau='" + niveau + '\'' +
                 ", module='" + module + '\'' +
-                ", teacherName='" + teacherName + '\'' +
+                ", niveau='" + niveau + '\'' +
                 ", status='" + status + '\'' +
+                ", teacherName='" + teacherName + '\'' +
+                ", avgRating=" + averageRating +
                 '}';
     }
 }

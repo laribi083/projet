@@ -4,8 +4,6 @@ import com.votredomaine.modelememoire.model.Course;
 import com.votredomaine.modelememoire.model.Enrollment;
 import com.votredomaine.modelememoire.repository.EnrollmentRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -63,45 +61,35 @@ public class EnrollmentService {
         return true;
     }
     
-    // ========== MÉTHODES AJOUTÉES ==========
+    // ⭐ Méthode principale pour récupérer les IDs des cours téléchargés
+    public List<Long> getDownloadedCourseIds(Long studentId) {
+        if (studentId == null) {
+            return List.of();
+        }
+        List<Long> courseIds = enrollmentRepository.findCourseIdsByStudentId(studentId);
+        System.out.println("getDownloadedCourseIds(" + studentId + ") -> " + (courseIds != null ? courseIds.size() : 0) + " cours");
+        return courseIds != null ? courseIds : List.of();
+    }
     
     public List<Enrollment> findByStudentId(Long studentId) {
         if (studentId == null) {
             return List.of();
         }
-        List<Enrollment> enrollments = enrollmentRepository.findByStudentId(studentId);
-        System.out.println("findByStudentId(" + studentId + ") -> " + (enrollments != null ? enrollments.size() : 0) + " résultats");
-        return enrollments != null ? enrollments : List.of();
+        return enrollmentRepository.findByStudentId(studentId);
     }
     
     public long countStudentsByCourse(Long courseId) {
         if (courseId == null) {
             return 0;
         }
-        long count = enrollmentRepository.countByCourseId(courseId);
-        System.out.println("countStudentsByCourse(" + courseId + ") -> " + count);
-        return count;
+        return enrollmentRepository.countByCourseId(courseId);
     }
     
     public long countTotalStudentsByTeacher(Long teacherId) {
         if (teacherId == null) {
             return 0;
         }
-        long count = enrollmentRepository.countDistinctStudentsByTeacherId(teacherId);
-        System.out.println("countTotalStudentsByTeacher(" + teacherId + ") -> " + count);
-        return count;
-    }
-    
-    // ========== MÉTHODES EXISTANTES ==========
-    
-    public List<Long> getDownloadedCourseIds(Long studentId) {
-        if (studentId == null) return List.of();
-        return enrollmentRepository.findCourseIdsByStudentId(studentId);
-    }
-    
-    public List<Enrollment> getEnrollmentsByStudent(Long studentId) {
-        if (studentId == null) return List.of();
-        return enrollmentRepository.findByStudentId(studentId);
+        return enrollmentRepository.countDistinctStudentsByTeacherId(teacherId);
     }
     
     public List<Course> getCoursesByStudent(Long studentId) {
@@ -117,24 +105,5 @@ public class EnrollmentService {
     public long getDownloadCountByCourse(Long courseId) {
         if (courseId == null) return 0;
         return enrollmentRepository.countByCourseId(courseId);
-    }
-    
-    public List<Enrollment> getRecentDownloads(int limit) {
-        Pageable pageable = PageRequest.of(0, limit);
-        return enrollmentRepository.findTopNByOrderByDownloadedAtDesc(pageable);
-    }
-    
-    @Transactional
-    public void deleteEnrollmentsByStudent(Long studentId) {
-        if (studentId != null) {
-            enrollmentRepository.deleteByStudentId(studentId);
-        }
-    }
-    
-    @Transactional
-    public void deleteEnrollmentsByCourse(Long courseId) {
-        if (courseId != null) {
-            enrollmentRepository.deleteByCourseId(courseId);
-        }
     }
 }

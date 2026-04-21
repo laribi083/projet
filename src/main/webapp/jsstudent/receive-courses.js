@@ -1,207 +1,215 @@
+/**
+ * receive-courses.js - Gestion de la page des cours à recevoir
+ * Version complète avec téléchargement et animations
+ */
 
-
-console.log("📚 receive-courses.js chargé");
-
-// Variables globales
-let allCourses = [];
-let currentFilters = {
-    niveau: 'all',
-    module: 'all',
-    search: ''
-};
-
-// ========== INITIALISATION ==========
-$(document).ready(function() {
-    console.log("✅ DOM chargé");
-    loadModules();
-    loadCourses();
-    updateLastUpdateTime();
+// ========== FONCTION DE TÉLÉCHARGEMENT ==========
+async function downloadCourse(btn) {
+    const courseId = btn.getAttribute('data-id');
+    const courseTitle = btn.getAttribute('data-title');
     
-    $('#filterNiveau').change(function() {
-        currentFilters.niveau = $(this).val();
-        applyFilters();
-    });
-    
-    $('#filterModule').change(function() {
-        currentFilters.module = $(this).val();
-        applyFilters();
-    });
-    
-    $('#searchInput').on('input', function() {
-        currentFilters.search = $(this).val();
-        applyFilters();
-    });
-    
-    $('#resetFilters').click(function() {
-        $('#filterNiveau').val('all');
-        $('#filterModule').val('all');
-        $('#searchInput').val('');
-        currentFilters = { niveau: 'all', module: 'all', search: '' };
-        applyFilters();
-    });
-    
-    $('#refreshBtn').click(function() {
-        loadCourses();
-        updateLastUpdateTime();
-    });
-});
-
-// ========== CHARGEMENT DES DONNÉES ==========
-function loadModules() {
-    $.ajax({
-        url: '/receive-courses/api/modules',
-        type: 'GET',
-        success: function(modules) {
-            const $moduleSelect = $('#filterModule');
-            $moduleSelect.empty();
-            $moduleSelect.append('<option value="all">📂 All Modules</option>');
-            modules.forEach(module => {
-                $moduleSelect.append(`<option value="${module}">📁 ${module}</option>`);
-            });
-        },
-        error: function(xhr, status, error) {
-            console.error('Error loading modules:', error);
-        }
-    });
-}
-
-function loadCourses() {
-    $('#coursesContainer').html(`
-        <div class="loading-spinner">
-            <i class="fas fa-spinner fa-spin fa-2x"></i>
-            <p>Chargement des cours disponibles...</p>
-        </div>
-    `);
-    
-    $.ajax({
-        url: '/receive-courses/api/all',
-        type: 'GET',
-        success: function(courses) {
-            console.log("✅ Cours chargés:", courses.length);
-            allCourses = courses;
-            updateStats(courses);
-            renderCourses(courses);
-        },
-        error: function(xhr, status, error) {
-            console.error('Error loading courses:', error);
-            $('#coursesContainer').html(`
-                <div class="error-message">
-                    <i class="fas fa-exclamation-triangle"></i>
-                    <p>Erreur lors du chargement des cours. Veuillez réessayer.</p>
-                </div>
-            `);
-        }
-    });
-}
-
-function applyFilters() {
-    let filtered = [...allCourses];
-    
-    if (currentFilters.niveau !== 'all') {
-        filtered = filtered.filter(c => c.niveau === currentFilters.niveau);
-    }
-    
-    if (currentFilters.module !== 'all') {
-        filtered = filtered.filter(c => c.module === currentFilters.module);
-    }
-    
-    if (currentFilters.search !== '') {
-        const searchLower = currentFilters.search.toLowerCase();
-        filtered = filtered.filter(c => 
-            (c.title && c.title.toLowerCase().includes(searchLower)) ||
-            (c.description && c.description.toLowerCase().includes(searchLower)) ||
-            (c.teacherName && c.teacherName.toLowerCase().includes(searchLower))
-        );
-    }
-    
-    renderCourses(filtered);
-}
-
-function renderCourses(courses) {
-    const container = $('#coursesContainer');
-    
-    if (courses.length === 0) {
-        container.html(`
-            <div class="empty-state">
-                <i class="fas fa-book-open"></i>
-                <h3>Aucun cours trouvé</h3>
-                <p>Aucun cours ne correspond à vos critères de recherche.</p>
-            </div>
-        `);
+    if (!confirm('Voulez-vous télécharger le cours "' + courseTitle + '" ?')) {
         return;
     }
     
-    let html = '';
-    courses.forEach(course => {
-        const fileIcon = getFileIcon(course);
-        const niveauBadge = getNiveauBadge(course.niveau);
+    // Désactiver le bouton et afficher le chargement
+    const originalText = btn.innerHTML;
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Téléchargement...';
+    
+    try {
+        const response = await fetch('/course/download/' + courseId);
         
-        html += `
-            <div class="course-card" data-course-id="${course.id}">
-                <div class="course-icon">${fileIcon}</div>
-                <div class="course-info">
-                    <div class="course-header">
-                        <h3 class="course-title">${escapeHtml(course.title || 'Sans titre')}</h3>
-                        ${niveauBadge}
-                    </div>
-                    <p class="course-description">${escapeHtml(course.description || 'Aucune description')}</p>
-                    <div class="course-meta">
-                        <span><i class="fas fa-chalkboard-teacher"></i> ${escapeHtml(course.teacherName || 'Professeur')}</span>
-                        <span><i class="fas fa-folder"></i> ${escapeHtml(course.module || 'Module')}</span>
-                    </div>
-                    <div class="course-actions">
-                        <a href="/course/${course.id}/download" class="btn-download">
-                            <i class="fas fa-download"></i> Download
-                        </a>
-                       
-                    </div>
-                </div>
-            </div>
-        `;
-    });
-    
-    container.html(html);
-}
-
-function updateStats(courses) {
-    const total = courses.length;
-    const firstYear = courses.filter(c => c.niveau === '1year').length;
-    const secondYear = courses.filter(c => c.niveau === '2year').length;
-    const thirdYear = courses.filter(c => c.niveau === '3year').length;
-    
-    $('#totalCourses').text(total);
-    $('#total1stYear').text(firstYear);
-    $('#total2ndYear').text(secondYear);
-    $('#total3rdYear').text(thirdYear);
-}
-
-function updateLastUpdateTime() {
-    const now = new Date();
-    const timeString = now.toLocaleTimeString('fr-FR');
-    $('#lastUpdate').text(timeString);
-}
-
-function getFileIcon(course) {
-    const fileName = course.fileNames && course.fileNames[0] ? course.fileNames[0] : '';
-    if (fileName.endsWith('.pdf')) return '📄';
-    return '📘';
-}
-
-function getNiveauBadge(niveau) {
-    switch(niveau) {
-        case '1year': return '<span class="badge badge-1year">1st Year</span>';
-        case '2year': return '<span class="badge badge-2year">2nd Year</span>';
-        case '3year': return '<span class="badge badge-3year">3rd Year</span>';
-        default: return '';
+        if (!response.ok) {
+            const errorText = await response.text();
+            throw new Error(errorText || 'Erreur lors du téléchargement');
+        }
+        
+        const blob = await response.blob();
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        
+        const contentDisposition = response.headers.get('Content-Disposition');
+        let filename = courseTitle + '.pdf';
+        if (contentDisposition) {
+            const match = contentDisposition.match(/filename\*=UTF-8''(.+)/);
+            if (match && match[1]) {
+                filename = decodeURIComponent(match[1]);
+            }
+        }
+        
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        
+        window.URL.revokeObjectURL(url);
+        document.body.removeChild(a);
+        
+        showNotification('✅ Cours "' + courseTitle + '" téléchargé avec succès !', 'success');
+        
+        setTimeout(() => {
+            window.location.href = '/niveux';
+        }, 2000);
+        
+    } catch (error) {
+        console.error('Erreur:', error);
+        showNotification('❌ Erreur: ' + error.message, 'error');
+        btn.disabled = false;
+        btn.innerHTML = originalText;
     }
 }
 
-function escapeHtml(text) {
-    if (!text) return '';
-    return text.replace(/[&<>]/g, function(m) {
-        if (m === '&') return '&amp;';
-        if (m === '<') return '&lt;';
-        if (m === '>') return '&gt;';
-        return m;
+// ========== FONCTION DE NOTIFICATION ==========
+function showNotification(message, type) {
+    const existingNotifications = document.querySelectorAll('.notification');
+    existingNotifications.forEach(n => n.remove());
+    
+    const notification = document.createElement('div');
+    notification.className = `notification notification-${type}`;
+    notification.innerHTML = `
+        <i class="fas ${type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'}"></i>
+        <span>${message}</span>
+    `;
+    notification.style.cssText = `
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        padding: 1rem 1.5rem;
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        z-index: 1000;
+        animation: slideInRight 0.3s ease;
+        border-left: 4px solid ${type === 'success' ? '#10b981' : '#ef4444'};
+        color: ${type === 'success' ? '#065f46' : '#991b1b'};
+    `;
+    document.body.appendChild(notification);
+    
+    setTimeout(() => {
+        notification.remove();
+    }, 4000);
+}
+
+// ========== INITIALISATION DES FILTRES ==========
+function initFilters() {
+    const searchBtn = document.getElementById('searchBtn');
+    const searchInput = document.getElementById('searchInput');
+    const moduleSelect = document.getElementById('moduleSelect');
+    const resetBtn = document.getElementById('resetFilters');
+    
+    if (searchBtn) {
+        searchBtn.addEventListener('click', function() {
+            applyFilters();
+        });
+    }
+    
+    if (searchInput) {
+        searchInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                applyFilters();
+            }
+        });
+    }
+    
+    if (resetBtn) {
+        resetBtn.addEventListener('click', function() {
+            if (searchInput) searchInput.value = '';
+            if (moduleSelect) moduleSelect.value = 'all';
+            applyFilters();
+        });
+    }
+}
+
+// ========== APPLICATION DES FILTRES ==========
+function applyFilters() {
+    const searchInput = document.getElementById('searchInput');
+    const moduleSelect = document.getElementById('moduleSelect');
+    
+    const searchTerm = searchInput ? searchInput.value : '';
+    const module = moduleSelect ? moduleSelect.value : 'all';
+    
+    let url = '/receive-courses?';
+    const params = [];
+    
+    if (module && module !== 'all') {
+        params.push('module=' + encodeURIComponent(module));
+    }
+    if (searchTerm) {
+        params.push('search=' + encodeURIComponent(searchTerm));
+    }
+    
+    if (params.length > 0) {
+        window.location.href = url + params.join('&');
+    } else {
+        window.location.href = '/receive-courses';
+    }
+}
+
+// ========== ANIMATIONS DES CARTES ==========
+function initCardAnimations() {
+    const cards = document.querySelectorAll('.course-card');
+    
+    cards.forEach((card, index) => {
+        card.style.opacity = '0';
+        card.style.transform = 'translateY(20px)';
+        card.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
+        
+        setTimeout(() => {
+            card.style.opacity = '1';
+            card.style.transform = 'translateY(0)';
+        }, index * 100);
+        
+        card.addEventListener('mouseenter', function() {
+            this.style.transform = 'translateY(-5px)';
+        });
+        
+        card.addEventListener('mouseleave', function() {
+            this.style.transform = 'translateY(0)';
+        });
     });
+}
+
+// ========== INITIALISATION ==========
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('✅ DOM chargé - Page Receive Courses');
+    initFilters();
+    initCardAnimations();
+    addAnimationStyles();
+});
+
+// ========== AJOUT DES STYLES D'ANIMATION ==========
+function addAnimationStyles() {
+    const style = document.createElement('style');
+    style.textContent = `
+        @keyframes slideInRight {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+        
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .course-card {
+            animation: fadeInUp 0.4s ease forwards;
+        }
+    `;
+    document.head.appendChild(style);
 }

@@ -191,7 +191,6 @@ public class QuizController {
             List<Quiz> quizzes = quizService.getQuizzesByTeacher(teacherId);
             System.out.println("Nombre de quiz trouvés: " + quizzes.size());
             
-            // Créer une copie simple sans les questions pour éviter la boucle infinie
             List<Map<String, Object>> quizList = new ArrayList<>();
             for (Quiz quiz : quizzes) {
                 Map<String, Object> quizMap = new HashMap<>();
@@ -264,13 +263,12 @@ public class QuizController {
         return ResponseEntity.ok(response);
     }
     
-    // ==================== PARTIE ÉTUDIANT ====================
+    // ==================== PARTIE ÉTUDIANT - AFFICHAGE DES QUIZ ====================
     
     @GetMapping("/student/quizzes")
     public String showStudentQuizzes(Model model, HttpSession session) {
         String userName = (String) session.getAttribute("userName");
         Long userId = (Long) session.getAttribute("userId");
-        String niveau = (String) session.getAttribute("niveau");
         
         System.out.println("=== AFFICHAGE DES QUIZ ÉTUDIANT ===");
         System.out.println("Étudiant: " + userName + " (ID: " + userId + ")");
@@ -279,20 +277,25 @@ public class QuizController {
             return "redirect:/login";
         }
         
+        // Récupérer tous les quiz actifs
         List<Quiz> allActiveQuizzes = quizService.getAllActiveQuizzes();
         System.out.println("Total quiz actifs: " + allActiveQuizzes.size());
         
+        // Récupérer les IDs des cours auxquels l'étudiant est inscrit
         List<Long> enrolledCourseIds = enrollmentService.getDownloadedCourseIds(userId);
         System.out.println("Cours inscrits (IDs): " + enrolledCourseIds);
         
+        // Filtrer les quiz par cours inscrits
         List<Quiz> availableQuizzes = allActiveQuizzes.stream()
             .filter(quiz -> enrolledCourseIds.contains(quiz.getCourseId()))
             .collect(Collectors.toList());
-        System.out.println("Quiz disponibles après filtrage: " + availableQuizzes.size());
+        System.out.println("Quiz disponibles après filtrage par cours: " + availableQuizzes.size());
         
+        // Récupérer les quiz déjà complétés
         List<Long> completedQuizIds = quizResultService.findCompletedQuizIdsByStudentId(userId);
         System.out.println("Quiz déjà complétés: " + completedQuizIds);
         
+        // Ajouter le titre du cours pour chaque quiz
         for (Quiz quiz : availableQuizzes) {
             Course course = courseService.getCourseById(quiz.getCourseId());
             if (course != null) {
@@ -303,34 +306,49 @@ public class QuizController {
         model.addAttribute("quizzes", availableQuizzes);
         model.addAttribute("completedQuizIds", completedQuizIds);
         model.addAttribute("userName", userName);
-        model.addAttribute("niveau", niveau);
         
         return "htmlstudent/quizzes";
     }
+    
+    // ==================== PRISE DE QUIZ ====================
     
     @GetMapping("/quiz/take/{quizId}")
     public String takeQuiz(@PathVariable Long quizId, Model model, HttpSession session) {
         String userName = (String) session.getAttribute("userName");
         Long userId = (Long) session.getAttribute("userId");
         
+        System.out.println("=== PRISE DE QUIZ ===");
+        System.out.println("Quiz ID: " + quizId);
+        System.out.println("Étudiant: " + userName);
+        
         if (userName == null || userId == null) {
             return "redirect:/login";
         }
         
         Quiz quiz = quizService.getQuizById(quizId);
-        if (quiz == null || !"ACTIVE".equals(quiz.getStatus())) {
+        if (quiz == null) {
+            System.out.println("Quiz non trouvé!");
             return "redirect:/student/dashboard";
         }
         
+        if (!"ACTIVE".equals(quiz.getStatus())) {
+            System.out.println("Quiz inactif!");
+            return "redirect:/student/dashboard";
+        }
+        
+        // Vérifier que l'étudiant a accès à ce quiz
         List<Long> enrolledCourseIds = enrollmentService.getDownloadedCourseIds(userId);
         boolean hasAccess = enrolledCourseIds.contains(quiz.getCourseId());
         
         if (!hasAccess) {
+            System.out.println("Accès refusé - étudiant non inscrit au cours");
             return "redirect:/student/dashboard";
         }
         
+        // Vérifier si le quiz n'a pas déjà été complété
         boolean alreadyCompleted = quizResultService.hasStudentCompletedQuiz(userId, quizId);
         if (alreadyCompleted) {
+            System.out.println("Quiz déjà complété par l'étudiant");
             return "redirect:/quiz/result/" + quizId;
         }
         
@@ -344,6 +362,8 @@ public class QuizController {
         return "htmlstudent/take-quiz";
     }
     
+    // ==================== SOUMISSION ET CORRECTION ====================
+    
     @PostMapping("/quiz/submit/{quizId}")
     @ResponseBody
     public ResponseEntity<Map<String, Object>> submitQuiz(
@@ -356,6 +376,10 @@ public class QuizController {
         try {
             String userName = (String) session.getAttribute("userName");
             Long userId = (Long) session.getAttribute("userId");
+            
+            System.out.println("=== SOUMISSION DE QUIZ ===");
+            System.out.println("Quiz ID: " + quizId);
+            System.out.println("Étudiant: " + userName);
             
             if (userName == null || userId == null) {
                 response.put("success", false);
@@ -412,6 +436,9 @@ public class QuizController {
             result.setCompletedAt(LocalDateTime.now());
             quizResultService.saveResult(result);
             
+            System.out.println("✅ Quiz soumis - Score: " + score + "/" + totalPoints + 
+                               " (" + percentage + "%) - Réussi: " + passed);
+            
             response.put("success", true);
             response.put("score", score);
             response.put("totalPoints", totalPoints);
@@ -428,10 +455,16 @@ public class QuizController {
         return ResponseEntity.ok(response);
     }
     
+    // ==================== AFFICHAGE DES RÉSULTATS ====================
+    
     @GetMapping("/quiz/result/{quizId}")
     public String showResult(@PathVariable Long quizId, Model model, HttpSession session) {
         String userName = (String) session.getAttribute("userName");
         Long userId = (Long) session.getAttribute("userId");
+        
+        System.out.println("=== AFFICHAGE DES RÉSULTATS ===");
+        System.out.println("Quiz ID: " + quizId);
+        System.out.println("Étudiant: " + userName);
         
         if (userName == null || userId == null) {
             return "redirect:/login";
@@ -441,6 +474,7 @@ public class QuizController {
         QuizResult result = quizResultService.getResultByStudentAndQuiz(userId, quizId);
         
         if (result == null) {
+            System.out.println("Résultat non trouvé!");
             return "redirect:/student/quizzes";
         }
         
@@ -450,6 +484,8 @@ public class QuizController {
         
         return "htmlstudent/quiz-result";
     }
+    
+    // ==================== PRÉVISUALISATION POUR ENSEIGNANT ====================
     
     @GetMapping("/quiz/preview/{quizId}")
     public String previewQuiz(@PathVariable Long quizId, Model model, HttpSession session) {
@@ -473,39 +509,32 @@ public class QuizController {
         
         return "htmlstudent/take-quiz";
     }
-    @GetMapping("/debug/check-quizzes")
-@ResponseBody
-public Map<String, Object> debugCheckQuizzes(HttpSession session) {
-    Map<String, Object> result = new HashMap<>();
     
-    try {
-        Long teacherId = (Long) session.getAttribute("teacherId");
-        result.put("teacherId", teacherId);
-        result.put("sessionExists", teacherId != null);
+    // Endpoint de debug pour les quiz étudiants
+    @GetMapping("/debug/student-quizzes")
+    @ResponseBody
+    public Map<String, Object> debugStudentQuizzes(HttpSession session) {
+        Map<String, Object> result = new HashMap<>();
         
-        if (teacherId != null) {
-            List<Quiz> quizzes = quizService.getQuizzesByTeacher(teacherId);
-            result.put("quizzesCount", quizzes.size());
-            
-            List<Map<String, Object>> quizList = new ArrayList<>();
-            for (Quiz quiz : quizzes) {
-                Map<String, Object> q = new HashMap<>();
-                q.put("id", quiz.getId());
-                q.put("title", quiz.getTitle());
-                q.put("courseId", quiz.getCourseId());
-                quizList.add(q);
-            }
-            result.put("quizzes", quizList);
+        Long userId = (Long) session.getAttribute("userId");
+        String userName = (String) session.getAttribute("userName");
+        
+        result.put("userId", userId);
+        result.put("userName", userName);
+        
+        // Quiz actifs
+        List<Quiz> activeQuizzes = quizService.getAllActiveQuizzes();
+        result.put("activeQuizzesCount", activeQuizzes.size());
+        result.put("activeQuizzes", activeQuizzes.stream().map(q -> 
+            Map.of("id", q.getId(), "title", q.getTitle(), "courseId", q.getCourseId())
+        ).collect(Collectors.toList()));
+        
+        // Cours inscrits
+        if (userId != null) {
+            List<Long> enrolledIds = enrollmentService.getDownloadedCourseIds(userId);
+            result.put("enrolledCourseIds", enrolledIds);
         }
         
-        result.put("success", true);
-        
-    } catch (Exception e) {
-        result.put("success", false);
-        result.put("error", e.getMessage());
-        e.printStackTrace();
+        return result;
     }
-    
-    return result;
-}
 }

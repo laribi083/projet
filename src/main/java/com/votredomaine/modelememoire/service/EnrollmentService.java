@@ -8,7 +8,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class EnrollmentService {
@@ -19,51 +21,33 @@ public class EnrollmentService {
     @Autowired
     private Courseservice courseService;
     
-    /**
-     * Enregistre le téléchargement d'un cours par un étudiant
-     * @param studentId ID de l'étudiant
-     * @param studentName Nom de l'étudiant
-     * @param courseId ID du cours
-     * @return true si l'inscription est nouvelle, false si déjà existante
-     */
     @Transactional
     public boolean registerDownload(Long studentId, String studentName, Long courseId) {
-        System.out.println("========================================");
-        System.out.println("🚨 [EnrollmentService] registerDownload CALLED");
-        System.out.println("   studentId: " + studentId);
-        System.out.println("   studentName: " + studentName);
-        System.out.println("   courseId: " + courseId);
-        System.out.println("========================================");
+        System.out.println("=== registerDownload ===");
+        System.out.println("studentId: " + studentId);
+        System.out.println("courseId: " + courseId);
         
-        // Vérifier si studentId est null
         if (studentId == null) {
-            System.err.println("❌ ERREUR: studentId est NULL !");
+            System.err.println("❌ studentId est NULL !");
             return false;
         }
         
-        // Vérifier si l'étudiant est déjà inscrit à ce cours
         Optional<Enrollment> existing = enrollmentRepository.findByStudentIdAndCourseId(studentId, courseId);
         
         if (existing.isPresent()) {
-            System.out.println("⚠️ Étudiant déjà inscrit, mise à jour de la date");
+            System.out.println("⚠️ Étudiant déjà inscrit");
             Enrollment enrollment = existing.get();
             enrollment.setDownloadedAt(LocalDateTime.now());
             enrollmentRepository.save(enrollment);
-            return false; // Pas nouveau
+            return false;
         }
         
-        // Récupérer les informations du cours
         Course course = courseService.getCourseById(courseId);
         if (course == null) {
-            System.err.println("❌ Cours non trouvé avec ID: " + courseId);
-            throw new RuntimeException("Cours non trouvé avec l'ID: " + courseId);
+            System.err.println("❌ Cours non trouvé: " + courseId);
+            return false;
         }
         
-        System.out.println("📚 Cours trouvé: " + course.getTitle());
-        System.out.println("   Teacher ID: " + course.getTeacherId());
-        System.out.println("   Teacher Name: " + course.getTeacherName());
-        
-        // Créer une nouvelle inscription
         Enrollment enrollment = new Enrollment();
         enrollment.setStudentId(studentId);
         enrollment.setCourseId(courseId);
@@ -72,43 +56,71 @@ public class EnrollmentService {
         enrollment.setTeacherId(course.getTeacherId());
         enrollment.setTeacherName(course.getTeacherName());
         enrollment.setDownloadedAt(LocalDateTime.now());
+        enrollment.setProgress(0);
         
-        System.out.println("💾 Sauvegarde de l'inscription...");
-        Enrollment saved = enrollmentRepository.save(enrollment);
-        System.out.println("✅ Inscription sauvegardée avec ID: " + saved.getId());
+        enrollmentRepository.save(enrollment);
+        System.out.println("✅ Inscription sauvegardée");
+        return true;
+    }
+    
+    public List<Long> getDownloadedCourseIds(Long studentId) {
+        if (studentId == null) {
+            return List.of();
+        }
+        return enrollmentRepository.findCourseIdsByStudentId(studentId);
+    }
+    
+    public List<Enrollment> getEnrollmentsByStudent(Long studentId) {
+        if (studentId == null) {
+            return List.of();
+        }
+        return enrollmentRepository.findByStudentId(studentId);
+    }
+    
+    public List<Course> getCoursesByStudent(Long studentId) {
+        if (studentId == null) return List.of();
+        return enrollmentRepository.findCoursesByStudentId(studentId);
+    }
+    
+    // ========== NOUVELLES MÉTHODES POUR LE DASHBOARD ==========
+    
+    /**
+     * Récupère les cours récents d'un étudiant (limitée à un nombre)
+     */
+    public List<Course> getRecentCoursesByStudent(Long studentId, int limit) {
+        if (studentId == null) return List.of();
         
-        return true; // Nouvelle inscription
+        List<Enrollment> recentEnrollments = enrollmentRepository.findByStudentIdOrderByDownloadedAtDesc(studentId);
+        
+        return recentEnrollments.stream()
+            .limit(limit)
+            .map(e -> courseService.getCourseById(e.getCourseId()))
+            .filter(c -> c != null)
+            .collect(Collectors.toList());
     }
     
-    /**
-     * Compte le nombre d'étudiants inscrits à un cours
-     * @param courseId ID du cours
-     * @return nombre d'étudiants uniques
-     */
-    public long countStudentsByCourse(Long courseId) {
-        long count = enrollmentRepository.countByCourseId(courseId);
-        System.out.println("📊 [countStudentsByCourse] courseId=" + courseId + ", count=" + count);
-        return count;
-    }
-    
-    /**
-     * Compte le nombre total d'étudiants inscrits aux cours d'un teacher
-     * @param teacherId ID du teacher
-     * @return nombre d'étudiants uniques
-     */
-    public long countTotalStudentsByTeacher(Long teacherId) {
-        long count = enrollmentRepository.countDistinctStudentsByTeacherId(teacherId);
-        System.out.println("📊 [countTotalStudentsByTeacher] teacherId=" + teacherId + ", count=" + count);
-        return count;
-    }
-    
-    /**
-     * Vérifie si un étudiant a déjà téléchargé un cours
-     * @param studentId ID de l'étudiant
-     * @param courseId ID du cours
-     * @return true si déjà téléchargé
-     */
     public boolean hasDownloaded(Long studentId, Long courseId) {
+        if (studentId == null || courseId == null) return false;
         return enrollmentRepository.existsByStudentIdAndCourseId(studentId, courseId);
+    }
+    
+    public long countStudentsByCourse(Long courseId) {
+        if (courseId == null) return 0;
+        return enrollmentRepository.countByCourseId(courseId);
+    }
+    
+    public long countTotalStudentsByTeacher(Long teacherId) {
+        if (teacherId == null) return 0;
+        return enrollmentRepository.countDistinctStudentsByTeacherId(teacherId);
+    }
+    
+    @Transactional
+    public void updateProgress(Long studentId, Long courseId, int progress) {
+        Optional<Enrollment> enrollment = enrollmentRepository.findByStudentIdAndCourseId(studentId, courseId);
+        if (enrollment.isPresent()) {
+            Enrollment e = enrollment.get();
+            e.setProgress(progress);
+            enrollmentRepository.save(e);
+        }
     }
 }

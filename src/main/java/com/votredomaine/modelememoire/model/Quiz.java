@@ -1,5 +1,7 @@
 package com.votredomaine.modelememoire.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -7,6 +9,7 @@ import java.util.List;
 
 @Entity
 @Table(name = "quizzes")
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class Quiz {
     
     @Id
@@ -21,6 +24,9 @@ public class Quiz {
     @Column(name = "course_id")
     private Long courseId;
     
+    @Transient
+    private String courseTitle;
+    
     @Column(name = "teacher_id")
     private Long teacherId;
     
@@ -31,10 +37,10 @@ public class Quiz {
     private String niveau;
     
     @Column(name = "time_limit")
-    private Integer timeLimit = 30;  // Valeur par défaut
+    private Integer timeLimit = 30;
     
     @Column(name = "passing_score")
-    private Integer passingScore = 70;  // Valeur par défaut
+    private Integer passingScore = 70;
     
     private String status = "ACTIVE";
     
@@ -48,17 +54,15 @@ public class Quiz {
     private Integer totalQuestions = 0;
     
     @OneToMany(mappedBy = "quiz", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JsonIgnore  // ← AJOUTER CETTE ANNOTATION
     private List<Question> questions = new ArrayList<>();
-    
-    // ==================== CONSTRUCTEURS ====================
     
     public Quiz() {
         this.createdAt = LocalDateTime.now();
         this.updatedAt = LocalDateTime.now();
     }
     
-    // ==================== GETTERS ET SETTERS ====================
-    
+    // Getters et Setters
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
     
@@ -70,6 +74,9 @@ public class Quiz {
     
     public Long getCourseId() { return courseId; }
     public void setCourseId(Long courseId) { this.courseId = courseId; }
+    
+    public String getCourseTitle() { return courseTitle; }
+    public void setCourseTitle(String courseTitle) { this.courseTitle = courseTitle; }
     
     public Long getTeacherId() { return teacherId; }
     public void setTeacherId(Long teacherId) { this.teacherId = teacherId; }
@@ -104,17 +111,8 @@ public class Quiz {
     public List<Question> getQuestions() { return questions; }
     public void setQuestions(List<Question> questions) { this.questions = questions; }
     
-    // ==================== MÉTHODES UTILITAIRES ====================
-    
     @PreUpdate
     protected void onUpdate() {
         this.updatedAt = LocalDateTime.now();
-    }
-    
-    public void incrementTotalQuestions() {
-        if (this.totalQuestions == null) {
-            this.totalQuestions = 0;
-        }
-        this.totalQuestions++;
     }
 }

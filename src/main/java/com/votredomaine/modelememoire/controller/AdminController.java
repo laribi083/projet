@@ -112,7 +112,7 @@ public class AdminController {
         
         List<Course> pendingCourses = courseService.findByStatus("PENDING");
         List<Course> validatedCourses = courseService.findByStatus("VALIDATED");
-        List<Course> publishedCourses = courseService.findByStatus("ACTIVE");
+        List<Course> publishedCourses = courseService.findByStatus("PUBLISHED");
         
         model.addAttribute("adminName", session.getAttribute("adminName"));
         model.addAttribute("adminEmail", session.getAttribute("adminEmail"));
@@ -399,9 +399,6 @@ public class AdminController {
     
     // ==================== SUPPRESSION ET MODIFICATION ====================
     
-    /**
-     * Supprimer un étudiant
-     */
     @DeleteMapping("/api/student/{id}")
     @ResponseBody
     public ResponseEntity<Map<String, Object>> deleteStudent(@PathVariable Long id) {
@@ -437,9 +434,6 @@ public class AdminController {
         return ResponseEntity.ok(response);
     }
     
-    /**
-     * Supprimer un enseignant
-     */
     @DeleteMapping("/api/teacher/{id}")
     @ResponseBody
     public ResponseEntity<Map<String, Object>> deleteTeacher(@PathVariable Long id) {
@@ -475,9 +469,6 @@ public class AdminController {
         return ResponseEntity.ok(response);
     }
     
-    /**
-     * Modifier un étudiant
-     */
     @PutMapping("/api/student/{id}")
     @ResponseBody
     public ResponseEntity<Map<String, Object>> updateStudent(@PathVariable Long id, @RequestBody Map<String, String> userData) {
@@ -531,9 +522,6 @@ public class AdminController {
         return ResponseEntity.ok(response);
     }
     
-    /**
-     * Modifier un enseignant
-     */
     @PutMapping("/api/teacher/{id}")
     @ResponseBody
     public ResponseEntity<Map<String, Object>> updateTeacher(@PathVariable Long id, @RequestBody Map<String, String> teacherData) {
@@ -597,6 +585,8 @@ public class AdminController {
         return ResponseEntity.ok(response);
     }
     
+    // ==================== GESTION DES STATUTS DES COURS ====================
+    
     @PutMapping("/api/course/{id}/status")
     @ResponseBody
     public ResponseEntity<Map<String, Object>> updateCourseStatus(
@@ -615,10 +605,62 @@ public class AdminController {
             course.setStatus(status);
             courseService.save(course);
             
-            response.put("success", true);
-            response.put("message", "Course status updated successfully");
+            // Enregistrer l'activité
+            activityService.saveActivity(new Activity(
+                "COURSE_VALIDATED",
+                "validated course: " + course.getTitle(),
+                "Admin",
+                "ADMIN"
+            ));
             
-            System.out.println("✅ Course '" + course.getTitle() + "' status updated to: " + status);
+            response.put("success", true);
+            response.put("message", "Course validated successfully!");
+            
+            System.out.println("✅ Course validated: " + course.getTitle());
+            
+        } catch (Exception e) {
+            response.put("success", false);
+            response.put("message", e.getMessage());
+        }
+        
+        return ResponseEntity.ok(response);
+    }
+    
+    // ⭐ NOUVEAU: API pour PUBLIER un cours (VALIDATED -> PUBLISHED)
+    @PutMapping("/api/course/{id}/publish")
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> publishCourse(@PathVariable Long id) {
+        Map<String, Object> response = new HashMap<>();
+        
+        try {
+            Course course = courseService.getCourseById(id);
+            if (course == null) {
+                response.put("success", false);
+                response.put("message", "Course not found");
+                return ResponseEntity.notFound().build();
+            }
+            
+            if (!"VALIDATED".equals(course.getStatus())) {
+                response.put("success", false);
+                response.put("message", "Only validated courses can be published");
+                return ResponseEntity.badRequest().body(response);
+            }
+            
+            course.setStatus("PUBLISHED");
+            courseService.save(course);
+            
+            // Enregistrer l'activité
+            activityService.saveActivity(new Activity(
+                "COURSE_PUBLISHED",
+                "published course: " + course.getTitle(),
+                "Admin",
+                "ADMIN"
+            ));
+            
+            response.put("success", true);
+            response.put("message", "Course published successfully!");
+            
+            System.out.println("✅ Course published: " + course.getTitle());
             
         } catch (Exception e) {
             response.put("success", false);

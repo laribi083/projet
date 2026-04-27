@@ -1,11 +1,9 @@
 // take-quiz.js
-
 let timeLeft = 0;
 let timerInterval = null;
 let userAnswers = {};
 
 $(document).ready(function() {
-    // Récupérer les données depuis window.quizData
     const durationMinutes = window.quizData.durationMinutes || 30;
     const totalQuestions = window.quizData.totalQuestions || 0;
     const quizId = window.quizData.quizId;
@@ -15,12 +13,9 @@ $(document).ready(function() {
         return;
     }
     
-    // Initialiser le timer
     timeLeft = durationMinutes * 60;
     updateTimerDisplay();
     startTimer();
-    
-    // Restaurer les réponses depuis sessionStorage
     restoreAnswers(quizId);
 });
 
@@ -34,7 +29,6 @@ function startTimer() {
             timeLeft--;
             updateTimerDisplay();
             
-            // Avertissement quand il reste 1 minute
             if (timeLeft === 60) {
                 $('#timer').addClass('warning');
                 $('#timer').html('01:00 ⚠️');
@@ -59,16 +53,10 @@ function selectOption(element) {
     const qIndex = $questionCard.index();
     const optIndex = $option.data('optindex');
     
-    // Retirer la classe selected de toutes les options de cette question
     $questionCard.find('.option').removeClass('selected');
-    
-    // Ajouter la classe selected à l'option cliquée
     $option.addClass('selected');
-    
-    // Cocher le radio button
     $option.find('input').prop('checked', true);
     
-    // Sauvegarder la réponse
     userAnswers[qIndex] = optIndex;
     saveAnswers();
     updateProgress();
@@ -113,18 +101,15 @@ function submitQuiz() {
     const quizId = window.quizData.quizId;
     const totalQuestions = window.quizData.totalQuestions || 0;
     
-    // Collecter les réponses
     const answers = [];
     for (let i = 0; i < totalQuestions; i++) {
         const selected = $(`input[name="q_${i}"]:checked`).val();
         answers.push(selected ? parseInt(selected) : -1);
     }
     
-    // Afficher un loader
     const $submitBtn = $('.btn-submit');
     $submitBtn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> Submission...');
     
-    // Envoyer les réponses
     $.ajax({
         url: '/quiz/submit/' + quizId,
         type: 'POST',
@@ -132,10 +117,7 @@ function submitQuiz() {
         data: JSON.stringify({ answers: answers }),
         success: function(response) {
             if (response.success) {
-                // Nettoyer la session storage
                 sessionStorage.removeItem('quiz_' + quizId + '_answers');
-                
-                // Rediriger vers la page des résultats
                 window.location.href = '/quiz/result/' + quizId + 
                                       '?score=' + response.score + 
                                       '&total=' + response.totalPoints + 
@@ -154,7 +136,6 @@ function submitQuiz() {
     });
 }
 
-// Empêcher la fermeture accidentelle
 window.addEventListener('beforeunload', function(e) {
     if (Object.keys(userAnswers).length > 0 && timerInterval) {
         e.preventDefault();

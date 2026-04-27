@@ -1,11 +1,14 @@
 package com.votredomaine.modelememoire.controller;
 
 import com.votredomaine.modelememoire.model.Course;
+import com.votredomaine.modelememoire.model.Question;
 import com.votredomaine.modelememoire.model.Quiz;
+import com.votredomaine.modelememoire.model.Rating;
 import com.votredomaine.modelememoire.model.Teacher;
 import com.votredomaine.modelememoire.service.Courseservice;
 import com.votredomaine.modelememoire.service.EnrollmentService;
 import com.votredomaine.modelememoire.service.QuizService;
+import com.votredomaine.modelememoire.service.RatingService;
 import com.votredomaine.modelememoire.service.TeacherService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
@@ -25,6 +28,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Controller
 @RequestMapping("/teacher")
@@ -41,6 +45,9 @@ public class TeacherController {
     
     @Autowired
     private EnrollmentService enrollmentService;
+    
+    @Autowired
+    private RatingService ratingService;
    
     // ==================== GESTION DES ENSEIGNANTS (API) ====================
     
@@ -64,13 +71,53 @@ public class TeacherController {
             response.put("department", teacher.getDepartment());
             response.put("phone", teacher.getPhone());
             
-            System.out.println("✅ NOUVEAU TEACHER CRÉÉ: " + teacher.getEmail());
+            System.out.println("✅ NEW TEACHER CREATED: " + teacher.getEmail());
             return ResponseEntity.ok(response);
             
         } catch (Exception e) {
-            System.err.println("❌ Erreur: " + e.getMessage());
+            System.err.println("❌ Error: " + e.getMessage());
             return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
         }
+    }
+    
+    @PostMapping("/login")
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> login(@RequestBody Map<String, String> loginData, HttpSession session) {
+        Map<String, Object> response = new HashMap<>();
+        
+        try {
+            String email = loginData.get("email");
+            String password = loginData.get("password");
+            
+            System.out.println("🔐 Teacher login attempt: " + email);
+            
+            Optional<Teacher> teacherOpt = teacherService.loginTeacher(email, password);
+            
+            if (teacherOpt.isPresent()) {
+                Teacher teacher = teacherOpt.get();
+                session.setAttribute("teacherId", teacher.getId());
+                session.setAttribute("teacherName", teacher.getName());
+                session.setAttribute("teacherEmail", teacher.getEmail());
+                session.setAttribute("role", "TEACHER");
+                session.setAttribute("loggedIn", true);
+                
+                response.put("success", true);
+                response.put("message", "Login successful");
+                response.put("redirectUrl", "/teacher/dashboard");
+                response.put("teacherName", teacher.getName());
+                
+                System.out.println("✅ TEACHER LOGGED IN: " + teacher.getEmail() + " (ID: " + teacher.getId() + ")");
+            } else {
+                response.put("success", false);
+                response.put("message", "Invalid email or password");
+            }
+            
+        } catch (Exception e) {
+            response.put("success", false);
+            response.put("message", "Error: " + e.getMessage());
+        }
+        
+        return ResponseEntity.ok(response);
     }
     
     @GetMapping("/dashboard/{email}")
@@ -88,7 +135,7 @@ public class TeacherController {
                 "department", teacher.getDepartment(),
                 "phone", teacher.getPhone()
             ));
-            dashboard.put("message", "Bienvenue dans l'interface Teacher!");
+            dashboard.put("message", "Welcome to Teacher Interface!");
             
             List<Course> courses = courseService.findByTeacherId(teacher.getId());
             dashboard.put("courses", courses);
@@ -127,7 +174,7 @@ public class TeacherController {
             List<Teacher> teachers = teacherService.getAllTeachers();
             
             if (teachers == null || teachers.isEmpty()) {
-                return ResponseEntity.ok(Map.of("message", "Aucun enseignant trouvé", "count", 0));
+                return ResponseEntity.ok(Map.of("message", "No teachers found", "count", 0));
             }
             
             Map<String, Object> response = new HashMap<>();
@@ -160,12 +207,12 @@ public class TeacherController {
             
             if (teacherId == null) {
                 response.put("success", false);
-                response.put("message", "Session expirée");
+                response.put("message", "Session expired");
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
             }
             
             if (teacherName == null) {
-                teacherName = "Professeur";
+                teacherName = "Professor";
             }
             
             Course course = new Course();
@@ -175,7 +222,7 @@ public class TeacherController {
             course.setModule(niveau);
             course.setTeacherId(teacherId);
             course.setTeacherName(teacherName);
-            course.setStatus("ACTIVE");
+            course.setStatus("PENDING");
             course.setCreatedAt(LocalDateTime.now());
             course.setUpdatedAt(LocalDateTime.now());
             
@@ -184,14 +231,14 @@ public class TeacherController {
             response.put("success", true);
             response.put("course", savedCourse);
             response.put("courseId", savedCourse.getId());
-            response.put("message", "Cours créé avec succès");
+            response.put("message", "Course created successfully (pending validation)");
             
             return ResponseEntity.ok(response);
             
         } catch (Exception e) {
             e.printStackTrace();
             response.put("success", false);
-            response.put("message", "Erreur: " + e.getMessage());
+            response.put("message", "Error: " + e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
         }
     }
@@ -221,39 +268,38 @@ public class TeacherController {
                 long quizCount = quizService.countQuizzesByCourse(course.getId());
                 course.setQuizCount((int) quizCount);
                 
-                // ⭐ AJOUTER LE NOMBRE D'ÉTUDIANTS POUR CHAQUE COURS
                 long studentCount = enrollmentService.countStudentsByCourse(course.getId());
                 course.setTotalStudents((int) studentCount);
+                
+                double avgRating = ratingService.getAverageRatingForCourse(course.getId());
+                long ratingCount = ratingService.getRatingCountForCourse(course.getId());
+                course.setAverageRating(avgRating);
+                course.setRatingCount(ratingCount);
             }
         }
         
         return ResponseEntity.ok(courses != null ? courses : List.of());
     }
     
-    // ⭐ NOUVEL ENDPOINT POUR LES STATISTIQUES GLOBALES
-    @GetMapping("/api/stats")
+    @GetMapping("/course/{courseId}")
     @ResponseBody
-    public ResponseEntity<Map<String, Object>> getTeacherStats(HttpSession session) {
+    public ResponseEntity<Course> getCourseById(@PathVariable Long courseId, HttpSession session) {
         Long teacherId = (Long) session.getAttribute("teacherId");
         if (teacherId == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
         
-        Map<String, Object> stats = new HashMap<>();
+        Course course = courseService.getCourseById(courseId);
+        if (course == null || !course.getTeacherId().equals(teacherId)) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
         
-        // Nombre de cours
-        List<Course> courses = courseService.getCoursesByTeacherId(teacherId);
-        stats.put("totalCourses", courses.size());
+        double avgRating = ratingService.getAverageRatingForCourse(courseId);
+        long ratingCount = ratingService.getRatingCountForCourse(courseId);
+        course.setAverageRating(avgRating);
+        course.setRatingCount(ratingCount);
         
-        // Nombre de quiz
-        List<Quiz> quizzes = quizService.getQuizzesByTeacher(teacherId);
-        stats.put("totalQuizzes", quizzes.size());
-        
-        // ⭐ NOMBRE TOTAL D'ÉTUDIANTS INSCRITS (unique)
-        long totalStudents = enrollmentService.countTotalStudentsByTeacher(teacherId);
-        stats.put("totalStudents", totalStudents);
-        
-        return ResponseEntity.ok(stats);
+        return ResponseEntity.ok(course);
     }
     
     @DeleteMapping("/delete-course/{courseId}")
@@ -265,13 +311,13 @@ public class TeacherController {
             
             if (teacherId == null) {
                 response.put("success", false);
-                response.put("message", "Session expirée");
+                response.put("message", "Session expired");
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
             }
             
             if (courseId == null) {
                 response.put("success", false);
-                response.put("message", "ID du cours manquant");
+                response.put("message", "Course ID missing");
                 return ResponseEntity.badRequest().body(response);
             }
             
@@ -279,13 +325,13 @@ public class TeacherController {
             
             if (course == null) {
                 response.put("success", false);
-                response.put("message", "Cours non trouvé");
+                response.put("message", "Course not found");
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
             }
             
             if (course.getTeacherId() == null || !course.getTeacherId().equals(teacherId)) {
                 response.put("success", false);
-                response.put("message", "Accès non autorisé");
+                response.put("message", "Unauthorized access");
                 return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
             }
             
@@ -295,14 +341,14 @@ public class TeacherController {
                     try {
                         quizService.deleteQuiz(quiz.getId());
                     } catch (Exception e) {
-                        System.err.println("Erreur lors de la suppression du quiz " + quiz.getId() + ": " + e.getMessage());
+                        System.err.println("Error deleting quiz " + quiz.getId() + ": " + e.getMessage());
                     }
                 }
             }
             
             courseService.deleteCourse(courseId);
             response.put("success", true);
-            response.put("message", "Cours et ses quiz supprimés avec succès");
+            response.put("message", "Course and its quizzes deleted successfully");
             return ResponseEntity.ok(response);
             
         } catch (Exception e) {
@@ -312,8 +358,6 @@ public class TeacherController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
         }
     }
-    
-    // ==================== MODIFICATION DE COURS (API) ====================
     
     @PostMapping("/api/update-course/{id}")
     @ResponseBody
@@ -333,7 +377,7 @@ public class TeacherController {
             
             if (teacherId == null) {
                 response.put("success", false);
-                response.put("message", "Session expirée");
+                response.put("message", "Session expired");
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
             }
             
@@ -341,13 +385,13 @@ public class TeacherController {
             
             if (existingCourse == null) {
                 response.put("success", false);
-                response.put("message", "Cours non trouvé");
+                response.put("message", "Course not found");
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
             }
             
             if (!existingCourse.getTeacherId().equals(teacherId)) {
                 response.put("success", false);
-                response.put("message", "Accès non autorisé");
+                response.put("message", "Unauthorized access");
                 return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
             }
             
@@ -393,7 +437,7 @@ public class TeacherController {
             Course updatedCourse = courseService.save(existingCourse);
             
             response.put("success", true);
-            response.put("message", "Cours modifié avec succès");
+            response.put("message", "Course modified successfully");
             response.put("courseId", updatedCourse.getId());
             
             return ResponseEntity.ok(response);
@@ -401,7 +445,7 @@ public class TeacherController {
         } catch (Exception e) {
             e.printStackTrace();
             response.put("success", false);
-            response.put("message", "Erreur: " + e.getMessage());
+            response.put("message", "Error: " + e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
         }
     }
@@ -414,22 +458,66 @@ public class TeacherController {
         String teacherName = (String) session.getAttribute("teacherName");
         String teacherEmail = (String) session.getAttribute("teacherEmail");
         
+        System.out.println("🔍 SESSION TEACHER ID: " + teacherId);
+        System.out.println("🔍 SESSION TEACHER NAME: " + teacherName);
+        
         if (teacherId == null) {
+            System.out.println("⚠️ Teacher ID is null, redirecting to login");
             return "redirect:/login";
         }
         
-        List<Course> courses = courseService.getCoursesByTeacherId(teacherId);
+        List<Course> allTeacherCourses = courseService.getCoursesByTeacherId(teacherId);
         
-        if (courses != null) {
-            for (Course course : courses) {
-                long quizCount = quizService.countQuizzesByCourse(course.getId());
-                course.setQuizCount((int) quizCount);
+        System.out.println("📊 Teacher " + teacherId + " has " + allTeacherCourses.size() + " courses");
+        
+        List<Course> pendingCourses = new ArrayList<>();
+        List<Course> validatedCourses = new ArrayList<>();
+        List<Course> publishedCourses = new ArrayList<>();
+        
+        for (Course course : allTeacherCourses) {
+            String status = course.getStatus() != null ? course.getStatus() : "UNKNOWN";
+            
+            System.out.println("   - Course: " + course.getTitle() + " | status: " + status + " | ID: " + course.getId());
+            
+            switch (status) {
+                case "PENDING":
+                    pendingCourses.add(course);
+                    break;
+                case "VALIDATED":
+                    validatedCourses.add(course);
+                    break;
+                case "PUBLISHED":
+                case "ACTIVE":
+                    publishedCourses.add(course);
+                    break;
+                default:
+                    pendingCourses.add(course);
+                    break;
             }
+            
+            long quizCount = quizService.countQuizzesByCourse(course.getId());
+            course.setQuizCount((int) quizCount);
+            
+            long studentCount = enrollmentService.countStudentsByCourse(course.getId());
+            course.setTotalStudents((int) studentCount);
+            
+            double avgRating = ratingService.getAverageRatingForCourse(course.getId());
+            long ratingCount = ratingService.getRatingCountForCourse(course.getId());
+            course.setAverageRating(avgRating);
+            course.setRatingCount(ratingCount);
         }
         
-        model.addAttribute("teacherName", teacherName != null ? teacherName : "Professeur");
+        System.out.println("📊 Summary - Pending: " + pendingCourses.size() + 
+                          ", Validated: " + validatedCourses.size() + 
+                          ", Published: " + publishedCourses.size());
+        
+        model.addAttribute("teacherId", teacherId);
+        model.addAttribute("teacherName", teacherName != null ? teacherName : "Professor");
         model.addAttribute("teacherEmail", teacherEmail != null ? teacherEmail : "");
-        model.addAttribute("courses", courses != null ? courses : List.of());
+        model.addAttribute("pendingCourses", pendingCourses);
+        model.addAttribute("validatedCourses", validatedCourses);
+        model.addAttribute("publishedCourses", publishedCourses);
+        model.addAttribute("totalCourses", allTeacherCourses.size());
         
         return "htmlTeacher/dashbord";
     }
@@ -458,17 +546,231 @@ public class TeacherController {
         return "htmlTeacher/course-view";
     }
     
-    @GetMapping("/course/{courseId}")
+    // ==================== GESTION DES QUIZ (API) ====================
+    
+    @PostMapping("/api/create-quiz")
     @ResponseBody
-    public ResponseEntity<Course> getCourseById(@PathVariable Long courseId) {
-        if (courseId == null) {
-            return ResponseEntity.badRequest().build();
+    public ResponseEntity<Map<String, Object>> createQuiz(@RequestBody Map<String, Object> quizData, HttpSession session) {
+        Map<String, Object> response = new HashMap<>();
+        
+        try {
+            Long teacherId = (Long) session.getAttribute("teacherId");
+            String teacherName = (String) session.getAttribute("teacherName");
+            
+            System.out.println("=== CRÉATION QUIZ DEPUIS DASHBOARD ===");
+            System.out.println("Teacher ID: " + teacherId);
+            System.out.println("Quiz Data reçu: " + quizData);
+            
+            if (teacherId == null) {
+                response.put("success", false);
+                response.put("message", "Session expirée - Veuillez vous reconnecter");
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
+            }
+            
+            Object courseIdObj = quizData.get("courseId");
+            if (courseIdObj == null) {
+                response.put("success", false);
+                response.put("message", "ID du cours manquant");
+                return ResponseEntity.badRequest().body(response);
+            }
+            
+            Long courseId = Long.valueOf(courseIdObj.toString());
+            String title = (String) quizData.get("title");
+            
+            if (title == null || title.trim().isEmpty()) {
+                response.put("success", false);
+                response.put("message", "Le titre du quiz est requis");
+                return ResponseEntity.badRequest().body(response);
+            }
+            
+            String description = (String) quizData.getOrDefault("description", "");
+            Integer timeLimit = quizData.get("timeLimit") != null ? Integer.valueOf(quizData.get("timeLimit").toString()) : 30;
+            Integer passingScore = quizData.get("passingScore") != null ? Integer.valueOf(quizData.get("passingScore").toString()) : 70;
+            String courseModule = (String) quizData.getOrDefault("courseModule", "");
+            String courseNiveau = (String) quizData.getOrDefault("courseNiveau", "");
+            
+            Quiz quiz = new Quiz();
+            quiz.setTitle(title);
+            quiz.setDescription(description);
+            quiz.setCourseId(courseId);
+            quiz.setTeacherId(teacherId);
+            quiz.setTeacherName(teacherName != null ? teacherName : "Professeur");
+            quiz.setModule(courseModule);
+            quiz.setNiveau(courseNiveau);
+            quiz.setTimeLimit(timeLimit);
+            quiz.setPassingScore(passingScore);
+            quiz.setStatus("ACTIVE");
+            quiz.setCreatedAt(LocalDateTime.now());
+            quiz.setUpdatedAt(LocalDateTime.now());
+            quiz.setTotalQuestions(0);
+            
+            Quiz savedQuiz = quizService.saveQuiz(quiz);
+            
+            System.out.println("✅ QUIZ CRÉÉ AVEC SUCCÈS - ID: " + savedQuiz.getId());
+            
+            response.put("success", true);
+            response.put("quizId", savedQuiz.getId());
+            response.put("message", "Quiz créé avec succès !");
+            
+        } catch (Exception e) {
+            e.printStackTrace();
+            response.put("success", false);
+            response.put("message", "Erreur: " + e.getMessage());
         }
-        Course course = courseService.getCourseById(courseId);
-        if (course != null) {
-            return ResponseEntity.ok(course);
+        
+        return ResponseEntity.ok(response);
+    }
+    
+    @PostMapping("/api/quizzes/{quizId}/questions")
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> addQuestionToQuiz(
+            @PathVariable Long quizId,
+            @RequestBody Map<String, Object> questionData,
+            HttpSession session) {
+        
+        Map<String, Object> response = new HashMap<>();
+        
+        try {
+            Long teacherId = (Long) session.getAttribute("teacherId");
+            
+            System.out.println("=== AJOUT QUESTION AU QUIZ ===");
+            System.out.println("Quiz ID: " + quizId);
+            System.out.println("Teacher ID: " + teacherId);
+            System.out.println("Question Data: " + questionData);
+            
+            if (teacherId == null) {
+                response.put("success", false);
+                response.put("message", "Session expirée");
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
+            }
+            
+            Quiz quiz = quizService.getQuizById(quizId);
+            if (quiz == null || !quiz.getTeacherId().equals(teacherId)) {
+                response.put("success", false);
+                response.put("message", "Quiz non trouvé ou accès non autorisé");
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+            }
+            
+            String questionText = (String) questionData.get("text");
+            if (questionText == null || questionText.trim().isEmpty()) {
+                response.put("success", false);
+                response.put("message", "Le texte de la question est requis");
+                return ResponseEntity.badRequest().body(response);
+            }
+            
+            Question question = new Question();
+            question.setQuestionText(questionText);
+            question.setPoints(questionData.get("points") != null ? Integer.valueOf(questionData.get("points").toString()) : 10);
+            question.setQuestionType(questionData.get("type") != null ? questionData.get("type").toString() : "SINGLE_CHOICE");
+            question.setOrderNumber(questionData.get("order") != null ? Integer.valueOf(questionData.get("order").toString()) : 1);
+            
+            @SuppressWarnings("unchecked")
+            List<String> options = (List<String>) questionData.get("options");
+            if (options != null && !options.isEmpty()) {
+                question.setOptions(options);
+            }
+            
+            Object correctAnswerObj = questionData.get("correctAnswer");
+            if (correctAnswerObj != null) {
+                question.setCorrectAnswer(Integer.valueOf(correctAnswerObj.toString()));
+            }
+            
+            Question savedQuestion = quizService.addQuestionToQuiz(quizId, question);
+            
+            System.out.println("✅ Question ajoutée avec succès - ID: " + savedQuestion.getId());
+            
+            response.put("success", true);
+            response.put("message", "Question ajoutée avec succès");
+            response.put("questionId", savedQuestion.getId());
+            
+        } catch (Exception e) {
+            e.printStackTrace();
+            response.put("success", false);
+            response.put("message", "Erreur: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
         }
-        return ResponseEntity.notFound().build();
+        
+        return ResponseEntity.ok(response);
+    }
+    
+    @GetMapping("/api/stats")
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> getTeacherStats(HttpSession session) {
+        Map<String, Object> stats = new HashMap<>();
+        
+        try {
+            Long teacherId = (Long) session.getAttribute("teacherId");
+            
+            System.out.println("=== RÉCUPÉRATION STATISTIQUES ===");
+            System.out.println("Teacher ID: " + teacherId);
+            
+            if (teacherId == null) {
+                stats.put("success", false);
+                stats.put("message", "Session expirée");
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(stats);
+            }
+            
+            List<Course> courses = courseService.getCoursesByTeacherId(teacherId);
+            List<Quiz> quizzes = quizService.getQuizzesByTeacher(teacherId);
+            long totalStudents = enrollmentService.countTotalStudentsByTeacher(teacherId);
+            
+            List<Rating> ratings = ratingService.getRatingsByTeacher(teacherId);
+            double avgRating = ratings.stream().mapToInt(Rating::getRatingValue).average().orElse(0);
+            
+            stats.put("success", true);
+            stats.put("totalCourses", courses.size());
+            stats.put("totalQuizzes", quizzes.size());
+            stats.put("totalStudents", totalStudents);
+            stats.put("totalRatings", ratings.size());
+            stats.put("averageRating", Math.round(avgRating * 10) / 10.0);
+            
+            System.out.println("Stats - Cours: " + courses.size() + ", Quiz: " + quizzes.size() + 
+                               ", Étudiants: " + totalStudents + ", Notes: " + ratings.size());
+            
+        } catch (Exception e) {
+            e.printStackTrace();
+            stats.put("success", false);
+            stats.put("message", e.getMessage());
+        }
+        
+        return ResponseEntity.ok(stats);
+    }
+    
+    // ==================== API POUR LES NOTES (RATINGS) ====================
+    // ⚠️ NOTE: La méthode viewRatings() a été SUPPRIMÉE car elle existe déjà dans RatingController
+    // L'API getTeacherRatings() est conservée pour les appels AJAX
+    
+    @GetMapping("/api/ratings/teacher/all")
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> getTeacherRatings(HttpSession session) {
+        Map<String, Object> response = new HashMap<>();
+        
+        try {
+            Long teacherId = (Long) session.getAttribute("teacherId");
+            
+            System.out.println("=== API RÉCUPÉRATION NOTES ENSEIGNANT ===");
+            System.out.println("Teacher ID: " + teacherId);
+            
+            if (teacherId == null) {
+                response.put("success", false);
+                response.put("message", "Non authentifié");
+                return ResponseEntity.status(401).body(response);
+            }
+            
+            List<Rating> ratings = ratingService.getRatingsByTeacher(teacherId);
+            System.out.println("Nombre de notes trouvées: " + ratings.size());
+            
+            response.put("success", true);
+            response.put("ratings", ratings);
+            response.put("count", ratings.size());
+            
+        } catch (Exception e) {
+            e.printStackTrace();
+            response.put("success", false);
+            response.put("message", e.getMessage());
+        }
+        
+        return ResponseEntity.ok(response);
     }
     
     // ==================== GESTION DES FICHIERS ====================
@@ -547,140 +849,6 @@ public class TeacherController {
         }
     }
     
-    // ==================== GESTION DES QUIZ ====================
-    
-    @GetMapping("/api/quizzes")
-    @ResponseBody
-    public ResponseEntity<List<Quiz>> getTeacherQuizzes(HttpSession session) {
-        Long teacherId = (Long) session.getAttribute("teacherId");
-        if (teacherId == null) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-        }
-        List<Quiz> quizzes = quizService.getQuizzesByTeacher(teacherId);
-        return ResponseEntity.ok(quizzes != null ? quizzes : List.of());
-    }
-    
-    @DeleteMapping("/api/delete-quiz/{quizId}")
-    @ResponseBody
-    public ResponseEntity<Map<String, Object>> deleteQuizApi(@PathVariable Long quizId, HttpSession session) {
-        Map<String, Object> response = new HashMap<>();
-        
-        try {
-            Long teacherId = (Long) session.getAttribute("teacherId");
-            
-            if (teacherId == null) {
-                response.put("success", false);
-                response.put("message", "Session expirée");
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
-            }
-            
-            Quiz quiz = quizService.getQuizById(quizId);
-            
-            if (quiz == null) {
-                response.put("success", false);
-                response.put("message", "Quiz non trouvé");
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
-            }
-            
-            if (!quiz.getTeacherId().equals(teacherId)) {
-                response.put("success", false);
-                response.put("message", "Accès non autorisé");
-                return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
-            }
-            
-            quizService.deleteQuiz(quizId);
-            
-            response.put("success", true);
-            response.put("message", "Quiz supprimé avec succès");
-            return ResponseEntity.ok(response);
-            
-        } catch (Exception e) {
-            e.printStackTrace();
-            response.put("success", false);
-            response.put("message", e.getMessage());
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
-        }
-    }
-    
-    @PostMapping("/api/create-quiz")
-    @ResponseBody
-    public ResponseEntity<Map<String, Object>> createQuiz(@RequestBody Map<String, Object> quizData, HttpSession session) {
-        Map<String, Object> response = new HashMap<>();
-        
-        try {
-            Long teacherId = (Long) session.getAttribute("teacherId");
-            String teacherName = (String) session.getAttribute("teacherName");
-            
-            if (teacherId == null) {
-                response.put("success", false);
-                response.put("message", "Session expirée");
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
-            }
-            
-            if (quizData == null || quizData.isEmpty()) {
-                response.put("success", false);
-                response.put("message", "Données du quiz invalides");
-                return ResponseEntity.badRequest().body(response);
-            }
-            
-            Object courseIdObj = quizData.get("courseId");
-            if (courseIdObj == null) {
-                response.put("success", false);
-                response.put("message", "ID du cours manquant");
-                return ResponseEntity.badRequest().body(response);
-            }
-            
-            Long courseId = Long.valueOf(courseIdObj.toString());
-            String title = quizData.get("title") != null ? quizData.get("title").toString() : null;
-            
-            if (title == null || title.trim().isEmpty()) {
-                response.put("success", false);
-                response.put("message", "Le titre du quiz est obligatoire");
-                return ResponseEntity.badRequest().body(response);
-            }
-            
-            String description = quizData.get("description") != null ? quizData.get("description").toString() : "";
-            Integer timeLimit = quizData.get("timeLimit") != null ? Integer.valueOf(quizData.get("timeLimit").toString()) : 30;
-            Integer passingScore = quizData.get("passingScore") != null ? Integer.valueOf(quizData.get("passingScore").toString()) : 70;
-            String courseModule = quizData.get("courseModule") != null ? quizData.get("courseModule").toString() : "";
-            String courseNiveau = quizData.get("courseNiveau") != null ? quizData.get("courseNiveau").toString() : "";
-            
-            Quiz quiz = new Quiz();
-            quiz.setTitle(title);
-            quiz.setDescription(description);
-            quiz.setCourseId(courseId);
-            quiz.setTeacherId(teacherId);
-            quiz.setTeacherName(teacherName != null ? teacherName : "Professeur");
-            quiz.setModule(courseModule);
-            quiz.setNiveau(courseNiveau);
-            quiz.setTimeLimit(timeLimit);
-            quiz.setPassingScore(passingScore);
-            quiz.setStatus("ACTIVE");
-            quiz.setCreatedAt(LocalDateTime.now());
-            quiz.setUpdatedAt(LocalDateTime.now());
-            quiz.setTotalQuestions(0);
-            
-            Quiz savedQuiz = quizService.saveQuiz(quiz);
-            
-            if (savedQuiz == null) {
-                response.put("success", false);
-                response.put("message", "Erreur lors de la sauvegarde du quiz");
-                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
-            }
-            
-            response.put("success", true);
-            response.put("quizId", savedQuiz.getId());
-            response.put("message", "Quiz créé avec succès");
-            return ResponseEntity.ok(response);
-            
-        } catch (Exception e) {
-            e.printStackTrace();
-            response.put("success", false);
-            response.put("message", e.getMessage());
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
-        }
-    }
-    
     @GetMapping("/courses/niveau/{niveau}")
     @ResponseBody
     public ResponseEntity<List<Course>> getCoursesByNiveau(@PathVariable String niveau) {
@@ -689,6 +857,16 @@ public class TeacherController {
         }
         List<Course> courses = courseService.findByNiveau(niveau);
         return ResponseEntity.ok(courses != null ? courses : List.of());
+    }
+    
+    @PostMapping("/logout")
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> logout(HttpSession session) {
+        session.invalidate();
+        Map<String, Object> response = new HashMap<>();
+        response.put("success", true);
+        response.put("message", "Logout successful");
+        return ResponseEntity.ok(response);
     }
     
     // ==================== METHODES PRIVEES ====================

@@ -12,26 +12,14 @@ import java.util.List;
 @Repository
 public interface QuestionRepository extends JpaRepository<Question, Long> {
     
-    /**
-     * Trouver les questions d'un quiz triées par ordre
-     */
     List<Question> findByQuizIdOrderByOrderNumberAsc(Long quizId);
     
-    /**
-     * Supprimer toutes les questions d'un quiz
-     * Cette méthode utilise le naming convention de Spring Data JPA
-     */
-    @Modifying
-    @Transactional
-    void deleteByQuizId(Long quizId);
+    List<Question> findByQuizId(Long quizId);
     
-    /**
-     * Compter les questions d'un quiz
-     */
     long countByQuizId(Long quizId);
     
-    /**
-     * Trouver les questions par quizId (sans tri)
-     */
-    List<Question> findByQuizId(Long quizId);
+    @Modifying
+    @Transactional
+    @Query("DELETE FROM Question q WHERE q.quizId = :quizId")
+    void deleteByQuizId(@Param("quizId") Long quizId);
 }

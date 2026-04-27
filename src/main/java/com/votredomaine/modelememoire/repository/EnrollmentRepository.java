@@ -11,22 +11,35 @@ import java.util.Optional;
 @Repository
 public interface EnrollmentRepository extends JpaRepository<Enrollment, Long> {
     
-    // Vérifier si un étudiant est déjà inscrit à un cours
     Optional<Enrollment> findByStudentIdAndCourseId(Long studentId, Long courseId);
     
-    // Compter le nombre d'étudiants inscrits à un cours
+    boolean existsByStudentIdAndCourseId(Long studentId, Long courseId);
+    
+    List<Enrollment> findByStudentId(Long studentId);
+    
+    List<Enrollment> findByCourseId(Long courseId);
+    
+    List<Enrollment> findByTeacherId(Long teacherId);
+    
     long countByCourseId(Long courseId);
     
-    // Compter le nombre d'étudiants inscrits aux cours d'un teacher
+    long countByStudentId(Long studentId);
+    
+    long countByTeacherId(Long teacherId);
+    
+    @Query("SELECT e.courseId FROM Enrollment e WHERE e.studentId = :studentId")
+    List<Long> findCourseIdsByStudentId(@Param("studentId") Long studentId);
+    
+    @Query("SELECT c FROM Course c WHERE c.id IN (SELECT e.courseId FROM Enrollment e WHERE e.studentId = :studentId)")
+    List<com.votredomaine.modelememoire.model.Course> findCoursesByStudentId(@Param("studentId") Long studentId);
+    
     @Query("SELECT COUNT(DISTINCT e.studentId) FROM Enrollment e WHERE e.teacherId = :teacherId")
     long countDistinctStudentsByTeacherId(@Param("teacherId") Long teacherId);
     
-    // Récupérer tous les étudiants inscrits à un cours
-    List<Enrollment> findByCourseId(Long courseId);
+    // ========== NOUVELLES MÉTHODES POUR LE DASHBOARD ==========
     
-    // Récupérer tous les cours auxquels un étudiant est inscrit
-    List<Enrollment> findByStudentId(Long studentId);
+    List<Enrollment> findByStudentIdOrderByDownloadedAtDesc(Long studentId);
     
-    // Vérifier si un étudiant a téléchargé un cours
-    boolean existsByStudentIdAndCourseId(Long studentId, Long courseId);
+    @Query("SELECT e FROM Enrollment e WHERE e.studentId = :studentId ORDER BY e.downloadedAt DESC")
+    List<Enrollment> findTopNByStudentIdOrderByDownloadedAtDesc(@Param("studentId") Long studentId, org.springframework.data.domain.Pageable pageable);
 }

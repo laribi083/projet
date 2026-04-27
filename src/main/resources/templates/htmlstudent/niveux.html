@@ -1,11 +1,11 @@
 <!DOCTYPE html>
-<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BrainLearning - Choix du niveau</title>
+    <title>BrainLearning - My Courses | Level Selection</title>
     
-    <!-- CSS Files - CORRIGÉ -->
+    <!-- CSS Files -->
     <link rel="stylesheet" th:href="@{/cssstudent/dashbord.css}">
     <link rel="stylesheet" th:href="@{/cssstudent/niveau.css}">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
@@ -13,50 +13,56 @@
 </head>
 <body>
     <div class="dashboard">
-        <!-- Sidebar -->
-        <aside class="sidebar">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar" id="sidebar">
             <div class="sidebar-header">
-                <h1 class="logo">BrainLearning</h1>
+                <h1 class="logo">
+                    <i class="fas fa-brain"></i>
+                    BrainLearning
+                </h1>
             </div>
             
             <div class="user-profile">
                 <div class="user-avatar">
-                    <img th:src="@{'https://ui-avatars.com/api/?name=' + ${session.userName} + '&background=6366f1&color=fff&size=128'}" 
-                         alt="User Avatar">
+                    <img th:src="@{'https://ui-avatars.com/api/?name=' + ${session.userName} + '&background=6366f1&color=fff&size=128&bold=true'}" 
+                         alt="User Avatar"
+                         id="userAvatar">
                 </div>
                 <h3 th:text="${session.userName}">Student Name</h3>
-                <p class="user-role">Student</p>
+                <p class="user-role">
+                    <i class="fas fa-graduation-cap"></i> Student
+                </p>
             </div>
             
             <nav class="sidebar-nav">
                 <a th:href="@{/student/dashboard}" class="nav-item">
                     <i class="fas fa-home"></i>
-                    <span>Home</span>
+                    <span>Dashboard</span>
                 </a>
-                <a th:href="@{/niveux}" class="nav-item active">
+                <a th:href="@{/student/niveux}" class="nav-item active">
                     <i class="fas fa-book"></i>
-                    <span>My courses</span>
+                    <span>My Courses</span>
                 </a>
-                <a th:href="@{/receive-courses}" class="nav-item">
+                <a th:href="@{/student/receive-courses}" class="nav-item">
                     <i class="fas fa-download"></i>
-                    <span>Receive courses</span>
+                    <span>Receive Courses</span>
                 </a>
-                <a th:href="@{/quiz.html}" class="nav-item">
+                <a th:href="@{/student/quizzes}" class="nav-item">
                     <i class="fas fa-question-circle"></i>
                     <span>Quizzes</span>
                 </a>
-                <a href="#" class="nav-item">
+                <a th:href="@{/student/ratings}" class="nav-item">
                     <i class="fas fa-star"></i>
                     <span>Ratings</span>
                 </a>
-                <a href="#" class="nav-item">
+                <a href="#" class="nav-item" id="aiAssistantBtn">
                     <i class="fas fa-robot"></i>
                     <span>AI Assistant</span>
                 </a>
             </nav>
             
             <div class="sidebar-footer">
-                <a href="/logout" class="logout-btn">
+                <a href="/logout" class="logout-btn" onclick="return confirmLogout()">
                     <i class="fas fa-sign-out-alt"></i>
                     <span>Logout</span>
                 </a>
@@ -65,42 +71,67 @@
 
         <!-- Main Content -->
         <main class="main-content">
-            <div class="welcome-message">
-                <h1>Welcome, <span th:text="${#strings.substringBefore(session.userName, ' ')}">Student</span>!</h1>
-                <p>Choose your academic level to access your courses</p>
+            <!-- Mobile Menu Toggle -->
+            <div class="mobile-menu-toggle" id="mobileMenuToggle">
+                <i class="fas fa-bars"></i>
             </div>
             
+            <!-- Welcome Section -->
+            <div class="welcome-message">
+                <h1>Welcome back, <span th:text="${#strings.substringBefore(session.userName, ' ')}">Student</span>!</h1>
+                <p>Choose your academic level to access your courses and learning materials</p>
+            </div>
+            
+            <!-- Levels Selection Section -->
             <div class="levels-container">
-                <a th:href="@{/interface1er}" class="level-card level-1">
-                    <div class="level-icon">📚</div>
+                <!-- 1st Year Card -->
+                <a th:href="@{/student/interface1er}" class="level-card level-1">
+                    <div class="level-icon">
+                        <i class="fas fa-seedling"></i>
+                    </div>
                     <h2>1st Year</h2>
                     <p>Bachelor's degree - Year 1</p>
-                    <span class="level-badge">Fundamentals</span>
+                    <p class="level-description">Fundamental concepts and introduction to computer science</p>
+                    <span class="level-badge">
+                        <i class="fas fa-star"></i> Fundamentals
+                    </span>
                 </a>
                 
-                <a th:href="@{/interface2eme}" class="level-card level-2">
-                    <div class="level-icon">🔬</div>
+                <!-- 2nd Year Card -->
+                <a th:href="@{/student/interface2eme}" class="level-card level-2">
+                    <div class="level-icon">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
                     <h2>2nd Year</h2>
                     <p>Bachelor's degree - Year 2</p>
-                    <span class="level-badge">Advanced</span>
+                    <p class="level-description">Advanced concepts and practical applications</p>
+                    <span class="level-badge">
+                        <i class="fas fa-rocket"></i> Advanced
+                    </span>
                 </a>
                 
-                <a th:href="@{/interface3eme}" class="level-card level-3">
-                    <div class="level-icon">🎓</div>
+                <!-- 3rd Year Card -->
+                <a th:href="@{/student/interface3eme}" class="level-card level-3">
+                    <div class="level-icon">
+                        <i class="fas fa-trophy"></i>
+                    </div>
                     <h2>3rd Year</h2>
                     <p>Bachelor's degree - Year 3</p>
-                    <span class="level-badge">Specialization</span>
+                    <p class="level-description">Specialization and professional preparation</p>
+                    <span class="level-badge">
+                        <i class="fas fa-certificate"></i> Specialization
+                    </span>
                 </a>
             </div>
         </main>
     </div>
 
-    <!-- Menu Toggle pour mobile -->
-    <div class="menu-toggle" id="menuToggle">
-        <i class="fas fa-bars"></i>
-    </div>
-
-    <!-- JavaScript File -->
+    <!-- JavaScript -->
     <script th:src="@{/jsstudent/niveux.js}"></script>
+    <script>
+        function confirmLogout() {
+            return confirm('Are you sure you want to logout?');
+        }
+    </script>
 </body>
 </html>

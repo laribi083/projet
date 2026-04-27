@@ -24,7 +24,7 @@ public class LoginController {
     private TeacherService teacherService;
     
     @Autowired
-    private AdminService adminService;  // ⭐ AJOUTÉ
+    private AdminService adminService;
     
     private BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
@@ -40,7 +40,7 @@ public class LoginController {
         
         System.out.println("🔐 Tentative de connexion pour: " + email);
         
-        // ⭐ 1. Vérifier d'abord si c'est un ADMIN
+        // 1. Vérifier d'abord si c'est un ADMIN
         Optional<Admin> adminOpt = adminService.loginAdmin(email, password);
         
         if (adminOpt.isPresent()) {
@@ -107,20 +107,9 @@ public class LoginController {
         return mav;
     }
     
-    @GetMapping("/student/dashboard")
-    public ModelAndView studentDashboard(HttpSession session) {
-        if (session.getAttribute("role") == null || !"STUDENT".equals(session.getAttribute("role"))) {
-            return new ModelAndView("redirect:/login");
-        }
-        
-        ModelAndView mav = new ModelAndView("htmlstudent/Dashboard");
-        mav.addObject("userName", session.getAttribute("userName"));
-        mav.addObject("studentName", session.getAttribute("userName"));
-        mav.addObject("studentEmail", session.getAttribute("userEmail"));
-        mav.addObject("niveau", session.getAttribute("niveau"));
-        mav.addObject("filiere", session.getAttribute("filiere"));
-        return mav;
-    }
+    // ⚠️ SUPPRIMEZ CETTE MÉTHODE - Elle va dans DashboardController ⚠️
+    // @GetMapping("/student/dashboard")
+    // public ModelAndView studentDashboard(HttpSession session) { ... }
     
     @GetMapping("/teacher/quiz")
     public ModelAndView teacherQuiz(HttpSession session) {

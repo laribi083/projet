@@ -16,9 +16,10 @@
             <h1 class="quiz-title" th:text="${quiz.title}">Quiz Title</h1>
             <p th:text="${quiz.description}">Description</p>
             <div class="quiz-meta">
-                <span><i class="fas fa-clock"></i> <span th:text="${quiz.durationMinutes}">30</span> minutes</span>
+                <!-- CORRECTION: utiliser timeLimit au lieu de durationMinutes -->
+                <span><i class="fas fa-clock"></i> <span th:text="${quiz.timeLimit}">30</span> minutes</span>
                 <span><i class="fas fa-question-circle"></i> <span th:text="${totalQuestions}">0</span> questions</span>
-                <span><i class="fas fa-trophy"></i> Passing score: <span th:text="${quiz.passingScore}">60</span>%</span>
+                <span><i class="fas fa-trophy"></i> Passing score: <span th:text="${quiz.passingScore}">70</span>%</span>
             </div>
         </div>
         
@@ -29,17 +30,18 @@
         <form id="quizForm">
             <input type="hidden" name="quizId" th:value="${quiz.id}">
             
-            <div th:each="question, stat : ${questions}" class="question-card" data-qid="${question.id}">
+            <div th:each="question, stat : ${questions}" class="question-card" th:data-qid="${question.id}">
                 <div class="question-number">Question <span th:text="${stat.count}"></span>/<span th:text="${totalQuestions}"></span></div>
-                <div class="question-text" th:text="${question.text}">Question text</div>
+                <!-- CORRECTION: utiliser questionText au lieu de text -->
+                <div class="question-text" th:text="${question.questionText}">Question text</div>
                 
                 <div class="options">
                     <div th:each="opt, idx : ${question.options}" class="option" 
-                         data-qindex="${stat.index}" data-optindex="${idx.index}"
+                         th:data-qindex="${stat.index}" th:data-optindex="${idx.index}"
                          onclick="selectOption(this)">
                         <span class="option-letter" th:text="${'ABCD'.charAt(idx.index)} + '.'"></span>
                         <span class="option-text" th:text="${opt}">Option text</span>
-                        <input type="radio" name="q_${stat.index}" th:value="${idx.index}" style="display: none;">
+                        <input type="radio" th:name="'q_' + ${stat.index}" th:value="${idx.index}" style="display: none;">
                     </div>
                 </div>
             </div>
@@ -57,7 +59,7 @@
         /*<![CDATA[*/
         window.quizData = {
             quizId: /*[[${quiz.id}]]*/ null,
-            durationMinutes: /*[[${quiz.durationMinutes}]]*/ 30,
+            durationMinutes: /*[[${quiz.timeLimit}]]*/ 30,
             totalQuestions: /*[[${totalQuestions}]]*/ 0
         };
         /*]]>*/

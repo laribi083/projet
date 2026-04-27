@@ -4,11 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Receive Courses - BrainLearning</title>
-    
-    <!-- Liens vers les CSS -->
     <link rel="stylesheet" th:href="@{/cssstudent/dashbord.css}">
     <link rel="stylesheet" th:href="@{/cssstudent/receive-courses.css}">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
@@ -16,121 +14,155 @@
         <!-- Sidebar -->
         <aside class="sidebar">
             <div class="sidebar-header">
-                <h1 class="logo">BrainLearning</h1>
+                <h1 class="logo">Brain<span>Learning</span></h1>
             </div>
             
             <div class="user-profile">
                 <div class="user-avatar">
-                    <img th:src="@{'https://ui-avatars.com/api/?name=' + ${session.userName} + '&background=6366f1&color=fff&size=128'}" 
-                         alt="User Avatar">
+                    <img th:src="@{'https://ui-avatars.com/api/?name=' + ${userName} + '&background=4f46e5&color=fff&size=128'}" alt="User Avatar">
                 </div>
-                <h3 th:text="${session.userName}">Student Name</h3>
-                <p class="user-role">Student - <span th:text="${session.niveau}">1st Year</span></p>
+                <h3 th:text="${userName}">Student Name</h3>
+                <p class="user-role"><i class="fas fa-graduation-cap"></i> Student</p>
             </div>
             
             <nav class="sidebar-nav">
-                <a th:href="@{/student/dashboard}" class="nav-item">
-                    <i class="fas fa-home"></i>
-                    <span>Home</span>
-                </a>
-                <a th:href="@{/niveux}" class="nav-item">
-                    <i class="fas fa-book"></i>
-                    <span>My courses</span>
-                </a>
-                <a href="#" class="nav-item active">
-                    <i class="fas fa-download"></i>
-                    <span>Receive Courses</span>
-                </a>
-                <a th:href="@{/student/quizzes}" class="nav-item">
-                    <i class="fas fa-question-circle"></i>
-                    <span>Quizzes</span>
-                </a>
-                 <a href="#" class="nav-item">
-                    <i class="fas fa-star"></i>
-                    <span>Ratings</span>
-                </a>
-                <a href="#" class="nav-item">
-                    <i class="fas fa-robot"></i>
-                    <span>AI Assistant</span>
+                <a th:href="@{/student/dashboard}" class="nav-item"><i class="fas fa-home"></i> Home</a>
+                <a th:href="@{/niveux}" class="nav-item"><i class="fas fa-book"></i> My courses</a>
+                <a href="#" class="nav-item active"><i class="fas fa-download"></i> Receive Courses</a>
+                <a th:href="@{/student/quizzes}" class="nav-item"><i class="fas fa-question-circle"></i> Quizzes</a>
+                <a th:href="@{/student/ratings}" class="nav-item"><i class="fas fa-star"></i> Ratings</a>
+                <a href="#" class="nav-item" id="nav-ai">
+                    <i class="fas fa-robot"></i> AI Assistant
                 </a>
             </nav>
             
             <div class="sidebar-footer">
-                <a href="/logout" class="logout-btn">
-                    <i class="fas fa-sign-out-alt"></i>
-                    <span>Logout</span>
-                </a>
+                <a href="/logout" class="logout-btn"><i class="fas fa-sign-out-alt"></i> Logout</a>
             </div>
         </aside>
 
         <!-- Main Content -->
         <main class="main-content">
-            <a th:href="@{/student/dashboard}" class="back-button">
-                <i class="fas fa-arrow-left"></i> Back to Dashboard
-            </a>
-            
-            <div class="hero-section">
-                <h1><i class="fas fa-download"></i> Receive Courses</h1>
-                <p>Cours reçus en temps réel depuis l'interface enseignant</p>
-                <div class="stats-row">
-                    <div class="stat-pill">
-                        <i class="fas fa-globe"></i> <span id="totalCourses">0</span> Total Courses
+            <div class="receive-container">
+                <div class="hero-section">
+                    <h1><i class="fas fa-download"></i> Receive Courses</h1>
+                    <p>Browse and download courses published by teachers</p>
+                </div>
+
+                <!-- Barre de recherche et filtres -->
+                <div class="filters-bar">
+                    <div class="search-box">
+                        <i class="fas fa-search"></i>
+                        <input type="text" id="searchInput" placeholder="Search courses..." th:value="${searchTerm}">
                     </div>
-                    <div class="stat-pill">
-                        <i class="fas fa-graduation-cap"></i> <span id="total1stYear">0</span> 1st Year
+                    <div class="module-filter">
+                        <select id="moduleSelect">
+                            <option value="all" th:selected="${selectedModule == 'all'}">📂 All Modules</option>
+                            <option value="Algebra 01" th:selected="${selectedModule == 'Algebra 01'}">📐 Algebra 01</option>
+                            <option value="software quality test" th:selected="${selectedModule == 'software quality test'}">🧪 Software Quality Test</option>
+                        </select>
                     </div>
-                    <div class="stat-pill">
-                        <i class="fas fa-chalkboard-user"></i> <span id="total2ndYear">0</span> 2nd Year
-                    </div>
-                    <div class="stat-pill">
-                        <i class="fas fa-microscope"></i> <span id="total3rdYear">0</span> 3rd Year
+                    <button id="searchBtn" class="btn-search"><i class="fas fa-search"></i> Search</button>
+                    <button id="resetFilters" class="btn-reset"><i class="fas fa-undo-alt"></i> Reset</button>
+                </div>
+
+                <!-- Liste des cours -->
+                <div class="courses-grid" id="coursesGrid">
+                    <div th:each="course : ${courses}" class="course-card" 
+                         th:classappend="${downloadedCourseIds != null and downloadedCourseIds.contains(course.id)} ? 'downloaded' : ''">
+                        
+                        <div class="course-badge" th:attr="data-level=${course.niveau}">
+                            <span th:text="${course.niveau}">Level</span>
+                        </div>
+                        
+                        <div th:if="${downloadedCourseIds != null and downloadedCourseIds.contains(course.id)}" class="downloaded-badge">
+                            <i class="fas fa-check-circle"></i> Downloaded
+                        </div>
+                        
+                        <div class="course-header">
+                            <i class="fas fa-book-open"></i>
+                            <h3 th:text="${course.title}">Course Title</h3>
+                        </div>
+                        <div class="course-body">
+                            <p class="course-description" th:text="${course.description}">Description</p>
+                            <div class="course-info">
+                                <span><i class="fas fa-chalkboard-user"></i> <span th:text="${course.teacherName}">Teacher</span></span>
+                                <span><i class="fas fa-folder"></i> <span th:text="${course.module}">Module</span></span>
+                                <span><i class="fas fa-graduation-cap"></i> <span th:text="${course.niveau}">Level</span></span>
+                            </div>
+                            
+                            <!-- Section Notation -->
+                            <div class="course-rating-section">
+                                <div class="stars-display">
+                                    <span th:each="i : ${#numbers.sequence(1, 5)}">
+                                        <i th:class="${i <= (course.averageRating != null ? course.averageRating : 0)} ? 'fas fa-star filled' : 'far fa-star empty'"></i>
+                                    </span>
+                                    <span class="rating-value" th:text="${#numbers.formatDecimal(course.averageRating != null ? course.averageRating : 0, 1, 1)}">0.0</span>
+                                    <span class="rating-count" th:text="'(' + (course.ratingCount != null ? course.ratingCount : 0) + ' avis)'">(0 avis)</span>
+                                </div>
+                                
+                                <!-- Si l'étudiant a déjà noté -->
+                                <div th:if="${course.userHasRated != null and course.userHasRated}" class="user-rating">
+                                    <i class="fas fa-check-circle"></i>
+                                    <span>You rated: 
+                                        <span th:each="i : ${#numbers.sequence(1, course.userRating != null ? course.userRating : 0)}">⭐</span>
+                                        <span th:if="${course.userRating != null and course.userRating < 5}">
+                                            <span th:each="i : ${#numbers.sequence(course.userRating + 1, 5)}">☆</span>
+                                        </span>
+                                    </span>
+                                </div>
+                                
+                                <!-- Si l'étudiant n'a pas noté -->
+                                <div th:unless="${course.userHasRated != null and course.userHasRated}">
+                                    <button class="btn-rate" th:data-id="${course.id}" th:data-title="${course.title}" onclick="openRatingModal(this)">
+                                        <i class="fas fa-star"></i> Rate this course
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <!-- Bouton Download -->
+                            <button class="btn-download" th:data-id="${course.id}" th:data-title="${course.title}" onclick="downloadCourse(this)">
+                                <i class="fas fa-download"></i> 
+                                <span th:if="${downloadedCourseIds != null and downloadedCourseIds.contains(course.id)}">Download Again</span>
+                                <span th:unless="${downloadedCourseIds != null and downloadedCourseIds.contains(course.id)}">Download Course</span>
+                            </button>
+                        </div>
                     </div>
                 </div>
-                <div style="margin-top: 1rem; display: flex; align-items: center; justify-content: space-between;">
-                    <div>
-                        <i class="fas fa-plug"></i> Connexion en temps réel active
-                        <span class="last-update">Dernière mise à jour : <span id="lastUpdate">--:--:--</span></span>
-                    </div>
-                    <button id="refreshBtn" class="refresh-btn">
-                        <i class="fas fa-sync-alt"></i> Actualiser
-                    </button>
-                </div>
-            </div>
-            
-            <div class="filter-bar">
-                <div class="filter-group">
-                    <select id="filterNiveau" class="filter-select">
-                        <option value="all">📚 All Levels</option>
-                        <option value="1year">🎓 1st Year</option>
-                        <option value="2year">📖 2nd Year</option>
-                        <option value="3year">🔬 3rd Year</option>
-                    </select>
-                    
-                    <select id="filterModule" class="filter-select">
-                        <option value="all">📂 All Modules</option>
-                    </select>
-                </div>
-                <div>
-                    <input type="text" id="searchInput" class="search-input" placeholder="🔍 Search courses...">
-                </div>
-                <button id="resetFilters" class="btn-reset">
-                    <i class="fas fa-undo-alt"></i> Reset
-                </button>
-            </div>
-            
-            <div class="courses-grid" id="coursesContainer">
-                <div class="loading-spinner">
-                    <i class="fas fa-spinner fa-spin fa-2x"></i>
-                    <p>Chargement des cours disponibles...</p>
+
+                <div th:if="${courses.isEmpty()}" class="empty-state">
+                    <i class="fas fa-book-open"></i>
+                    <h3>No courses available</h3>
+                    <p>There are no published courses at the moment.</p>
+                    <p class="empty-hint">Check back later for new courses!</p>
                 </div>
             </div>
         </main>
     </div>
 
-    <!-- ⭐ JQUERY DOIT ÊTRE CHARGÉ AVANT VOTRE SCRIPT ⭐ -->
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    
-    <!-- Lien vers le JavaScript -->
+    <!-- Modal de notation -->
+    <div id="ratingModal" class="rating-modal">
+        <div class="rating-modal-content">
+            <div class="rating-modal-header">
+                <h3><i class="fas fa-star"></i> Rate this course</h3>
+                <span class="rating-modal-close" onclick="closeRatingModal()">&times;</span>
+            </div>
+            <p id="modalCourseTitle" class="modal-course-title"></p>
+            <div class="rating-stars-input" id="ratingStarsInput">
+                <i class="far fa-star" data-value="1"></i>
+                <i class="far fa-star" data-value="2"></i>
+                <i class="far fa-star" data-value="3"></i>
+                <i class="far fa-star" data-value="4"></i>
+                <i class="far fa-star" data-value="5"></i>
+            </div>
+            <textarea id="ratingComment" class="rating-comment" placeholder="Your comment (optional)" rows="3"></textarea>
+            <input type="hidden" id="ratingCourseId">
+            <button class="btn-submit-rating" onclick="submitRating()">
+                <i class="fas fa-paper-plane"></i> Submit Rating
+            </button>
+        </div>
+    </div>
+
     <script th:src="@{/jsstudent/receive-courses.js}"></script>
 </body>
 </html>

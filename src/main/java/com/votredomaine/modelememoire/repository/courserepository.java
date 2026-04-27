@@ -16,6 +16,7 @@ public interface courserepository extends JpaRepository<Course, Long> {
     
     List<Course> findByNiveau(String niveau);
     
+    // ⭐ MÉTHODE CORRIGÉE : findByNiveauAndStatus
     List<Course> findByNiveauAndStatus(String niveau, String status);
     
     List<Course> findByStatus(String status);
@@ -36,10 +37,21 @@ public interface courserepository extends JpaRepository<Course, Long> {
     
     List<Course> findByTeacherNameContainingIgnoreCase(String teacherName);
     
-    // ========== REQUÊTES PERSONNALISÉES ==========
+    // ========== MÉTHODES POUR LES STATUTS ==========
     
-    @Query("SELECT c FROM Course c WHERE c.status = 'ACTIVE' ORDER BY c.createdAt DESC")
-    List<Course> findAllActiveCoursesOrderByDate();
+    List<Course> findByTeacherIdAndStatus(Long teacherId, String status);
+    
+    @Query("SELECT DISTINCT c.status FROM Course c WHERE c.teacherId = :teacherId")
+    List<String> findDistinctStatusByTeacherId(@Param("teacherId") Long teacherId);
+    
+    @Query("SELECT c FROM Course c WHERE c.status = 'PUBLISHED' ORDER BY c.createdAt DESC")
+    List<Course> findAllPublishedCoursesOrderByDate();
+    
+    @Query("SELECT c FROM Course c WHERE c.status = 'PENDING' ORDER BY c.createdAt DESC")
+    List<Course> findAllPendingCoursesOrderByDate();
+    
+    @Query("SELECT c FROM Course c WHERE c.status = 'VALIDATED' ORDER BY c.createdAt DESC")
+    List<Course> findAllValidatedCoursesOrderByDate();
     
     @Query("SELECT c FROM Course c WHERE " +
            "(:status IS NULL OR c.status = :status) AND " +

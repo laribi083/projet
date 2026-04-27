@@ -42,14 +42,14 @@
         </div>
         
         <div th:if="${param.passed != null and param.passed[0] == 'true'}" class="message">
-            <p style="color: #28a745;">🎉 Félicitations ! Vous avez réussi le quiz !</p>
+            <p style="color: #28a745;">🎉 Congratulations ! You passed the quiz !</p>
         </div>
         <div th:if="${param.passed == null or param.passed[0] == 'false'}" class="message">
-            <p style="color: #dc3545;">😔 Vous n'avez pas atteint le score minimum requis. Réessayez !</p>
+            <p style="color: #dc3545;">😔 You did not reach the minimum required score. Please try again!</p>
         </div>
         
         <a href="/student/dashboard" class="btn-home">
-            <i class="fas fa-home"></i> Retour au Dashboard
+            <i class="fas fa-home"></i> Return to Dashboard
         </a>
     </div>
     
